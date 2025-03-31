@@ -27,52 +27,69 @@ do
         Duration = 10-- Set to nil to make the notification not disappear
     })
 
-local settings = game:GetService("Players").LocalPlayer:FindFirstChild("Settings")
+    local settings = game:GetService("Players").LocalPlayer:FindFirstChild("Settings")
 
-if settings then local attributes = { AlwaysRun = true, AutoArise = true, AutoAttack = true }
+    if settings then
+        local attributes = { AlwaysRun = true, AutoArise = true, AutoAttack = true }
 
-for name, default in pairs(attributes) do
-    local toggle = Tabs.Main:AddToggle(name, { Title = name, Default = settings:GetAttribute(name) or default })
-    
-    toggle:OnChanged(function(value)
-        settings:SetAttribute(name, value)
-        print(name .. " changed to:", value)
-    end)
-end
+        for name, default in pairs(attributes) do
+            local toggle = Tabs.Settings:AddToggle(name, { Title = name, Default = settings:GetAttribute(name) or default })
+            
+            toggle:OnChanged(function(value)
+                settings:SetAttribute(name, value)
+                print(name .. " changed to:", value)
+            end)
+        end
 
-Fluent:Notify({ Title = "Fluent UI", Content = "Settings Loaded!", Duration = 5 })
+        Fluent:Notify({ Title = "Fluent UI", Content = "Settings Loaded!", Duration = 5 })
+    else
+        Fluent:Notify({ Title = "Error", Content = "Settings not found!", Duration = 5 })
+    end
 
-else Fluent:Notify({ Title = "Error", Content = "Settings not found!", Duration = 5 }) end
-
-
-
+    -- Adding Teleport Section
     Tabs.Teleport:AddParagraph({
         Title = "Teleport",
-        Content = "tp to island"
+        Content = "Select a location and teleport."
     })
 
+    -- Dropdown for selecting teleport location
+    local TeleportDropdown = Tabs.Teleport:AddDropdown("TeleportDropdown", {
+        Title = "เลือกสถานที่",
+        Values = {"Solo Leveling City", "JoJo city", "Castle"},
+        Multi = false,
+        Default = 1,
+    })
 
-
+    -- Teleport Button
     Tabs.Teleport:AddButton({
-        Title = "Solo leveling",
-        Description = "tp to Solo leveling city",
+        Title = "Teleport",
+        Description = "Teleport to selected location",
         Callback = function()
-            Window:Dialog({
-                Title = "TP",
-                Content = "Are you sure you want to teleport?",
-                Buttons = {
-                    {
-                        Title = "Confirm",
-                        Callback = function()
-              Delays = 10; target = CFrame.new(576.453369140625, 28.434574127197266, 272.19970703125)
-Tween = TweenInfo.new(Delays, Enum.EasingStyle.Linear)
-local tween = game:GetService('TweenService'):Create(game.Players.LocalPlayer.Character.HumanoidRootPart,Tween,{CFrame = target})
-tween:Play()
-tween.Completed:Wait()
-                        end
-                    },
-                }
-            })
+            local selectedValue = TeleportDropdown.Value
+            local teleportLocations = {
+                ["Solo Leveling City"] = CFrame.new(576.453369140625, 28.434574127197266, 272.19970703125),
+                ["JoJo city"] = CFrame.new(4872.19873, 41.0314293, -113.925926, -0.0977165624, 6.15684598e-07, -0.995214283, 5.63333913e-07, 1, 5.63333515e-07, 0.995214283, -5.05590947e-07, -0.0977165624), -- Change this to actual location
+                ["Castle"] = CFrame.new(50, 10, 50),  -- Change this to actual location
+            }
+
+            -- Check if location exists in teleportLocations
+            if teleportLocations[selectedValue] then
+                -- Teleport the player to the selected location
+                local target = teleportLocations[selectedValue]
+                game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(target)
+                Fluent:Notify({
+                    Title = "Teleporting",
+                    Content = "You are teleporting to " .. selectedValue,
+                    Duration = 5
+                })
+            else
+                Fluent:Notify({
+                    Title = "Error",
+                    Content = "Invalid location selected!",
+                    Duration = 5
+                })
+            end
         end
     })
+
 end
