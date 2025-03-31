@@ -55,7 +55,7 @@ do
     -- Dropdown for selecting teleport location
     local TeleportDropdown = Tabs.Teleport:AddDropdown("TeleportDropdown", {
         Title = "เลือกสถานที่",
-        Values = {"Solo Leveling City", "JoJo", "Castle"},
+        Values = {"Leveling City", 'Grass Village", "Brum Island", "Faceheal Town", "Lucky Kingdom", "Nipon City", "Mori Town"},
         Multi = false,
         Default = 1,
     })
@@ -67,9 +67,13 @@ do
         Callback = function()
             local selectedValue = TeleportDropdown.Value
             local teleportLocations = {
-                ["Solo Leveling City"] = CFrame.new(576.453369140625, 28.434574127197266, 272.19970703125),
-                ["JoJo"] = CFrame.new(4872.19873, 41.0314293, -113.925926, -0.0977165624, 6.15684598e-07, -0.995214283, 5.63333913e-07, 1, 5.63333515e-07, 0.995214283, -5.05590947e-07, -0.0977165624), -- Change this to actual location
-                ["Castle"] = CFrame.new(50, 10, 50),  -- Change this to actual location
+                ["Leveling City"] = CFrame.new(576.453369140625, 28.434574127197266, 272.19970703125),
+                ["Mori Town"] = CFrame.new(4872.19873, 41.0314293, -113.925926, -0.0977165624, 6.15684598e-07, -0.995214283, 5.63333913e-07, 1, 5.63333515e-07, 0.995214283, -5.05590947e-07, -0.0977165624), -- Change this to actual location
+                ["Grass Village"] = CFrame.new(50, 10, 50), -- Change this to actual location
+                ["Brum Island"] = CFrame.new(0, 0, 0),
+                ["Faceheal Town"] = CFrame.new(0, 0, 0),
+                ["Lucky Kingdom"] = CFrame.new(0, 0, 0),
+                ["Niop City"] = CFrame.new(0, 0, 0),
             }
 
             -- Check if location exists in teleportLocations
