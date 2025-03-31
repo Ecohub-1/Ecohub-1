@@ -53,7 +53,7 @@ Tabs.Teleport:AddParagraph({ Title = "Teleport", Content = "Select a location an
 
 local TeleportDropdown = Tabs.Teleport:AddDropdown("TeleportDropdown", { 
     Title = "เลือกสถานที่", 
-    Values = {"Leveling City", "Grass Village", "Brum Island", "Faceheal Town", "Lucky Kingdom", "Nipon City", "Mori Town"}, 
+    Values = {"Leveling City", "Grass Village", "Brum Island", "Faceheal Town", "Lucky Kingdom", "Nipon City", "Mori Town", "ant island"}, 
     Multi = false, 
     Default = 1, 
 })
@@ -71,6 +71,7 @@ Tabs.Teleport:AddButton({
             ["Faceheal Town"] = CFrame.new(2637.912, 45.426, -2623.082),
             ["Lucky Kingdom"] = CFrame.new(197.094, 38.707, 4298.842),
             ["Nipon City"] = CFrame.new(183.854, 32.896, -4297.652),
+            ["ant island"] = CFrame.new(3839.946533203125, 60.12275695800781, 3003.159423828125),
         }
 
         local player = game.Players.LocalPlayer
