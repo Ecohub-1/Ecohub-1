@@ -22,6 +22,7 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "align-left" }),
+    AutoRank = Window:AddTab({ Title = "Rank", Icon = "layers" }),
     Teleport = Window:AddTab({ Title = "Teleport", Icon = "layers" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
