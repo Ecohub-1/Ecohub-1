@@ -69,11 +69,11 @@ do
             local teleportLocations = {
                 ["Leveling City"] = CFrame.new(576.453369140625, 28.434574127197266, 272.19970703125),
                 ["Mori Town"] = CFrame.new(4872.19873, 41.0314293, -113.925926, -0.0977165624, 6.15684598e-07, -0.995214283, 5.63333913e-07, 1, 5.63333515e-07, 0.995214283, -5.05590947e-07, -0.0977165624), -- Change this to actual location
-                ["Grass Village"] = CFrame.new(50, 10, 50), -- Change this to actual location
-                ["Brum Island"] = CFrame.new(0, 0, 0),
-                ["Faceheal Town"] = CFrame.new(0, 0, 0),
-                ["Lucky Kingdom"] = CFrame.new(0, 0, 0),
-                ["Niop City"] = CFrame.new(0, 0, 0),
+                ["Grass Village"] = CFrame.new(-3379.501953125, 30.260438919067383, 2242.38818359375), -- Change this to actual location
+                ["Brum Island"] = CFrame.new(-2846.381591796875, 49.48434066772461, -2015.288330078125),
+                ["Faceheal Town"] = CFrame.new(2637.912353515625, 45.4265251159668, -2623.082275390625),
+                ["Lucky Kingdom"] = CFrame.new(197.09400939941406, 38.70767593383789, 4298.841796875),
+                ["Niop City"] = CFrame.new(183.85418701171875, 32.896095275878906, -4297.65234375),
             }
 
             -- Check if location exists in teleportLocations
