@@ -33,7 +33,7 @@ do
         local attributes = { AlwaysRun = true, AutoArise = true, AutoAttack = true }
 
         for name, default in pairs(attributes) do
-            local toggle = Tabs.Settings:AddToggle(name, { Title = name, Default = settings:GetAttribute(name) or default })
+            local toggle = Tabs.Main:AddToggle(name, { Title = name, Default = settings:GetAttribute(name) or default })
             
             toggle:OnChanged(function(value)
                 settings:SetAttribute(name, value)
@@ -55,7 +55,7 @@ do
     -- Dropdown for selecting teleport location
     local TeleportDropdown = Tabs.Teleport:AddDropdown("TeleportDropdown", {
         Title = "เลือกสถานที่",
-        Values = {"Solo Leveling City", "JoJo city", "Castle"},
+        Values = {"Solo Leveling City", "JoJo", "Castle"},
         Multi = false,
         Default = 1,
     })
@@ -68,15 +68,22 @@ do
             local selectedValue = TeleportDropdown.Value
             local teleportLocations = {
                 ["Solo Leveling City"] = CFrame.new(576.453369140625, 28.434574127197266, 272.19970703125),
-                ["JoJo city"] = CFrame.new(4872.19873, 41.0314293, -113.925926, -0.0977165624, 6.15684598e-07, -0.995214283, 5.63333913e-07, 1, 5.63333515e-07, 0.995214283, -5.05590947e-07, -0.0977165624), -- Change this to actual location
+                ["JoJo"] = CFrame.new(4872.19873, 41.0314293, -113.925926, -0.0977165624, 6.15684598e-07, -0.995214283, 5.63333913e-07, 1, 5.63333515e-07, 0.995214283, -5.05590947e-07, -0.0977165624), -- Change this to actual location
                 ["Castle"] = CFrame.new(50, 10, 50),  -- Change this to actual location
             }
 
             -- Check if location exists in teleportLocations
             if teleportLocations[selectedValue] then
-                -- Teleport the player to the selected location
+                -- Teleport the player to the selected location smoothly using Tween
                 local target = teleportLocations[selectedValue]
-                game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(target)
+                local delay = 1 -- Duration for the tween
+
+                local tweenInfo = TweenInfo.new(delay, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                local tween = game:GetService('TweenService'):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = target})
+                
+                tween:Play() -- Start the tween
+                tween.Completed:Wait() -- Wait for the tween to complete before doing anything else
+                
                 Fluent:Notify({
                     Title = "Teleporting",
                     Content = "You are teleporting to " .. selectedValue,
