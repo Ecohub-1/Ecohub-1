@@ -27,6 +27,23 @@ do
         Duration = 10-- Set to nil to make the notification not disappear
     })
 
+local settings = game:GetService("Players").LocalPlayer:FindFirstChild("Settings")
+
+if settings then local attributes = { AlwaysRun = true, AutoArise = true, AutoAttack = true }
+
+for name, default in pairs(attributes) do
+    local toggle = Tabs.Main:AddToggle(name, { Title = name, Default = settings:GetAttribute(name) or default })
+    
+    toggle:OnChanged(function(value)
+        settings:SetAttribute(name, value)
+        print(name .. " changed to:", value)
+    end)
+end
+
+Fluent:Notify({ Title = "Fluent UI", Content = "Settings Loaded!", Duration = 5 })
+
+else Fluent:Notify({ Title = "Error", Content = "Settings not found!", Duration = 5 }) end
+
 
 
     Tabs.Teleport:AddParagraph({
