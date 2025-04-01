@@ -31,21 +31,6 @@ local Options = Fluent.Options
 
 Fluent:Notify({ Title = "Eco Hub", Content = "", SubContent = "Thank for playing", Duration = 10 })
 
-
-local autoClickEnabled = false
-local VirtualInputManager = game:GetService("VirtualInputManager")
-
-local autoClickToggle = Tabs.Main:AddToggle("AutoClick", { Title = "Auto Click", Default = false })
-
-autoClickToggle:OnChanged(function(value)
-    autoClickEnabled = value
-    while autoClickEnabled do
-        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1)
-        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
-        wait(0.1) -- ปรับความเร็วคลิก
-        end
-
-
 -- เพิ่มส่วน Settings สำหรับการตั้งค่าต่างๆ
 local settings = game:GetService("Players").LocalPlayer:FindFirstChild("Settings")
 
