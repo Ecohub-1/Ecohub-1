@@ -35,7 +35,7 @@ Fluent:Notify({ Title = "Eco Hub", Content = "", SubContent = "Thank for playing
 local settings = game:GetService("Players").LocalPlayer:FindFirstChild("Settings")
 
 if settings then
-    local attributes = { AlwaysRun = true, AutoArise = true, AutoAttack = true }
+    local attributes = { AlwaysRun = true, AutoArise = true, AutoAttack = true, AutoDestroy = true }
 
     for name, default in pairs(attributes) do
         local toggle = Tabs.Settings:AddToggle(name, { Title = name, Default = settings:GetAttribute(name) or default })
