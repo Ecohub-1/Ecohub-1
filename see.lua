@@ -49,15 +49,14 @@ local autoEquipRunning = false
 -- ฟังก์ชันสำหรับ Auto Equip
 local function autoEquip()
     if autoEquipRunning then
-        -- ทำการสวมใส่เครื่องมือที่สามารถทำดาเมจได้จาก Backpack ไปที่ Character
+        -- ทำการสวมใส่เครื่องมือที่มีประเภทไม่ใช่ "Items"
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
-                -- ตรวจสอบว่าเครื่องมือสามารถทำดาเมจได้
-                local damage = tool:FindFirstChild("Damage")
-                local isWeapon = tool:FindFirstChild("Weapon")
-
-                if (damage and damage.Value > 0) or isWeapon then
-                    -- ถ้ามี Damage หรือเป็น Weapon, ก็ให้สวมใส่เครื่องมือ
+                -- ตรวจสอบว่าเครื่องมือมีประเภทที่ไม่ใช่ "Items"
+                local itemType = tool:FindFirstChild("Type")
+                
+                if itemType and itemType.Value ~= "Items" then
+                    -- ถ้า Type ไม่ใช่ "Items", ก็ให้สวมใส่เครื่องมือ
                     if tool.Parent ~= player.Character then
                         tool.Parent = player.Character
                     end
@@ -90,11 +89,10 @@ toggle:OnChanged(function()
             if child:IsA("Tool") then
                 wait(0.1) -- รอให้มันใส่เข้า backpack เสร็จ
                 if autoEquipRunning then
-                    -- ตรวจสอบว่าเครื่องมือที่เพิ่มมาเป็นเครื่องมือที่สามารถทำดาเมจได้
-                    local damage = child:FindFirstChild("Damage")
-                    local isWeapon = child:FindFirstChild("Weapon")
+                    -- ตรวจสอบว่าเครื่องมือที่เพิ่มมาเป็นเครื่องมือที่มีประเภทไม่ใช่ "Items"
+                    local itemType = child:FindFirstChild("Type")
                     
-                    if (damage and damage.Value > 0) or isWeapon then
+                    if itemType and itemType.Value ~= "Items" then
                         child.Parent = player.Character
                     end
                 end
