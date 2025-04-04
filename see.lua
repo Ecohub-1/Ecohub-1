@@ -45,7 +45,7 @@ SaveManager:BuildConfigSection(Tabs.misc)
 
 -- ตัวแปรเพื่อติดตามสถานะการทำงานของ Auto Equip
 local autoEquipRunning = false
-local selectedType = "A"  -- ค่าเริ่มต้นของ Type ที่เลือกจาก Dropdown
+local selectedType = "Melee"  -- ค่าเริ่มต้นของ Type ที่เลือกจาก Dropdown
 
 -- ฟังก์ชันสำหรับ Auto Equip
 local function autoEquip()
@@ -57,7 +57,7 @@ local function autoEquip()
                 local itemType = tool:FindFirstChild("Type")
                 
                 -- หากไม่มี Type หรือ Type ตรงกับที่เลือกใน Dropdown
-                if not itemType or (itemType and itemType.Value == selectedType) then
+                if itemType and itemType.Value == selectedType then
                     -- สวมใส่เครื่องมือ
                     if tool.Parent ~= player.Character then
                         tool.Parent = player.Character
@@ -94,8 +94,8 @@ toggle:OnChanged(function()
                     -- ตรวจสอบว่าเครื่องมือที่เพิ่มมาเป็นเครื่องมือที่มีประเภทตรงกับที่เลือกใน Dropdown
                     local itemType = child:FindFirstChild("Type")
                     
-                    -- หากไม่มี Type หรือ Type ตรงกับที่เลือก, ให้สวมใส่เครื่องมือ
-                    if not itemType or (itemType and itemType.Value == selectedType) then
+                    -- หาก Type ตรงกับที่เลือก, ให้สวมใส่เครื่องมือ
+                    if itemType and itemType.Value == selectedType then
                         child.Parent = player.Character
                     end
                 end
@@ -118,7 +118,7 @@ end)
 -- สร้าง Dropdown ในแท็บ Settings
 local dropdown = Tabs.Settings:AddDropdown("MyDropdown", {
     Title = "เลือก Type ของเครื่องมือ",
-    Values = {"A", "B", "C"},
+    Values = {"Melee", "Sword", "DevilFruit"},
     Default = 1
 })
 
