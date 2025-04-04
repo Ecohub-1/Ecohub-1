@@ -137,7 +137,7 @@ Fluent:Notify({
     Title = "Notify | by zer09Xz",
     Content = "Succeed",
     Duration = 5
-}
+})
 
 -- โหลดการตั้งค่าจาก SaveManager
 SaveManager:LoadAutoloadConfig()
