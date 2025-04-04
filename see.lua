@@ -93,25 +93,28 @@ end)
 local autoClicking = false
 local clickDelay = 0.1
 
-local autoClickToggle = Tabs.Settings:AddToggle("AutoClickToggle", {
+Tabs.Settings:AddToggle("AutoClickToggle", {
     Title = "เปิด/ปิด Auto Click (Tool)",
     Default = false
-})
-
-autoClickToggle:OnChanged(function(value)
+}):OnChanged(function(value)
     autoClicking = value
 end)
 
-Tabs.Settings:AddSlider("ClickDelaySlider", {
-    Title = "หน่วงเวลาคลิก (วินาที)",
-    Description = "ค่าน้อย = คลิกเร็ว",
-    Min = 0.05,
-    Max = 1,
-    Default = 0.1,
-    Rounding = true,
-    Callback = function(value)
-        if type(value) == "number" then
-            clickDelay = value
+Tabs.Settings:AddInput("ClickDelayInput", {
+    Title = "ความเร็ว Auto Click (วินาที)",
+    Default = "0.1",
+    Placeholder = "ใส่ตัวเลข เช่น 0.1",
+    Numeric = true,
+    Callback = function(text)
+        local number = tonumber(text)
+        if number and number > 0 then
+            clickDelay = number
+        else
+            Fluent:Notify({
+                Title = "Eco Hub",
+                Content = "กรุณาใส่ตัวเลขที่มากกว่า 0",
+                Duration = 3
+            })
         end
     end
 })
