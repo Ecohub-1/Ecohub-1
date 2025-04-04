@@ -31,6 +31,9 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
 
+-- ตรวจสอบว่า backpack ถูกต้องหรือไม่
+print("Backpack: ", backpack)
+
 -- ตั้งค่า SaveManager และ InterfaceManager
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
@@ -49,6 +52,7 @@ local autoEquipRunning = false
 -- ฟังก์ชันสำหรับ Auto Equip
 local function autoEquip()
     if autoEquipRunning then
+        print("Auto Equip เริ่มทำงาน")  -- ตรวจสอบว่า autoEquip ทำงานหรือไม่
         -- ทำการสวมใส่เครื่องมือที่สามารถทำดาเมจได้จาก Backpack ไปที่ Character
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
@@ -56,9 +60,12 @@ local function autoEquip()
                 local damage = tool:FindFirstChild("Damage")
                 local isWeapon = tool:FindFirstChild("Weapon") -- ถ้ามี Weapon เป็น Child
 
+                print("กำลังตรวจสอบเครื่องมือ: ", tool.Name)  -- ตรวจสอบว่าเครื่องมือที่กำลังตรวจสอบคืออะไร
+
                 if damage or isWeapon then
                     -- ถ้ามี Damage หรือเป็น Weapon, ก็ให้สวมใส่เครื่องมือ
                     tool.Parent = player.Character
+                    print("สวมใส่เครื่องมือ: ", tool.Name)  -- แจ้งว่าเครื่องมือได้ถูกสวมใส่
                 end
             end
         end
@@ -97,6 +104,7 @@ toggle:OnChanged(function()
                     
                     if damage or isWeapon then
                         child.Parent = player.Character
+                        print("สวมใส่เครื่องมือที่เพิ่มมา: ", child.Name)  -- แจ้งว่าเครื่องมือที่เพิ่มมาได้ถูกสวมใส่
                     end
                 end
             end
@@ -124,12 +132,12 @@ Fluent:Notify({
     Content = "script loaded.",
     Duration = 3
 })
-wait(2)
+wait(3)
 Fluent:Notify({
     Title = "Notify | by zer09Xz",
     Content = "Succeed",
-    Duration = 4
-})
+    Duration = 5
+}
 
 -- โหลดการตั้งค่าจาก SaveManager
 SaveManager:LoadAutoloadConfig()
