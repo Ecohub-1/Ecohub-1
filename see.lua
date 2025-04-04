@@ -1,4 +1,3 @@
-
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -45,11 +44,33 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 InterfaceManager:BuildInterfaceSection(Tabs.misc)
 SaveManager:BuildConfigSection(Tabs.misc)
 
+-- ตัวแปรเพื่อติดตามสถานะการทำงานของ Auto Equip
+local autoEquipRunning = false
+
+-- ฟังก์ชันสำหรับ Auto Equip
+local function autoEquip()
+    if autoEquipRunning then
+        -- ทำการสวมใส่เครื่องมืออัตโนมัติ
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") then
+                tool.Parent = player.Character
+                break
+            end
+        end
+    end
+end
+
 -- ฟังก์ชันหยุดทำงาน Auto Equip
 local function stopAutoEquip()
     autoEquipRunning = false
     print("Auto Equip หยุดทำงาน")
 end
+
+-- สร้าง Toggle สำหรับ Auto Equip
+local toggle = Tabs.Main:AddToggle("MyToggle", {
+    Title = "เปิด/ปิด Auto Equip",
+    Default = false
+})
 
 -- ตรวจสอบเมื่อสถานะของ Toggle เปลี่ยน
 toggle:OnChanged(function()
