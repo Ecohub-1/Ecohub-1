@@ -164,6 +164,11 @@ task.spawn(function()
         end
     end
 end)
+------------------
+ --Auto Store
+------------------
+Tabs.Settings:AddSection("Auto Store")
+
 
 --------------------------
 -- เริ่มต้น
