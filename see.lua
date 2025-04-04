@@ -28,27 +28,6 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
 
--- Toggle: Auto Activate Tool
-local AutoToolToggle = Tabs.Settings:AddToggle("AutoToolToggle", {
-    Title = "Auto Equip Tool",
-    Default = false
-})
-
--- ฟังก์ชันทำงานวนซ้ำเมื่อ Toggle เปิด
-task.spawn(function()
-    while true do
-        task.wait(1) -- ปรับความถี่ตามต้องการ
-        if Options.AutoToolToggle.Value then
-            local tool = backpack:FindFirstChildOfClass("Tool")
-            if tool then
-                tool:Activate()
-                print("Tool Activated Automatically")
-            end
-        end
-        if Fluent.Unloaded then break end
-    end
-end)
-
 -- SaveManager & InterfaceManager Setup
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
