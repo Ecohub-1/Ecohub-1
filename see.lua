@@ -118,8 +118,8 @@ end)
 -- สร้าง Dropdown ในแท็บ Settings
 local dropdown = Tabs.Settings:AddDropdown("MyDropdown", {
     Title = "เลือกตัวเลือก",
-    Values = {"A", "B", "C"},
-    Default = 1
+    Values = {"Melee", "Sword", "DevilFruit", ""},
+    Default = 2
 })
 
 dropdown:OnChanged(function(Value)
