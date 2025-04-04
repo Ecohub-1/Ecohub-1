@@ -93,16 +93,20 @@ end)
 local autoClicking = false
 local clickDelay = 0.1
 
-Tabs.Settings:AddToggle("AutoClickToggle", {
+-- เพิ่ม Toggle สำหรับ Auto Click
+local autoClickToggle = Tabs.Settings:AddToggle("AutoClickToggle", {
     Title = "เปิด/ปิด Auto Click",
     Default = false
-}):OnChanged(function(value)
+})
+
+autoClickToggle:OnChanged(function(value)
     autoClicking = value
 end)
 
+-- สร้าง Slider ปรับความเร็วในการคลิก
 Tabs.Settings:AddSlider("ClickSpeedSlider", {
-    Title = "ความเร็ว Auto Click (วินาที)",
-    Description = "ยิ่งน้อยยิ่งคลิกเร็ว",
+    Title = "Auto click",
+    Description = "speed is op",
     Min = 0.01,
     Max = 1,
     Default = 0.1,
@@ -112,6 +116,7 @@ Tabs.Settings:AddSlider("ClickSpeedSlider", {
     end
 })
 
+-- ระบบ Auto Click
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local RunService = game:GetService("RunService")
 
