@@ -57,10 +57,12 @@ local function autoEquip()
                 local itemType = tool:FindFirstChild("Type")
                 
                 -- หากไม่มี Type หรือ Type ตรงกับที่เลือกใน Dropdown
-                if itemType and itemType.Value == selectedType then
-                    -- สวมใส่เครื่องมือ
-                    if tool.Parent ~= player.Character then
-                        tool.Parent = player.Character
+                if itemType then
+                    if itemType.Value == selectedType then
+                        -- ถ้า Type ของเครื่องมือตรงกับที่เลือก, ให้สวมใส่
+                        if tool.Parent ~= player.Character then
+                            tool.Parent = player.Character
+                        end
                     end
                 end
             end
