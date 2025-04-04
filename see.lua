@@ -108,11 +108,11 @@ Tabs.Settings:AddSlider("ClickSpeedSlider", {
     Title = "Auto click",
     Description = "speed is op",
     Min = 0.01,
-    Max = 1,
+    Max = 2,
     Default = 0.1,
     Rounding = true,
     Callback = function(value)
-        clickDelay = value
+        clickDelay = 0.5
     end
 })
 
