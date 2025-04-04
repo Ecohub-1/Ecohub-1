@@ -52,11 +52,12 @@ local function autoEquip()
         -- ทำการสวมใส่เครื่องมือที่มีประเภทไม่ใช่ "Items"
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
-                -- ตรวจสอบว่าเครื่องมือมีประเภทที่ไม่ใช่ "Items"
+                -- ตรวจสอบว่าเครื่องมือมี Type หรือไม่ และ Type ไม่ใช่ "Items"
                 local itemType = tool:FindFirstChild("Type")
                 
-                if itemType and itemType.Value ~= "Items" then
-                    -- ถ้า Type ไม่ใช่ "Items", ก็ให้สวมใส่เครื่องมือ
+                -- หากไม่มี Type, ให้สวมใส่เครื่องมือ
+                if not itemType or (itemType and itemType.Value ~= "Items") then
+                    -- ถ้า Type ไม่ใช่ "Items" หรือไม่มี Type เลย
                     if tool.Parent ~= player.Character then
                         tool.Parent = player.Character
                     end
@@ -92,7 +93,8 @@ toggle:OnChanged(function()
                     -- ตรวจสอบว่าเครื่องมือที่เพิ่มมาเป็นเครื่องมือที่มีประเภทไม่ใช่ "Items"
                     local itemType = child:FindFirstChild("Type")
                     
-                    if itemType and itemType.Value ~= "Items" then
+                    -- หากไม่มี Type หรือ Type ไม่ใช่ "Items", ให้สวมใส่เครื่องมือ
+                    if not itemType or (itemType and itemType.Value ~= "Items") then
                         child.Parent = player.Character
                     end
                 end
