@@ -31,9 +31,6 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
 
--- ตรวจสอบว่า backpack ถูกต้องหรือไม่
-print("Backpack: ", backpack)  -- ตรวจสอบว่า Backpack ถูกโหลดเสร็จหรือไม่
-
 -- ตั้งค่า SaveManager และ InterfaceManager
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
@@ -52,20 +49,18 @@ local autoEquipRunning = false
 -- ฟังก์ชันสำหรับ Auto Equip
 local function autoEquip()
     if autoEquipRunning then
-        print("Auto Equip เริ่มทำงาน")  -- ตรวจสอบว่า autoEquip ทำงานหรือไม่
         -- ทำการสวมใส่เครื่องมือที่สามารถทำดาเมจได้จาก Backpack ไปที่ Character
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
                 -- ตรวจสอบว่าเครื่องมือสามารถทำดาเมจได้
                 local damage = tool:FindFirstChild("Damage")
-                local isWeapon = tool:FindFirstChild("Weapon") -- ถ้ามี Weapon เป็น Child
+                local isWeapon = tool:FindFirstChild("Weapon")
 
-                print("กำลังตรวจสอบเครื่องมือ: ", tool.Name)  -- ตรวจสอบว่าเครื่องมือที่กำลังตรวจสอบคืออะไร
-
-                if damage or isWeapon then
+                if (damage and damage.Value > 0) or isWeapon then
                     -- ถ้ามี Damage หรือเป็น Weapon, ก็ให้สวมใส่เครื่องมือ
-                    tool.Parent = player.Character
-                    print("สวมใส่เครื่องมือ: ", tool.Name)  -- แจ้งว่าเครื่องมือได้ถูกสวมใส่
+                    if tool.Parent ~= player.Character then
+                        tool.Parent = player.Character
+                    end
                 end
             end
         end
@@ -75,7 +70,6 @@ end
 -- ฟังก์ชันหยุดทำงาน Auto Equip
 local function stopAutoEquip()
     autoEquipRunning = false
-    print("Auto Equip หยุดทำงาน")
 end
 
 -- สร้าง Toggle สำหรับ Auto Equip
@@ -86,8 +80,6 @@ local toggle = Tabs.Settings:AddToggle("MyToggle", {
 
 -- ตรวจสอบเมื่อสถานะของ Toggle เปลี่ยน
 toggle:OnChanged(function()
-    print("สถานะ Toggle:", toggle.Value)
-    
     if toggle.Value then
         -- เมื่อเปิด toggle ให้เริ่มทำงาน Auto Equip
         autoEquipRunning = true
@@ -95,7 +87,6 @@ toggle:OnChanged(function()
         
         -- เชื่อมกับการเพิ่ม Tool ใหม่ใน Backpack
         backpack.ChildAdded:Connect(function(child)
-            print("เครื่องมือใหม่ถูกเพิ่ม:", child.Name)  -- แจ้งว่าเครื่องมือใหม่ถูกเพิ่มเข้าไปใน Backpack
             if child:IsA("Tool") then
                 wait(0.1) -- รอให้มันใส่เข้า backpack เสร็จ
                 if autoEquipRunning then
@@ -103,9 +94,8 @@ toggle:OnChanged(function()
                     local damage = child:FindFirstChild("Damage")
                     local isWeapon = child:FindFirstChild("Weapon")
                     
-                    if damage or isWeapon then
+                    if (damage and damage.Value > 0) or isWeapon then
                         child.Parent = player.Character
-                        print("สวมใส่เครื่องมือที่เพิ่มมา: ", child.Name)  -- แจ้งว่าเครื่องมือที่เพิ่มมาได้ถูกสวมใส่
                     end
                 end
             end
