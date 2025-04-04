@@ -17,7 +17,7 @@ local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
     Dungeon = Window:AddTab({ Title = "Auto Dungeon", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-    Settingsl = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    misc = Window:AddTab({ Title = "misc", Icon = "" })
 }
 
 Tabs.Settings:AddParagraph({
@@ -42,8 +42,8 @@ SaveManager:SetIgnoreIndexes({})
 InterfaceManager:SetFolder("FluentScriptHub")
 SaveManager:SetFolder("FluentScriptHub/specific-game")
 
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
+InterfaceManager:BuildInterfaceSection(Tabs.misc)
+SaveManager:BuildConfigSection(Tabs.misc)
 
 -- ฟังก์ชันหยุดทำงาน Auto Equip
 local function stopAutoEquip()
