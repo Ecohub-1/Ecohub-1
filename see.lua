@@ -1,4 +1,4 @@
-เเก้ใน local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
@@ -23,7 +23,6 @@ Tabs.Settings:AddParagraph({
     Title = "Auto Setting",
     Content = "Setting Autoskill and AutoCilck"
 })
-
 
 local Options = Fluent.Options
 
@@ -50,11 +49,17 @@ local autoEquipRunning = false
 -- ฟังก์ชันสำหรับ Auto Equip
 local function autoEquip()
     if autoEquipRunning then
-        -- ทำการสวมใส่เครื่องมือทั้งหมดจาก Backpack ไปที่ Character
+        -- ทำการสวมใส่เครื่องมือที่สามารถทำดาเมจได้จาก Backpack ไปที่ Character
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
-                -- ถ้ามีเครื่องมือใน Backpack ให้สวมใส่ทุกชิ้น
-                tool.Parent = player.Character
+                -- ตรวจสอบว่าเครื่องมือสามารถทำดาเมจได้
+                local damage = tool:FindFirstChild("Damage")
+                local isWeapon = tool:FindFirstChild("Weapon") -- ถ้ามี Weapon เป็น Child
+
+                if damage or isWeapon then
+                    -- ถ้ามี Damage หรือเป็น Weapon, ก็ให้สวมใส่เครื่องมือ
+                    tool.Parent = player.Character
+                end
             end
         end
     end
@@ -86,7 +91,13 @@ toggle:OnChanged(function()
             if child:IsA("Tool") then
                 wait(0.1) -- รอให้มันใส่เข้า backpack เสร็จ
                 if autoEquipRunning then
-                    child.Parent = player.Character
+                    -- ตรวจสอบว่าเครื่องมือที่เพิ่มมาเป็นเครื่องมือที่สามารถทำดาเมจได้
+                    local damage = child:FindFirstChild("Damage")
+                    local isWeapon = child:FindFirstChild("Weapon")
+                    
+                    if damage or isWeapon then
+                        child.Parent = player.Character
+                    end
                 end
             end
         end)
@@ -111,30 +122,14 @@ Window:SelectTab(1)
 Fluent:Notify({
     Title = "Notify | by zer09Xz",
     Content = "script loaded.",
-    Duration = 5
+    Duration = 3
 })
-wait(5)
+wait(2)
 Fluent:Notify({
     Title = "Notify | by zer09Xz",
     Content = "Succeed",
-    Duration = 5
-    })
-
--- โหลดการตั้งค่าจาก SaveManager
-SaveManager:LoadAutoloadConfig()
-
--- แจ้งเตือนเมื่อสคริปต์โหลดเสร็จ
-Fluent:Notify({
-    Title = "Notify | by zer09Xz",
-    Content = "script loaded.",
-    Duration = 5
+    Duration = 4
 })
-wait(5)
-Fluent:Notify({
-    Title = "Notify | by zer09Xz",
-    Content = "Succeed",
-    Duration = 5
-    })
 
 -- โหลดการตั้งค่าจาก SaveManager
 SaveManager:LoadAutoloadConfig()
