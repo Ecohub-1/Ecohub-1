@@ -16,6 +16,10 @@ local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
+Tabs.Main:AddParagraph({
+    Title = "Auto Setting",
+    Content = "Setting Autoskill and AutoCilkc"
+})
 
 local Options = Fluent.Options
 
