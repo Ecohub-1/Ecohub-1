@@ -13,10 +13,10 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Dungeon = Window:AddTab({ Title = "Auto Dungeon", Icon = "" }),
+    Main = Window:AddTab({ Title = "Main", Icon = "house" }),
+    Dungeon = Window:AddTab({ Title = "Auto Dungeon", Icon = "radar" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-    misc = Window:AddTab({ Title = "misc", Icon = "" })
+    misc = Window:AddTab({ Title = "misc", Icon = "align-justify" })
 }
 
 Tabs.Settings:AddParagraph({
