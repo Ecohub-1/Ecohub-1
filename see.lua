@@ -61,8 +61,15 @@ local function autoEquip()
                     if itemType.Value == selectedType then
                         -- ถ้า Type ของเครื่องมือตรงกับที่เลือก, ให้สวมใส่
                         if tool.Parent ~= player.Character then
+                            print("Equipping tool: " .. tool.Name)  -- ล็อกการทำงานเพื่อดูผล
                             tool.Parent = player.Character
                         end
+                    end
+                else
+                    -- ถ้าไม่มี Type ก็ให้ทำการสวมใส่เครื่องมือ
+                    if tool.Parent ~= player.Character then
+                        print("Equipping tool (no Type): " .. tool.Name)  -- ล็อกการทำงานเพื่อดูผล
+                        tool.Parent = player.Character
                     end
                 end
             end
@@ -98,6 +105,7 @@ toggle:OnChanged(function()
                     
                     -- หาก Type ตรงกับที่เลือก, ให้สวมใส่เครื่องมือ
                     if itemType and itemType.Value == selectedType then
+                        print("Equipping new tool: " .. child.Name)  -- ล็อกการทำงานเพื่อดูผล
                         child.Parent = player.Character
                     end
                 end
