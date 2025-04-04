@@ -105,14 +105,19 @@ end)
 
 -- สร้าง Slider ปรับความเร็วในการคลิก
 Tabs.Settings:AddSlider("ClickSpeedSlider", {
-    Title = "Auto click",
-    Description = "speed is op",
+    Title = "ความเร็ว Auto Click (วินาที)",
+    Description = "ยิ่งน้อยยิ่งคลิกเร็ว",
     Min = 0.01,
-    Max = 2,
+    Max = 1,
     Default = 0.1,
     Rounding = true,
     Callback = function(value)
-        clickDelay = 0.5
+        -- ตรวจสอบว่า value เป็นตัวเลขก่อนที่จะปรับค่า
+        if type(value) == "number" then
+            clickDelay = value
+        else
+            print("ค่า clickDelay ไม่ถูกต้อง")
+        end
     end
 })
 
