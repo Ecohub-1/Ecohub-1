@@ -3,7 +3,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub" .. Fluent.Version,
+    Title = "Eco Hub " .. Fluent.Version,
     SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
@@ -21,29 +21,28 @@ local Tabs = {
 
 Tabs.Settings:AddParagraph({
     Title = "Auto Setting",
-    Content = "Setting Autoskill, AutoClick, and AutoEquip"
+    Content = "ตั้งค่า Auto Equip และ Auto Click"
 })
 
 local Options = Fluent.Options
 
--- เชื่อมกับตัวผู้เล่น
+--== บริการพื้นฐาน ==--
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
 
--- ตั้งค่า SaveManager และ InterfaceManager
+--== ตั้งค่า SaveManager / InterfaceManager ==--
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
-
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({})
 InterfaceManager:SetFolder("FluentScriptHub")
 SaveManager:SetFolder("FluentScriptHub/specific-game")
-
 InterfaceManager:BuildInterfaceSection(Tabs.misc)
 SaveManager:BuildConfigSection(Tabs.misc)
 
---===================== Auto Equip =====================--
+--======================= Auto Equip =======================--
 local autoEquipRunning = false
 
 local function autoEquip()
@@ -69,10 +68,11 @@ equipToggle:OnChanged(function()
     if equipToggle.Value then
         autoEquipRunning = true
         autoEquip()
+
         backpack.ChildAdded:Connect(function(child)
             if child:IsA("Tool") then
-                wait(0.1)
-                if autoEquipRunning then
+                task.wait(0.1)
+                if autoEquipRunning and child.Parent ~= player.Character then
                     child.Parent = player.Character
                 end
             end
@@ -83,19 +83,18 @@ equipToggle:OnChanged(function()
 end)
 
 player.CharacterAdded:Connect(function()
-    wait(1)
+    task.wait(1)
     if equipToggle.Value then
         autoEquip()
     end
 end)
 
---===================== Auto Click =====================--
+--======================= Auto Click =======================--
 local autoClicking = false
 local clickDelay = 0.1
 
--- เพิ่ม Toggle สำหรับ Auto Click
 local autoClickToggle = Tabs.Settings:AddToggle("AutoClickToggle", {
-    Title = "เปิด/ปิด Auto Click",
+    Title = "เปิด/ปิด Auto Click (Tool)",
     Default = false
 })
 
@@ -103,52 +102,48 @@ autoClickToggle:OnChanged(function(value)
     autoClicking = value
 end)
 
--- สร้าง Slider ปรับความเร็วในการคลิก
-Tabs.Settings:AddSlider("ClickSpeedSlider", {
-    Title = "ความเร็ว Auto Click (วินาที)",
-    Description = "ยิ่งน้อยยิ่งคลิกเร็ว",
-    Min = 0.01,
+Tabs.Settings:AddSlider("ClickDelaySlider", {
+    Title = "หน่วงเวลาคลิก (วินาที)",
+    Description = "ค่าน้อย = คลิกเร็ว",
+    Min = 0.05,
     Max = 1,
     Default = 0.1,
     Rounding = true,
     Callback = function(value)
-        -- ตรวจสอบว่า value เป็นตัวเลขก่อนที่จะปรับค่า
         if type(value) == "number" then
             clickDelay = value
-        else
-            print("ค่า clickDelay ไม่ถูกต้อง")
         end
     end
 })
 
--- ระบบ Auto Click
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local RunService = game:GetService("RunService")
-
-RunService.RenderStepped:Connect(function()
-    if autoClicking then
-        local cam = workspace.CurrentCamera
-        local x = cam.ViewportSize.X / 2
-        local y = cam.ViewportSize.Y / 2
-
-        VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 0)
-        VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 0)
-        task.wait(clickDelay)
+task.spawn(function()
+    while true do
+        if autoClicking then
+            local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+            if tool then
+                pcall(function()
+                    tool:Activate()
+                end)
+            end
+            task.wait(clickDelay)
+        else
+            task.wait(0.1)
+        end
     end
 end)
 
---===================== Start UI =====================--
+--== UI เริ่มต้น + แจ้งเตือน ==--
 Window:SelectTab(1)
 
 Fluent:Notify({
-    Title = "Notify | by zer09Xz",
-    Content = "script loaded.",
+    Title = "Eco Hub",
+    Content = "Script Loaded.",
     Duration = 3
 })
-wait(3)
+task.wait(3)
 Fluent:Notify({
-    Title = "Notify | by zer09Xz",
-    Content = "Succeed",
+    Title = "Eco Hub",
+    Content = "Ready to use!",
     Duration = 5
 })
 
