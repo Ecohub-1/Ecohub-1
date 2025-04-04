@@ -1,10 +1,12 @@
+-- โหลด Library
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
+-- UI หน้าต่างหลัก
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub " .. Fluent.Version,
-    SubTitle = " | by zer09Xz",
+    SubTitle = "| by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
     Acrylic = true,
@@ -20,7 +22,6 @@ local Tabs = {
 }
 
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
 
@@ -33,24 +34,15 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 InterfaceManager:BuildInterfaceSection(Tabs.misc)
 SaveManager:BuildConfigSection(Tabs.misc)
 
--- ตัวแปรควบคุม
-local autoEquipRunning = false
-local autoClicking = false
-local clickDelay = 0.1
-local selectedOption = "Melee"
-
 --------------------------
 -- หมวด: Auto Equip
 --------------------------
 Tabs.Settings:AddSection("Auto Equip")
 
--- Toggle Auto Equip
-local equipToggle = Tabs.Settings:AddToggle("AutoEquipToggle", {
-    Title = "เปิด/ปิด Auto Equip",
-    Default = false
-})
+local autoEquipRunning = false
+local selectedOption = "Melee"
 
--- Dropdown ประเภทอาวุธ
+-- Dropdown เลือกประเภทอาวุธ
 Tabs.Settings:AddDropdown("TypeDropdown", {
     Title = "เลือกประเภทอาวุธ",
     Values = { "Melee", "Sword", "DevilFruit", "Special" },
@@ -58,63 +50,70 @@ Tabs.Settings:AddDropdown("TypeDropdown", {
     Default = 1,
     Callback = function(value)
         selectedOption = value
-        Fluent:Notify({
-            Title = "Eco Hub",
-            Content = "เลือกประเภท: " .. value,
-            Duration = 3
-        })
-        if equipToggle.Value then
-            autoEquip()
-        end
+        if autoEquipRunning then autoEquip() end
     end
 })
 
 -- ฟังก์ชัน Auto Equip
 local function autoEquip()
-    if autoEquipRunning then
-        for _, tool in ipairs(backpack:GetChildren()) do
-            if tool:IsA("Tool") then
-                local toolType = tool:GetAttribute("Type")
-                if toolType and string.lower(toolType) == string.lower(selectedOption) then
-                    if tool.Parent ~= player.Character then
-                        tool.Parent = player.Character
-                        break -- ไม่ว่าจะเป็น Melee หรืออื่นๆ ก็ใส่แค่ชิ้นเดียว
-                    end
+    if not autoEquipRunning then return end
+
+    local equipped = false
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            local toolType = tool:GetAttribute("Type")
+            if toolType and string.lower(toolType) == string.lower(selectedOption) then
+                if tool.Parent ~= player.Character then
+                    tool.Parent = player.Character
+                    equipped = true
+                    if selectedOption == "Melee" then break end -- ใส่แค่อันเดียวสำหรับ Melee
                 end
             end
         end
     end
 end
 
--- ตรวจจับตอนเพิ่ม Tool ใหม่
+-- toggle เปิด/ปิด Auto Equip พร้อม Notify
+local equipToggle = Tabs.Settings:AddToggle("AutoEquipToggle", {
+    Title = "เปิด/ปิด Auto Equip",
+    Default = false
+})
+
+equipToggle:OnChanged(function()
+    autoEquipRunning = equipToggle.Value
+    if autoEquipRunning then
+        autoEquip()
+        Fluent:Notify({
+            Title = "Auto Equip",
+            Content = "Auto Equip: true",
+            Duration = 3
+        })
+    else
+        Fluent:Notify({
+            Title = "Auto Equip",
+            Content = "Auto Equip: false",
+            Duration = 3
+        })
+    end
+end)
+
+-- ตรวจจับเมื่อมี Tool ใหม่
 backpack.ChildAdded:Connect(function(child)
     if child:IsA("Tool") then
         task.wait(0.1)
         if autoEquipRunning then
             local toolType = child:GetAttribute("Type")
             if toolType and string.lower(toolType) == string.lower(selectedOption) then
-                if child.Parent ~= player.Character then
-                    child.Parent = player.Character
-                end
+                child.Parent = player.Character
             end
         end
     end
 end)
 
--- เมื่อ toggle เปลี่ยน
-equipToggle:OnChanged(function()
-    autoEquipRunning = equipToggle.Value
-    if autoEquipRunning then
-        autoEquip()
-    end
-end)
-
--- โหลดตัวละครใหม่
+-- เมื่อโหลดตัวละครใหม่
 player.CharacterAdded:Connect(function()
     task.wait(1)
-    if autoEquipRunning then
-        autoEquip()
-    end
+    if autoEquipRunning then autoEquip() end
 end)
 
 --------------------------
@@ -122,7 +121,9 @@ end)
 --------------------------
 Tabs.Settings:AddSection("Auto Click")
 
--- Toggle Auto Click
+local autoClicking = false
+local clickDelay = 0.1
+
 Tabs.Settings:AddToggle("AutoClickToggle", {
     Title = "เปิด/ปิด Auto Click",
     Default = false
@@ -130,7 +131,6 @@ Tabs.Settings:AddToggle("AutoClickToggle", {
     autoClicking = value
 end)
 
--- ป้อน Delay Auto Click
 Tabs.Settings:AddInput("ClickDelayInput", {
     Title = "Click Delay (วินาที)",
     Default = "0.1",
@@ -150,15 +150,13 @@ Tabs.Settings:AddInput("ClickDelayInput", {
     end
 })
 
--- ลูปคลิก
+-- ลูปสำหรับ Auto Click
 task.spawn(function()
     while true do
         if autoClicking then
             local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
             if tool then
-                pcall(function()
-                    tool:Activate()
-                end)
+                pcall(function() tool:Activate() end)
             end
             task.wait(clickDelay)
         else
@@ -175,14 +173,6 @@ Window:SelectTab(1)
 Fluent:Notify({
     Title = "Eco Hub",
     Content = "Script Loaded",
-    Duration = 3
-})
-
-task.wait(2)
-
-Fluent:Notify({
-    Title = "Eco Hub",
-    Content = "Ready!",
     Duration = 3
 })
 
