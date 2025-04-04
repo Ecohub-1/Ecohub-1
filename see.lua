@@ -21,7 +21,7 @@ local Tabs = {
 
 Tabs.Settings:AddParagraph({
     Title = "Auto Setting",
-    Content = "Setting Autoskill and AutoCilck"
+    Content = "Setting Autoskill and AutoClick"
 })
 
 local Options = Fluent.Options
