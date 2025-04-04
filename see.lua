@@ -1,4 +1,4 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+เเก้ใน local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
@@ -106,6 +106,22 @@ end)
 
 -- เลือกแท็บแรก
 Window:SelectTab(1)
+
+-- แจ้งเตือนเมื่อสคริปต์โหลดเสร็จ
+Fluent:Notify({
+    Title = "Notify | by zer09Xz",
+    Content = "script loaded.",
+    Duration = 5
+})
+wait(5)
+Fluent:Notify({
+    Title = "Notify | by zer09Xz",
+    Content = "Succeed",
+    Duration = 5
+    })
+
+-- โหลดการตั้งค่าจาก SaveManager
+SaveManager:LoadAutoloadConfig()
 
 -- แจ้งเตือนเมื่อสคริปต์โหลดเสร็จ
 Fluent:Notify({
