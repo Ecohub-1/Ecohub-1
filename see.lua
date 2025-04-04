@@ -21,7 +21,7 @@ local Tabs = {
 
 Tabs.Settings:AddParagraph({
     Title = "Auto Setting",
-    Content = "Setting Autoskill and AutoCilck"
+    Content = "Setting Autoskill, AutoClick, and AutoEquip"
 })
 
 local Options = Fluent.Options
@@ -43,70 +43,93 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 InterfaceManager:BuildInterfaceSection(Tabs.misc)
 SaveManager:BuildConfigSection(Tabs.misc)
 
--- ตัวแปรเพื่อติดตามสถานะการทำงานของ Auto Equip
+--===================== Auto Equip =====================--
 local autoEquipRunning = false
 
--- ฟังก์ชันสำหรับ Auto Equip
 local function autoEquip()
     if autoEquipRunning then
-        -- ทำการสวมใส่เครื่องมือทั้งหมดจาก Backpack ไปที่ Character
         for _, tool in ipairs(backpack:GetChildren()) do
-            if tool:IsA("Tool") then
-                -- สวมใส่เครื่องมือทั้งหมดใน Backpack โดยไม่ตรวจสอบประเภท
-                if tool.Parent ~= player.Character then
-                    tool.Parent = player.Character
-                end
+            if tool:IsA("Tool") and tool.Parent ~= player.Character then
+                tool.Parent = player.Character
             end
         end
     end
 end
 
--- ฟังก์ชันหยุดทำงาน Auto Equip
 local function stopAutoEquip()
     autoEquipRunning = false
 end
 
--- สร้าง Toggle สำหรับ Auto Equip
-local toggle = Tabs.Settings:AddToggle("MyToggle", {
+local equipToggle = Tabs.Settings:AddToggle("AutoEquipToggle", {
     Title = "เปิด/ปิด Auto Equip",
     Default = false
 })
 
--- ตรวจสอบเมื่อสถานะของ Toggle เปลี่ยน
-toggle:OnChanged(function()
-    if toggle.Value then
-        -- เมื่อเปิด toggle ให้เริ่มทำงาน Auto Equip
+equipToggle:OnChanged(function()
+    if equipToggle.Value then
         autoEquipRunning = true
         autoEquip()
-        
-        -- เชื่อมกับการเพิ่ม Tool ใหม่ใน Backpack
         backpack.ChildAdded:Connect(function(child)
             if child:IsA("Tool") then
-                wait(0.1) -- รอให้มันใส่เข้า backpack เสร็จ
+                wait(0.1)
                 if autoEquipRunning then
-                    -- สวมใส่เครื่องมือที่เพิ่มเข้ามาทันที
                     child.Parent = player.Character
                 end
             end
         end)
     else
-        -- เมื่อปิด toggle ให้หยุดทำงาน Auto Equip
         stopAutoEquip()
     end
 end)
 
--- เมื่อโหลด Character เสร็จ
 player.CharacterAdded:Connect(function()
-    wait(1) -- รอให้ตัวละครโหลดของครบก่อน
-    if toggle.Value then
+    wait(1)
+    if equipToggle.Value then
         autoEquip()
     end
 end)
 
--- เลือกแท็บแรก
+--===================== Auto Click =====================--
+local autoClicking = false
+local clickDelay = 0.1
+
+Tabs.Settings:AddToggle("AutoClickToggle", {
+    Title = "เปิด/ปิด Auto Click",
+    Default = false
+}):OnChanged(function(value)
+    autoClicking = value
+end)
+
+Tabs.Settings:AddSlider("ClickSpeedSlider", {
+    Title = "ความเร็ว Auto Click (วินาที)",
+    Description = "ยิ่งน้อยยิ่งคลิกเร็ว",
+    Min = 0.01,
+    Max = 1,
+    Default = 0.1,
+    Rounding = true,
+    Callback = function(value)
+        clickDelay = value
+    end
+})
+
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
+
+RunService.RenderStepped:Connect(function()
+    if autoClicking then
+        local cam = workspace.CurrentCamera
+        local x = cam.ViewportSize.X / 2
+        local y = cam.ViewportSize.Y / 2
+
+        VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 0)
+        VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 0)
+        task.wait(clickDelay)
+    end
+end)
+
+--===================== Start UI =====================--
 Window:SelectTab(1)
 
--- แจ้งเตือนเมื่อสคริปต์โหลดเสร็จ
 Fluent:Notify({
     Title = "Notify | by zer09Xz",
     Content = "script loaded.",
@@ -119,5 +142,4 @@ Fluent:Notify({
     Duration = 5
 })
 
--- โหลดการตั้งค่าจาก SaveManager
 SaveManager:LoadAutoloadConfig()
