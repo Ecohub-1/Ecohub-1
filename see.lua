@@ -16,10 +16,11 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
     Dungeon = Window:AddTab({ Title = "Auto Dungeon", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    Settingsl = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-Tabs.Main:AddParagraph({
+Tabs.Settings:AddParagraph({
     Title = "Auto Setting",
     Content = "Setting Autoskill and AutoCilck"
 })
@@ -44,20 +45,10 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
--- สร้าง Toggle สำหรับ Auto Equip
-local toggle = Tabs.Main:AddToggle("MyToggle", {
-    Title = "เปิด/ปิด Auto Equip",
-    Default = false
-})
-
--- ฟังก์ชันสำหรับ Auto Equip
-local function autoEquip()
-    for _, tool in ipairs(backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            tool.Parent = player.Character
-            break
-        end
-    end
+-- ฟังก์ชันหยุดทำงาน Auto Equip
+local function stopAutoEquip()
+    autoEquipRunning = false
+    print("Auto Equip หยุดทำงาน")
 end
 
 -- ตรวจสอบเมื่อสถานะของ Toggle เปลี่ยน
@@ -65,19 +56,22 @@ toggle:OnChanged(function()
     print("สถานะ Toggle:", toggle.Value)
     
     if toggle.Value then
-        -- เมื่อเปิด toggle ให้ทำการ Auto Equip
+        -- เมื่อเปิด toggle ให้เริ่มทำงาน Auto Equip
+        autoEquipRunning = true
         autoEquip()
-
+        
         -- เชื่อมกับการเพิ่ม Tool ใหม่ใน Backpack
         backpack.ChildAdded:Connect(function(child)
             if child:IsA("Tool") then
                 wait(0.1) -- รอให้มันใส่เข้า backpack เสร็จ
-                child.Parent = player.Character
+                if autoEquipRunning then
+                    child.Parent = player.Character
+                end
             end
         end)
     else
-        -- เมื่อปิด toggle สามารถทำการยกเลิกการทำงานของ Auto Equip
-        print("Auto Equip ถูกปิด")
+        -- เมื่อปิด toggle ให้หยุดทำงาน Auto Equip
+        stopAutoEquip()
     end
 end)
 
@@ -94,10 +88,15 @@ Window:SelectTab(1)
 
 -- แจ้งเตือนเมื่อสคริปต์โหลดเสร็จ
 Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
+    Title = "Notify | by zer09Xz",
+    Content = "script loaded.",
+    Duration = 2
 })
+Fluent:Notify({
+    Title = "Notify | by zer09Xz",
+    Content = "Succeed",
+    Duration = 4
+    })
 
 -- โหลดการตั้งค่าจาก SaveManager
-SaveManager:LoadAutoloadConfig() 
+SaveManager:LoadAutoloadConfig()
