@@ -45,19 +45,20 @@ SaveManager:BuildConfigSection(Tabs.misc)
 
 -- ตัวแปรเพื่อติดตามสถานะการทำงานของ Auto Equip
 local autoEquipRunning = false
+local selectedType = "A"  -- ค่าเริ่มต้นของ Type ที่เลือกจาก Dropdown
 
 -- ฟังก์ชันสำหรับ Auto Equip
 local function autoEquip()
     if autoEquipRunning then
-        -- ทำการสวมใส่เครื่องมือที่มีประเภทไม่ใช่ "Items"
+        -- ทำการสวมใส่เครื่องมือที่มีประเภทตรงกับที่เลือกใน Dropdown
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
-                -- ตรวจสอบว่าเครื่องมือมี Type หรือไม่ และ Type ไม่ใช่ "Items"
+                -- ตรวจสอบว่าเครื่องมือมี Type หรือไม่
                 local itemType = tool:FindFirstChild("Type")
                 
-                -- หากไม่มี Type, ให้สวมใส่เครื่องมือ
-                if not itemType or (itemType and itemType.Value ~= "Items") then
-                    -- ถ้า Type ไม่ใช่ "Items" หรือไม่มี Type เลย
+                -- หากไม่มี Type หรือ Type ตรงกับที่เลือกใน Dropdown
+                if not itemType or (itemType and itemType.Value == selectedType) then
+                    -- สวมใส่เครื่องมือ
                     if tool.Parent ~= player.Character then
                         tool.Parent = player.Character
                     end
@@ -90,11 +91,11 @@ toggle:OnChanged(function()
             if child:IsA("Tool") then
                 wait(0.1) -- รอให้มันใส่เข้า backpack เสร็จ
                 if autoEquipRunning then
-                    -- ตรวจสอบว่าเครื่องมือที่เพิ่มมาเป็นเครื่องมือที่มีประเภทไม่ใช่ "Items"
+                    -- ตรวจสอบว่าเครื่องมือที่เพิ่มมาเป็นเครื่องมือที่มีประเภทตรงกับที่เลือกใน Dropdown
                     local itemType = child:FindFirstChild("Type")
                     
-                    -- หากไม่มี Type หรือ Type ไม่ใช่ "Items", ให้สวมใส่เครื่องมือ
-                    if not itemType or (itemType and itemType.Value ~= "Items") then
+                    -- หากไม่มี Type หรือ Type ตรงกับที่เลือก, ให้สวมใส่เครื่องมือ
+                    if not itemType or (itemType and itemType.Value == selectedType) then
                         child.Parent = player.Character
                     end
                 end
@@ -112,6 +113,18 @@ player.CharacterAdded:Connect(function()
     if toggle.Value then
         autoEquip()
     end
+end)
+
+-- สร้าง Dropdown ในแท็บ Settings
+local dropdown = Tabs.Settings:AddDropdown("MyDropdown", {
+    Title = "เลือกตัวเลือก",
+    Values = {"A", "B", "C"},
+    Default = 1
+})
+
+dropdown:OnChanged(function(Value)
+    selectedType = Value  -- กำหนดค่าของ selectedType เมื่อเลือกใน Dropdown
+    print("เลือก:", Value)
 end)
 
 -- เลือกแท็บแรก
