@@ -21,7 +21,7 @@ local Tabs = {
 
 Tabs.Settings:AddParagraph({
     Title = "Auto Setting",
-    Content = "ตั้งค่า Auto Equip และ Auto Click"
+    Content = "ตั้งค่า Auto Equip, Auto Click และโหมด Dropdown"
 })
 
 local Options = Fluent.Options
@@ -42,14 +42,31 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 InterfaceManager:BuildInterfaceSection(Tabs.misc)
 SaveManager:BuildConfigSection(Tabs.misc)
 
---======================= Auto Equip =======================--
+-- ตัวแปรควบคุม
 local autoEquipRunning = false
+local autoClicking = false
+local clickDelay = 0.1
+local selectedOption = "Melee"  -- กำหนดค่า Default ให้ตรงกับ Dropdown index 1
 
+--======================= Auto Equip =======================--
 local function autoEquip()
     if autoEquipRunning then
         for _, tool in ipairs(backpack:GetChildren()) do
-            if tool:IsA("Tool") and tool.Parent ~= player.Character then
-                tool.Parent = player.Character
+            if tool:IsA("Tool") then
+                -- ถ้าเลือกโหมด "Melee" ให้เช็ค Attribute "Type" ของ Tool
+                if selectedOption == "Melee" then
+                    local toolType = tool:GetAttribute("Type")
+                    if toolType and string.lower(toolType) == "melee" then
+                        if tool.Parent ~= player.Character then
+                            tool.Parent = player.Character
+                        end
+                    end
+                else
+                    -- ถ้าเลือกโหมดอื่น ให้สวมใส่ทุกเครื่องมือ (หรือปรับเพิ่มเติมตามต้องการ)
+                    if tool.Parent ~= player.Character then
+                        tool.Parent = player.Character
+                    end
+                end
             end
         end
     end
@@ -68,12 +85,22 @@ equipToggle:OnChanged(function()
     if equipToggle.Value then
         autoEquipRunning = true
         autoEquip()
-
         backpack.ChildAdded:Connect(function(child)
             if child:IsA("Tool") then
                 task.wait(0.1)
-                if autoEquipRunning and child.Parent ~= player.Character then
-                    child.Parent = player.Character
+                if autoEquipRunning then
+                    if selectedOption == "Melee" then
+                        local toolType = child:GetAttribute("Type")
+                        if toolType and string.lower(toolType) == "melee" then
+                            if child.Parent ~= player.Character then
+                                child.Parent = player.Character
+                            end
+                        end
+                    else
+                        if child.Parent ~= player.Character then
+                            child.Parent = player.Character
+                        end
+                    end
                 end
             end
         end)
@@ -90,9 +117,6 @@ player.CharacterAdded:Connect(function()
 end)
 
 --======================= Auto Click =======================--
-local autoClicking = false
-local clickDelay = 0.1
-
 Tabs.Settings:AddToggle("AutoClickToggle", {
     Title = "เปิด/ปิด Auto Click (Tool)",
     Default = false
@@ -134,6 +158,26 @@ task.spawn(function()
         end
     end
 end)
+
+--======================= Dropdown =======================--
+Tabs.Settings:AddDropdown("MyDropdown", {
+    Title = "เลือกโหมด",
+    Values = { "Melee", "Sword", "DevilFruit", "Special" },
+    Multi = false,
+    Default = 1,
+    Callback = function(value)
+        selectedOption = value
+        Fluent:Notify({
+            Title = "Eco Hub",
+            Content = "คุณเลือก: " .. tostring(value),
+            Duration = 3
+        })
+        -- เมื่อเลือกโหมดใหม่ สามารถเรียก autoEquip ใหม่ได้
+        if equipToggle.Value then
+            autoEquip()
+        end
+    end
+})
 
 --== UI เริ่มต้น + แจ้งเตือน ==--
 Window:SelectTab(1)
