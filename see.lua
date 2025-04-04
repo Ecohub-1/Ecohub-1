@@ -169,7 +169,7 @@ Tabs.Settings:AddDropdown("MyDropdown", {
         selectedOption = value
         Fluent:Notify({
             Title = "Eco Hub",
-            Content = "คุณเลือก: " .. tostring(value),
+            Content = "เลือกอาวุธ" .. tostring(value),
             Duration = 3
         })
         -- เมื่อเลือกโหมดใหม่ สามารถเรียก autoEquip ใหม่ได้
@@ -185,13 +185,13 @@ Window:SelectTab(1)
 Fluent:Notify({
     Title = "Eco Hub",
     Content = "Script Loaded.",
-    Duration = 3
+    Duration = 2.1
 })
-task.wait(3)
+task.wait(2)
 Fluent:Notify({
     Title = "Eco Hub",
     Content = "Ready to use!",
-    Duration = 5
+    Duration = 3
 })
 
 SaveManager:LoadAutoloadConfig()
