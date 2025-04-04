@@ -50,11 +50,11 @@ local autoEquipRunning = false
 -- ฟังก์ชันสำหรับ Auto Equip
 local function autoEquip()
     if autoEquipRunning then
-        -- ทำการสวมใส่เครื่องมืออัตโนมัติ
+        -- ทำการสวมใส่เครื่องมือทั้งหมดจาก Backpack ไปที่ Character
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
+                -- ถ้ามีเครื่องมือใน Backpack ให้สวมใส่ทุกชิ้น
                 tool.Parent = player.Character
-                break
             end
         end
     end
@@ -67,7 +67,7 @@ local function stopAutoEquip()
 end
 
 -- สร้าง Toggle สำหรับ Auto Equip
-local toggle = Tabs.Main:AddToggle("MyToggle", {
+local toggle = Tabs.Settings:AddToggle("MyToggle", {
     Title = "เปิด/ปิด Auto Equip",
     Default = false
 })
@@ -111,12 +111,13 @@ Window:SelectTab(1)
 Fluent:Notify({
     Title = "Notify | by zer09Xz",
     Content = "script loaded.",
-    Duration = 2
+    Duration = 5
 })
+wait(5)
 Fluent:Notify({
     Title = "Notify | by zer09Xz",
     Content = "Succeed",
-    Duration = 4
+    Duration = 5
     })
 
 -- โหลดการตั้งค่าจาก SaveManager
