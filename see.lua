@@ -21,7 +21,7 @@ local Tabs = {
 
 Tabs.Settings:AddParagraph({
     Title = "Auto Setting",
-    Content = "Setting Autoskill and AutoClick"
+    Content = "Setting Autoskill and AutoCilck"
 })
 
 local Options = Fluent.Options
@@ -29,6 +29,7 @@ local Options = Fluent.Options
 -- เชื่อมกับตัวผู้เล่น
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+local backpack = player:WaitForChild("Backpack")
 
 -- ตั้งค่า SaveManager และ InterfaceManager
 SaveManager:SetLibrary(Fluent)
@@ -42,38 +43,63 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 InterfaceManager:BuildInterfaceSection(Tabs.misc)
 SaveManager:BuildConfigSection(Tabs.misc)
 
--- ตัวแปรเพื่อติดตามสถานะการทำงานของ Auto Click
-local autoClickRunning = false
+-- ตัวแปรเพื่อติดตามสถานะการทำงานของ Auto Equip
+local autoEquipRunning = false
 
--- ฟังก์ชันสำหรับ Auto Click
-local function autoClick()
-    while autoClickRunning do
-        -- ทำการคลิกปุ่มซ้ำๆ ทุกๆ 0.1 วินาที
-        game:GetService("UserInputService"):SendInputObject(Enum.UserInputType.MouseButton1)
-        wait(0.1)
+-- ฟังก์ชันสำหรับ Auto Equip
+local function autoEquip()
+    if autoEquipRunning then
+        -- ทำการสวมใส่เครื่องมือทั้งหมดจาก Backpack ไปที่ Character
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") then
+                -- สวมใส่เครื่องมือทั้งหมดใน Backpack โดยไม่ตรวจสอบประเภท
+                if tool.Parent ~= player.Character then
+                    tool.Parent = player.Character
+                end
+            end
+        end
     end
 end
 
--- ฟังก์ชันหยุดทำงาน Auto Click
-local function stopAutoClick()
-    autoClickRunning = false
+-- ฟังก์ชันหยุดทำงาน Auto Equip
+local function stopAutoEquip()
+    autoEquipRunning = false
 end
 
--- สร้าง Toggle สำหรับ Auto Click
-local toggle = Tabs.Settings:AddToggle("AutoClickToggle", {
-    Title = "เปิด/ปิด Auto Click",
+-- สร้าง Toggle สำหรับ Auto Equip
+local toggle = Tabs.Settings:AddToggle("MyToggle", {
+    Title = "เปิด/ปิด Auto Equip",
     Default = false
 })
 
 -- ตรวจสอบเมื่อสถานะของ Toggle เปลี่ยน
 toggle:OnChanged(function()
     if toggle.Value then
-        -- เมื่อเปิด toggle ให้เริ่มทำงาน Auto Click
-        autoClickRunning = true
-        autoClick()
+        -- เมื่อเปิด toggle ให้เริ่มทำงาน Auto Equip
+        autoEquipRunning = true
+        autoEquip()
+        
+        -- เชื่อมกับการเพิ่ม Tool ใหม่ใน Backpack
+        backpack.ChildAdded:Connect(function(child)
+            if child:IsA("Tool") then
+                wait(0.1) -- รอให้มันใส่เข้า backpack เสร็จ
+                if autoEquipRunning then
+                    -- สวมใส่เครื่องมือที่เพิ่มเข้ามาทันที
+                    child.Parent = player.Character
+                end
+            end
+        end)
     else
-        -- เมื่อปิด toggle ให้หยุดทำงาน Auto Click
-        stopAutoClick()
+        -- เมื่อปิด toggle ให้หยุดทำงาน Auto Equip
+        stopAutoEquip()
+    end
+end)
+
+-- เมื่อโหลด Character เสร็จ
+player.CharacterAdded:Connect(function()
+    wait(1) -- รอให้ตัวละครโหลดของครบก่อน
+    if toggle.Value then
+        autoEquip()
     end
 end)
 
