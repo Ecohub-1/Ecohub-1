@@ -117,14 +117,18 @@ end)
 
 -- สร้าง Dropdown ในแท็บ Settings
 local dropdown = Tabs.Settings:AddDropdown("MyDropdown", {
-    Title = "เลือกตัวเลือก",
-    Values = {"Melee", "Sword", "DevilFruit", ""},
-    Default = 2
+    Title = "เลือก Type ของเครื่องมือ",
+    Values = {"A", "B", "C"},
+    Default = 1
 })
 
 dropdown:OnChanged(function(Value)
     selectedType = Value  -- กำหนดค่าของ selectedType เมื่อเลือกใน Dropdown
-    print("เลือก:", Value)
+    print("เลือก Type:", Value)
+    -- เมื่อมีการเลือก Type ใหม่ให้ทำการสวมใส่เครื่องมือใหม่
+    if toggle.Value then
+        autoEquip()
+    end
 end)
 
 -- เลือกแท็บแรก
