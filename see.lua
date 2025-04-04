@@ -32,7 +32,7 @@ local player = Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
 
 -- ตรวจสอบว่า backpack ถูกต้องหรือไม่
-print("Backpack: ", backpack)
+print("Backpack: ", backpack)  -- ตรวจสอบว่า Backpack ถูกโหลดเสร็จหรือไม่
 
 -- ตั้งค่า SaveManager และ InterfaceManager
 SaveManager:SetLibrary(Fluent)
@@ -95,6 +95,7 @@ toggle:OnChanged(function()
         
         -- เชื่อมกับการเพิ่ม Tool ใหม่ใน Backpack
         backpack.ChildAdded:Connect(function(child)
+            print("เครื่องมือใหม่ถูกเพิ่ม:", child.Name)  -- แจ้งว่าเครื่องมือใหม่ถูกเพิ่มเข้าไปใน Backpack
             if child:IsA("Tool") then
                 wait(0.1) -- รอให้มันใส่เข้า backpack เสร็จ
                 if autoEquipRunning then
