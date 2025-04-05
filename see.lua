@@ -1,9 +1,12 @@
--- โหลด Library
+-------------------
+ -- ui หน้าต่างสคริป
+-------------------
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
--- UI หน้าต่างหลัก
+------------------
+ -- เเต่งui
+------------------
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub " .. Fluent.Version,
     SubTitle = "| by zer09Xz",
@@ -13,7 +16,9 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
-
+------------------
+ -- เเทบช่อง
+------------------
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "house" }),
     Dungeon = Window:AddTab({ Title = "Auto Dungeon", Icon = "radar" }),
@@ -165,10 +170,64 @@ task.spawn(function()
     end
 end)
 ------------------
- --Auto Store
+ --Auto skill
 ------------------
-Tabs.Settings:AddSection("Auto Store")
+Tabs.Settings:AddSection("Auto skill")
+-- สร้าง Toggle สำหรับแต่ละสกิล
+local ToggleZ = Tabs.Main:AddToggle("AutoSkillZ", {
+    Title = "Auto Skill Z",
+    Default = false
+})
+local ToggleX = Tabs.Main:AddToggle("AutoSkillX", {
+    Title = "Auto Skill X",
+    Default = false
+})
+local ToggleC = Tabs.Main:AddToggle("AutoSkillC", {
+    Title = "Auto Skill C",
+    Default = false
+})
+local ToggleV = Tabs.Main:AddToggle("AutoSkillV", {
+    Title = "Auto Skill V",
+    Default = false
+})
 
+-- Loop แยกสำหรับแต่ละสกิล พร้อมหน่วงเวลา 1.5 วินาที
+
+task.spawn(function()
+    while true do
+        task.wait(1.5)
+        if Options.AutoSkillZ.Value then
+            game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer("Z")
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(1.5)
+        if Options.AutoSkillX.Value then
+            game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer("X")
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(1.5)
+        if Options.AutoSkillC.Value then
+            game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer("C")
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(1.5)
+        if Options.AutoSkillV.Value then
+            game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer("V")
+        end
+    end
+end)
 
 --------------------------
 -- เริ่มต้น
