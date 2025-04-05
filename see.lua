@@ -199,12 +199,10 @@ local function AutoSkill(key, toggle)
                 local useSkillEvent = game.ReplicatedStorage:FindFirstChild("UseSkill")
                 if useSkillEvent then
                     print("Using skill: " .. key)  -- เพิ่มข้อความเพื่อยืนยันว่าฟังก์ชันทำงาน
-                    useSkillEvent:FireServer(key)
+                    useSkillEvent:FireServer(key)  -- เรียก RemoteEvent
                 else
                     warn("UseSkill RemoteEvent not found!")
                 end
-            else
-                task.wait(0.1)  -- รอเล็กน้อยหาก toggle ถูกปิด
             end
             task.wait(0.1)  -- รอเล็กน้อยในทุกลูปเพื่อไม่ให้ใช้ CPU มากเกินไป
         end
@@ -216,7 +214,6 @@ AutoSkill("Z", ToggleZ)
 AutoSkill("X", ToggleX)
 AutoSkill("C", ToggleC)
 AutoSkill("V", ToggleV)
-
 --------------------------
 -- เริ่มต้น
 --------------------------
