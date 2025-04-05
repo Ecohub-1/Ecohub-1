@@ -173,61 +173,43 @@ end)
  --Auto skill
 ------------------
 Tabs.Settings:AddSection("Auto skill")
--- สร้าง Toggle สำหรับแต่ละสกิล
-local ToggleZ = Tabs.Main:AddToggle("AutoSkillZ", {
+-- สร้าง Toggle สำหรับแต่ละสกิลใน Tab.Setting
+local ToggleZ = Tabs.Setting:AddToggle("AutoSkillZ", {
     Title = "Auto Skill Z",
     Default = false
 })
-local ToggleX = Tabs.Main:AddToggle("AutoSkillX", {
+local ToggleX = Tabs.Setting:AddToggle("AutoSkillX", {
     Title = "Auto Skill X",
     Default = false
 })
-local ToggleC = Tabs.Main:AddToggle("AutoSkillC", {
+local ToggleC = Tabs.Setting:AddToggle("AutoSkillC", {
     Title = "Auto Skill C",
     Default = false
 })
-local ToggleV = Tabs.Main:AddToggle("AutoSkillV", {
+local ToggleV = Tabs.Setting:AddToggle("AutoSkillV", {
     Title = "Auto Skill V",
     Default = false
 })
 
--- Loop แยกสำหรับแต่ละสกิล พร้อมหน่วงเวลา 1.5 วินาที
-
-task.spawn(function()
-    while true do
-        task.wait(1.5)
-        if Options.AutoSkillZ.Value then
-            game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer("Z")
+-- ฟังก์ชัน Auto Skill โดยใช้คูลดาวน์ 0.5 วินาที
+local function AutoSkill(key, option)
+    task.spawn(function()
+        while true do
+            if option.Value then
+                game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer(key)
+                task.wait(0.5)
+            else
+                task.wait(0.1)
+            end
         end
-    end
-end)
+    end)
+end
 
-task.spawn(function()
-    while true do
-        task.wait(1.5)
-        if Options.AutoSkillX.Value then
-            game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer("X")
-        end
-    end
-end)
-
-task.spawn(function()
-    while true do
-        task.wait(1.5)
-        if Options.AutoSkillC.Value then
-            game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer("C")
-        end
-    end
-end)
-
-task.spawn(function()
-    while true do
-        task.wait(1.5)
-        if Options.AutoSkillV.Value then
-            game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer("V")
-        end
-    end
-end)
+-- เรียกใช้งานสำหรับแต่ละปุ่ม
+AutoSkill("Z", Options.AutoSkillZ)
+AutoSkill("X", Options.AutoSkillX)
+AutoSkill("C", Options.AutoSkillC)
+AutoSkill("V", Options.AutoSkillV)
 
 --------------------------
 -- เริ่มต้น
