@@ -174,19 +174,19 @@ end)
 ------------------
 Tabs.Settings:AddSection("Auto skill")
 -- สร้าง Toggle สำหรับแต่ละสกิลใน Tab.Setting
-local ToggleZ = Tabs.Setting:AddToggle("AutoSkillZ", {
+local ToggleZ = Tabs.Settings:AddToggle("AutoSkillZ", {
     Title = "Auto Skill Z",
     Default = false
 })
-local ToggleX = Tabs.Setting:AddToggle("AutoSkillX", {
+local ToggleX = Tabs.Settings:AddToggle("AutoSkillX", {
     Title = "Auto Skill X",
     Default = false
 })
-local ToggleC = Tabs.Setting:AddToggle("AutoSkillC", {
+local ToggleC = Tabs.Settings:AddToggle("AutoSkillC", {
     Title = "Auto Skill C",
     Default = false
 })
-local ToggleV = Tabs.Setting:AddToggle("AutoSkillV", {
+local ToggleV = Tabs.Settings:AddToggle("AutoSkillV", {
     Title = "Auto Skill V",
     Default = false
 })
