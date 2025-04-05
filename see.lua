@@ -173,7 +173,7 @@ end)
  --Auto skill
 ------------------
 Tabs.Settings:AddSection("Auto skill")
--- สร้าง Toggle สำหรับแต่ละสกิลใน Tab.Setting
+-- สร้าง Toggle สำหรับแต่ละสกิลใน Tabs.Settings
 local ToggleZ = Tabs.Settings:AddToggle("AutoSkillZ", {
     Title = "Auto Skill Z",
     Default = false
@@ -191,25 +191,31 @@ local ToggleV = Tabs.Settings:AddToggle("AutoSkillV", {
     Default = false
 })
 
--- ฟังก์ชัน Auto Skill โดยใช้คูลดาวน์ 0.5 วินาที
-local function AutoSkill(key, option)
+-- ฟังก์ชัน Auto Skill โดยไม่มีคูลดาวน์
+local function AutoSkill(key, toggle)
     task.spawn(function()
         while true do
-            if option.Value then
-                game.ReplicatedStorage:WaitForChild("UseSkill"):FireServer(key)
-                task.wait(0.5)
+            if toggle.Value then
+                local useSkillEvent = game.ReplicatedStorage:FindFirstChild("UseSkill")
+                if useSkillEvent then
+                    print("Using skill: " .. key)  -- เพิ่มข้อความเพื่อยืนยันว่าฟังก์ชันทำงาน
+                    useSkillEvent:FireServer(key)
+                else
+                    warn("UseSkill RemoteEvent not found!")
+                end
             else
-                task.wait(0.1)
+                task.wait(0.1)  -- รอเล็กน้อยหาก toggle ถูกปิด
             end
+            task.wait(0.1)  -- รอเล็กน้อยในทุกลูปเพื่อไม่ให้ใช้ CPU มากเกินไป
         end
     end)
 end
 
 -- เรียกใช้งานสำหรับแต่ละปุ่ม
-AutoSkill("Z", Options.AutoSkillZ)
-AutoSkill("X", Options.AutoSkillX)
-AutoSkill("C", Options.AutoSkillC)
-AutoSkill("V", Options.AutoSkillV)
+AutoSkill("Z", ToggleZ)
+AutoSkill("X", ToggleX)
+AutoSkill("C", ToggleC)
+AutoSkill("V", ToggleV)
 
 --------------------------
 -- เริ่มต้น
