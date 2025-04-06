@@ -173,7 +173,6 @@ end)
  --Auto Farm
 ------------------
 Tabs.Main:AddSection("Auto Farm mob")
-
 -- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
 local mobNamesSet = {}
 local mobNamesList = {}
@@ -235,25 +234,29 @@ Toggle:OnChanged(function(Value)
                                 local character = player.Character
                                 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-                                -- ลอยอยู่ที่ตำแหน่งเหนือหัวม็อบ
-                                humanoidRootPart.CFrame = CFrame.new(targetPosition)
-
-                                -- หันหน้าไปหาม็อบ
-                                humanoidRootPart.CFrame = CFrame.lookAt(humanoidRootPart.Position, head.Position)
-
-                                -- การใช้ BodyPosition เพื่อให้ตัวละครไม่ตก
+                                -- ใช้ BodyPosition เพื่อไม่ให้ตก
                                 local bodyPosition = humanoidRootPart:FindFirstChildOfClass("BodyPosition")
                                 if not bodyPosition then
-                                    -- ถ้ายังไม่มี BodyPosition ให้สร้างใหม่
                                     bodyPosition = Instance.new("BodyPosition")
                                     bodyPosition.MaxForce = Vector3.new(400000, 400000, 400000)  -- กำหนดแรงสูงสุด
                                     bodyPosition.D = 1000  -- ความต้านทาน
                                     bodyPosition.P = 10000  -- ความเร็วในการปรับตำแหน่ง
                                     bodyPosition.Parent = humanoidRootPart
                                 end
-
-                                -- กำหนดตำแหน่งที่จะค้างไว้
                                 bodyPosition.Position = targetPosition
+
+                                -- ใช้ BodyGyro เพื่อไม่ให้หมุน (ล็อคการหมุน)
+                                local bodyGyro = humanoidRootPart:FindFirstChildOfClass("BodyGyro")
+                                if not bodyGyro then
+                                    bodyGyro = Instance.new("BodyGyro")
+                                    bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)  -- กำหนดแรงหมุนสูงสุด
+                                    bodyGyro.D = 1000  -- ความต้านทานในการหมุน
+                                    bodyGyro.CFrame = humanoidRootPart.CFrame  -- ล็อคการหมุนให้คงที่
+                                    bodyGyro.Parent = humanoidRootPart
+                                end
+
+                                -- กำหนด CFrame สำหรับ BodyGyro เพื่อไม่ให้ตัวละครหมุน
+                                bodyGyro.CFrame = CFrame.new(humanoidRootPart.Position, head.Position)  -- หันหน้าไปหาม็อบ
 
                                 -- การโจมตี (เช็คว่าผู้เล่นมีอาวุธหรือไม่)
                                 local tool = character:FindFirstChildOfClass("Tool")
