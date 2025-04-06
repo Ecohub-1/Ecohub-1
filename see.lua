@@ -179,7 +179,7 @@ local selectedMobName = nil
 -- สร้าง Dropdown สำหรับเลือกชื่อมอน
 local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Title = "เลือกชื่อม่อน",
-    Values = mobNamesList,
+    Values = mobNamesList,  -- รายชื่อม่อนจาก mobNamesList
     Multi = false,
     Default = 1,
 })
@@ -189,36 +189,46 @@ Dropdown:OnChanged(function(Value)
     print("เลือกม่อนชื่อ:", selectedMobName)
 end)
 
--- Toggle สำหรับเปิด/ปิด Auto-Farm
+-- สร้าง Toggle สำหรับเปิด/ปิด Auto-Farm
 local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Auto Farm", Default = false})
 
 Toggle:OnChanged(function()
-    print("Auto Farm toggle:", Options.MyToggle.Value)
+    print("Auto Farm toggle:", Toggle.Value)
 end)
-
-Options.MyToggle:SetValue(false)
 
 -- เริ่ม Auto-Farm loop
 task.spawn(function()
     while true do
         task.wait(0.5)
 
-        -- ถ้า toggle ปิดอยู่ หรือยังไม่ได้เลือกมอน จะไม่ทำงาน
-        if not Options.MyToggle.Value or not selectedMobName then continue end
+        -- เช็คว่า Toggle เปิดอยู่หรือไม่ และเลือกมอนแล้ว
+        if Toggle.Value and selectedMobName then
+            -- ค้นหามอนใน Workspace.Mob
+            local foundMob = nil
+            for _, mob in pairs(workspace.Mob:GetChildren()) do
+                if mob.Name == selectedMobName and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
+                    foundMob = mob
+                    break
+                end
+            end
 
-        for _, mob in pairs(workspace.Mob:GetChildren()) do
-            if mob.Name == selectedMobName and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
-                local humanoid = mob.Humanoid
+            -- ถ้ามอนที่เลือกเจอแล้ว
+            if foundMob then
+                local humanoid = foundMob.Humanoid
                 if humanoid.Health > 0 then
+                    -- วาร์ปไปตำแหน่งมอน
                     local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        hrp.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+                        hrp.CFrame = foundMob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
                     end
                 end
+            else
+                print("ไม่พบมอนที่เลือกหรือมอนตายแล้ว")
             end
         end
     end
 end)
+
 --------------------------
 -- เริ่มต้น
 --------------------------
