@@ -218,36 +218,39 @@ Toggle:OnChanged(function(Value)
     if Value then
         _G.AutoFarm = true
         -- เริ่มทำการ AutoFarm
-        while _G.AutoFarm do
-            pcall(function()
-                for _, v in pairs(game:GetService("Workspace").mob:GetChildren()) do
-                    -- ตรวจสอบว่าเป็นม็อบที่เลือกใน Dropdown
-                    if v.Name == selectedMob and v:FindFirstChild("Humanoid") then
-                        local humanoid = v:FindFirstChild("Humanoid")
-                        if humanoid.Health > 0 then
-                            -- เคลื่อนที่ผู้เล่นไปยังม็อบที่เลือก
-                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+        spawn(function()  -- Use spawn to prevent blocking other code
+            while _G.AutoFarm do
+                pcall(function()
+                    -- ค้นหาม็อบใน workspace
+                    for _, v in pairs(workspace.Mob:GetChildren()) do
+                        -- ตรวจสอบว่าเป็นม็อบที่เลือกใน Dropdown
+                        if v.Name == selectedMob and v:FindFirstChild("Humanoid") then
+                            local humanoid = v:FindFirstChild("Humanoid")
+                            if humanoid.Health > 0 then
+                                -- เคลื่อนที่ผู้เล่นไปยังม็อบที่เลือก
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
 
-                            -- เพิ่มการโจมตี (ตัวอย่าง)
-                            local character = game.Players.LocalPlayer.Character
-                            local humanoid = character:FindFirstChildOfClass("Humanoid")
+                                -- การโจมตี (เช็คว่าผู้เล่นมีอาวุธหรือไม่)
+                                local character = game.Players.LocalPlayer.Character
+                                local humanoid = character:FindFirstChildOfClass("Humanoid")
 
-                            -- ตรวจสอบว่า character มีอาวุธ (tool) หรือไม่
-                            local tool = character:FindFirstChildOfClass("Tool")
-                            if tool then
-                                -- ถ้ามีอาวุธ ให้โจมตี
-                                tool:Activate()  -- ทำการโจมตี
-                            else
-                                -- ถ้าไม่มีอาวุธ สามารถใช้วิธีการโจมตีธรรมดา
-                                humanoid:MoveTo(v.HumanoidRootPart.Position)  -- เคลื่อนที่ไปยังม็อบ
-                                -- สามารถเพิ่มโค้ดโจมตีที่นี่ได้ถ้าจำเป็น
+                                -- ตรวจสอบว่า character มีอาวุธ (tool) หรือไม่
+                                local tool = character:FindFirstChildOfClass("Tool")
+                                if tool then
+                                    -- ถ้ามีอาวุธ ให้โจมตี
+                                    tool:Activate()  -- ทำการโจมตี
+                                else
+                                    -- ถ้าไม่มีอาวุธ สามารถใช้วิธีการโจมตีธรรมดา
+                                    humanoid:MoveTo(v.HumanoidRootPart.Position)  -- เคลื่อนที่ไปยังม็อบ
+                                    -- สามารถเพิ่มโค้ดโจมตีที่นี่ได้ถ้าจำเป็น
+                                end
                             end
                         end
                     end
-                end
-            end)
-            task.wait(1)  -- เลื่อนการทำงานเล็กน้อยเพื่อลดการโหลด
-        end
+                end)
+                task.wait(1)  -- เลื่อนการทำงานเล็กน้อยเพื่อลดการโหลด
+            end
+        end)
     else
         _G.AutoFarm = false  -- ปิด AutoFarm
     end
