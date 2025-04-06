@@ -173,6 +173,27 @@ end)
  --Auto Farm
 ------------------
 Tabs.Main:AddSection("Auto Farm mob")
+-- สร้าง Input UI สำหรับการกรอกระยะ
+local Input = Tabs.Main:AddInput("Input", {
+    Title = "ระยะการเคลื่อนที่",
+    Default = "3",  -- ค่าระยะเริ่มต้น
+    Placeholder = "กรอกระยะการเคลื่อนที่ (ตัวเลข)",
+    Numeric = true,  -- ใช้ได้เฉพาะตัวเลข
+    Finished = false,
+    Callback = function(Value)
+        print("Input changed:", Value)
+    end
+})
+
+-- ตัวแปรสำหรับเก็บระยะที่กรอกใน Input
+local AutoFarmDistance = tonumber(Input.Value) or 3  -- ถ้าไม่กรอกหรือกรอกไม่ถูกต้องจะใช้ค่าเริ่มต้น 3
+
+-- ฟังก์ชันที่อัพเดทระยะการเคลื่อนที่เมื่อกรอกค่าใหม่
+Input:OnChanged(function()
+    AutoFarmDistance = tonumber(Input.Value) or 3  -- อัพเดทระยะการเคลื่อนที่เมื่อกรอกค่าใหม่
+    print("ระยะการเคลื่อนที่ใหม่:", AutoFarmDistance)
+end)
+
 -- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
 local mobNamesSet = {}
 local mobNamesList = {}
@@ -226,9 +247,11 @@ Toggle:OnChanged(function(Value)
                         -- ตรวจสอบว่าเป็นม็อบที่เลือกใน Dropdown
                         if v.Name == selectedMob and v:FindFirstChild("Humanoid") then
                             local humanoid = v:FindFirstChild("Humanoid")
-                            if humanoid.Health > 0 then
-                                -- เคลื่อนที่ผู้เล่นไปยังม็อบที่เลือก
-                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, AutoFarmDistance, 0)
+                            local head = v:FindFirstChild("Head")  -- หาตำแหน่งของหัวม็อบ
+                            if humanoid.Health > 0 and head then
+                                -- เคลื่อนที่ผู้เล่นไปยังตำแหน่งบนหัวม็อบที่เลือก โดยเพิ่มระยะที่กรอกใน Input
+                                local targetPosition = head.Position + Vector3.new(0, AutoFarmDistance, 0)  -- เพิ่มระยะขึ้นไปเหนือหัว
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
 
                                 -- การโจมตี (เช็คว่าผู้เล่นมีอาวุธหรือไม่)
                                 local character = game.Players.LocalPlayer.Character
@@ -254,31 +277,7 @@ Toggle:OnChanged(function(Value)
     else
         _G.AutoFarm = false  -- ปิด AutoFarm
     end
-end)
-
-Tabs.Main:AddSection("Setting Auto Farm")
-local AutoFarmDistance = 3  -- ระยะห่างจากม็อบที่ผู้เล่นจะเคลื่อนที่ไป
-
--- สร้าง Input UI สำหรับการกรอกระยะ
-local Input = Tabs.Main:AddInput("Input", {
-    Title = "ระยะการเคลื่อนที่",
-    Default = "3",  -- ค่าระยะเริ่มต้น
-    Placeholder = "กรอกระยะการเคลื่อนที่ (ตัวเลข)",
-    Numeric = true,  -- ใช้ได้เฉพาะตัวเลข
-    Finished = false,
-    Callback = function(Value)
-        print("Input changed:", Value)
-    end
-})
-
--- ตัวแปรสำหรับเก็บระยะที่กรอกใน Input
-local AutoFarmDistance = tonumber(Input.Value) or 3  -- ถ้าไม่กรอกหรือกรอกไม่ถูกต้องจะใช้ค่าเริ่มต้น 3
-
--- ฟังก์ชันที่อัพเดทระยะการเคลื่อนที่เมื่อกรอกค่าใหม่
-Input:OnChanged(function()
-    AutoFarmDistance = tonumber(Input.Value) or 3  -- อัพเดทระยะการเคลื่อนที่เมื่อกรอกค่าใหม่
-    print("ระยะการเคลื่อนที่ใหม่:", AutoFarmDistance)
-end)
+end) 
 --------------------------
 -- เริ่มต้น
 --------------------------
