@@ -173,59 +173,73 @@ end)
  --Auto Farm
 ------------------
 Tabs.Main:AddSection("Auto Farm mob")
--- ตัวแปรเก็บชื่อมอนที่เลือก
-local selectedMobName = nil
+-- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
+local mobNamesSet = {}
+local mobNamesList = {}
 
--- สร้าง Dropdown สำหรับเลือกชื่อมอน
+-- ค้นหาชื่อม่อนใน workspace.Mob
+for _, mob in pairs(workspace.Mob:GetChildren()) do
+    local name = mob.Name
+    if not mobNamesSet[name] then
+        mobNamesSet[name] = true
+        table.insert(mobNamesList, name)
+    end
+end
+
+-- เรียงลำดับชื่อ
+table.sort(mobNamesList)
+
+-- สร้าง Dropdown UI ด้วยชื่อม่อนที่ได้
 local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Title = "เลือกชื่อม่อน",
-    Values = mobNamesList,  -- รายชื่อม่อนจาก mobNamesList
+    Values = mobNamesList,
     Multi = false,
     Default = 1,
 })
 
+-- ฟังชันเมื่อเลือกชื่อม่อน
 Dropdown:OnChanged(function(Value)
-    selectedMobName = Value
-    print("เลือกม่อนชื่อ:", selectedMobName)
-end)
+    print("คุณเลือกม่อนชื่อ:", Value)
+    -- ตรงนี้จะทำอะไรก็เพิ่มได้ เช่นหาวัตถุนั้นใน workspace.Mob
+    local selectedMob = workspace.Mob:FindFirstChild(Value)
+    if selectedMob then
+        print("พบม่อน:", selectedMob.Name, "ที่ตำแหน่ง", selectedMob.Position)
+    else
+        print("ไม่พบม่อน")
+    end
+end)-- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
+local mobNamesSet = {}
+local mobNamesList = {}
 
--- สร้าง Toggle สำหรับเปิด/ปิด Auto-Farm
-local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Auto Farm", Default = false})
+-- ค้นหาชื่อม่อนใน workspace.Mob
+for _, mob in pairs(workspace.Mob:GetChildren()) do
+    local name = mob.Name
+    if not mobNamesSet[name] then
+        mobNamesSet[name] = true
+        table.insert(mobNamesList, name)
+    end
+end
 
-Toggle:OnChanged(function()
-    print("Auto Farm toggle:", Toggle.Value)
-end)
+-- เรียงลำดับชื่อ
+table.sort(mobNamesList)
 
--- เริ่ม Auto-Farm loop
-task.spawn(function()
-    while true do
-        task.wait(0.5)
+-- สร้าง Dropdown UI ด้วยชื่อม่อนที่ได้
+local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
+    Title = "เลือกชื่อม่อน",
+    Values = mobNamesList,
+    Multi = false,
+    Default = 1,
+})
 
-        -- เช็คว่า Toggle เปิดอยู่หรือไม่ และเลือกมอนแล้ว
-        if Toggle.Value and selectedMobName then
-            -- ค้นหามอนใน Workspace.Mob
-            local foundMob = nil
-            for _, mob in pairs(workspace.Mob:GetChildren()) do
-                if mob.Name == selectedMobName and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
-                    foundMob = mob
-                    break
-                end
-            end
-
-            -- ถ้ามอนที่เลือกเจอแล้ว
-            if foundMob then
-                local humanoid = foundMob.Humanoid
-                if humanoid.Health > 0 then
-                    -- วาร์ปไปตำแหน่งมอน
-                    local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        hrp.CFrame = foundMob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
-                    end
-                end
-            else
-                print("ไม่พบมอนที่เลือกหรือมอนตายแล้ว")
-            end
-        end
+-- ฟังชันเมื่อเลือกชื่อม่อน
+Dropdown:OnChanged(function(Value)
+    print("คุณเลือกม่อนชื่อ:", Value)
+    -- ตรงนี้จะทำอะไรก็เพิ่มได้ เช่นหาวัตถุนั้นใน workspace.Mob
+    local selectedMob = workspace.Mob:FindFirstChild(Value)
+    if selectedMob then
+        print("พบม่อน:", selectedMob.Name, "ที่ตำแหน่ง", selectedMob.Position)
+    else
+        print("ไม่พบม่อน")
     end
 end)
 
