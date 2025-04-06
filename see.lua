@@ -173,24 +173,13 @@ end)
  --Auto Farm
 ------------------
 Tabs.Main:AddSection("Auto Farm")
--- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
-local mobNamesSet = {}
-local mobNamesList = {}
-
--- ค้นหาชื่อม่อนใน workspace.Mob
-for _, mob in pairs(workspace.Mob:GetChildren()) do
-    local name = mob.Name
-    if not mobNamesSet[name] then
-        mobNamesSet[name] = true
-        table.insert(mobNamesList, name)
-    end
+-- ถ้ามี Dropdown เดิมอยู่ ให้ลบก่อน
+if Dropdown then
+    Dropdown:Destroy()
 end
 
--- เรียงลำดับชื่อ
-table.sort(mobNamesList)
-
--- สร้าง Dropdown UI ด้วยชื่อม่อนที่ได้
-local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
+-- สร้าง Dropdown ใหม่
+Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Title = "เลือกชื่อม่อน",
     Values = mobNamesList,
     Multi = false,
@@ -200,7 +189,6 @@ local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
 -- ฟังชันเมื่อเลือกชื่อม่อน
 Dropdown:OnChanged(function(Value)
     print("คุณเลือกม่อนชื่อ:", Value)
-    -- ตรงนี้จะทำอะไรก็เพิ่มได้ เช่นหาวัตถุนั้นใน workspace.Mob
     local selectedMob = workspace.Mob:FindFirstChild(Value)
     if selectedMob then
         print("พบม่อน:", selectedMob.Name, "ที่ตำแหน่ง", selectedMob.Position)
