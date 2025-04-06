@@ -173,33 +173,40 @@ end)
  --Auto Farm
 ------------------
 Tabs.Main:AddSection("Auto Farm")
--- สร้างตารางสำหรับเก็บชื่อที่ไม่ซ้ำ
-local mobNames = {}
+-- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
+local mobNamesSet = {}
+local mobNamesList = {}
 
--- วนลูปผ่านทุกโมเดลใน Workspace
-for _, obj in pairs(workspace:GetChildren()) do
-    if obj:IsA("Model") and obj.Name == "mob" then
-        -- ถ้าโมเดลมีชื่อว่า "mob" ให้เพิ่มเข้าไปในตาราง
-        if not table.find(mobNames, obj.Name) then
-            table.insert(mobNames, obj.Name)
-        end
+-- ค้นหาชื่อม่อนใน workspace.Mob
+for _, mob in pairs(workspace.Mob:GetChildren()) do
+    local name = mob.Name
+    if not mobNamesSet[name] then
+        mobNamesSet[name] = true
+        table.insert(mobNamesList, name)
     end
 end
 
--- สร้างฟังก์ชันสำหรับการเรียงลำดับ
-table.sort(mobNames)  -- เรียงลำดับชื่อ mob
+-- เรียงลำดับชื่อ
+table.sort(mobNamesList)
 
--- สร้าง Dropdown UI
-local dropdown = Tabs.Main:AddDropdown("MobDropdown", {
-    Title = "เลือก Mob",
-    Values = mobNames,  -- ใส่ชื่อที่เรียงลำดับแล้ว
-    Default = 1
+-- สร้าง Dropdown UI ด้วยชื่อม่อนที่ได้
+local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
+    Title = "เลือกชื่อม่อน",
+    Values = mobNamesList,
+    Multi = false,
+    Default = 1,
 })
 
--- เมื่อมีการเลือกจาก Dropdown
-dropdown:OnChanged(function(Value)
-    print("คุณเลือก:", Value)
-    -- ใส่โค้ดที่ต้องการเมื่อเลือก Mob ที่นี่
+-- ฟังชันเมื่อเลือกชื่อม่อน
+Dropdown:OnChanged(function(Value)
+    print("คุณเลือกม่อนชื่อ:", Value)
+    -- ตรงนี้จะทำอะไรก็เพิ่มได้ เช่นหาวัตถุนั้นใน workspace.Mob
+    local selectedMob = workspace.Mob:FindFirstChild(Value)
+    if selectedMob then
+        print("พบม่อน:", selectedMob.Name, "ที่ตำแหน่ง", selectedMob.Position)
+    else
+        print("ไม่พบม่อน")
+    end
 end)
 --------------------------
 -- เริ่มต้น
