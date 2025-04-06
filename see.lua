@@ -180,13 +180,14 @@ local mobNamesList = {}
 -- ค้นหาชื่อม่อนใน workspace.Mob
 for _, mob in pairs(workspace.Mob:GetChildren()) do
     local name = mob.Name
+    -- ตรวจสอบไม่ให้ชื่อม่อนซ้ำ
     if not mobNamesSet[name] then
         mobNamesSet[name] = true
         table.insert(mobNamesList, name)
     end
 end
 
--- เรียงลำดับชื่อ
+-- เรียงลำดับชื่อม่อน
 table.sort(mobNamesList)
 
 -- สร้าง Dropdown UI ด้วยชื่อม่อนที่ได้
@@ -197,52 +198,48 @@ local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Default = 1,
 })
 
--- ฟังชันเมื่อเลือกชื่อม่อน
+-- ตัวแปรสำหรับเก็บชื่อม่อนที่เลือก
+local selectedMob = ""
+
+-- ฟังก์ชันเมื่อเลือกชื่อม่อน
 Dropdown:OnChanged(function(Value)
     print("คุณเลือกม่อนชื่อ:", Value)
-    -- ตรงนี้จะทำอะไรก็เพิ่มได้ เช่นหาวัตถุนั้นใน workspace.Mob
-    local selectedMob = workspace.Mob:FindFirstChild(Value)
-    if selectedMob then
-        print("พบม่อน:", selectedMob.Name, "ที่ตำแหน่ง", selectedMob.Position)
-    else
-        print("ไม่พบม่อน")
-    end
-end)-- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
-local mobNamesSet = {}
-local mobNamesList = {}
-
--- ค้นหาชื่อม่อนใน workspace.Mob
-for _, mob in pairs(workspace.Mob:GetChildren()) do
-    local name = mob.Name
-    if not mobNamesSet[name] then
-        mobNamesSet[name] = true
-        table.insert(mobNamesList, name)
-    end
-end
-
--- เรียงลำดับชื่อ
-table.sort(mobNamesList)
-
--- สร้าง Dropdown UI ด้วยชื่อม่อนที่ได้
-local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
-    Title = "เลือกชื่อม่อน",
-    Values = mobNamesList,
-    Multi = false,
-    Default = 1,
-})
-
--- ฟังชันเมื่อเลือกชื่อม่อน
-Dropdown:OnChanged(function(Value)
-    print("คุณเลือกม่อนชื่อ:", Value)
-    -- ตรงนี้จะทำอะไรก็เพิ่มได้ เช่นหาวัตถุนั้นใน workspace.Mob
-    local selectedMob = workspace.Mob:FindFirstChild(Value)
-    if selectedMob then
-        print("พบม่อน:", selectedMob.Name, "ที่ตำแหน่ง", selectedMob.Position)
-    else
-        print("ไม่พบม่อน")
-    end
+    selectedMob = Value
 end)
 
+-- สร้าง Toggle UI
+local Toggle = Tabs.Main:AddToggle("AutoFarmToggle", {Title = "เปิด/ปิด AutoFarm", Default = false })
+
+-- ฟังก์ชันเมื่อ Toggle เปลี่ยน
+Toggle:OnChanged(function(Value)
+    print("AutoFarm Toggle เปลี่ยนเป็น:", Value)
+
+    -- หาก Toggle ถูกเปิด
+    if Value then
+        _G.AutoFarm = true
+        -- เริ่มทำการ AutoFarm
+        while _G.AutoFarm do
+            pcall(function()
+                for _, v in pairs(game:GetService("Workspace").mob:GetChildren()) do
+                    -- ตรวจสอบว่าเป็นม็อบที่เลือกใน Dropdown
+                    if v.Name == selectedMob and v:FindFirstChild("Humanoid") then
+                        local humanoid = v:FindFirstChild("Humanoid")
+                        if humanoid.Health > 0 then
+                            -- เคลื่อนที่ผู้เล่นไปยังม็อบที่เลือก
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+                            
+                            -- ตัวอย่างการโจมตี (เพิ่มโค้ดการโจมตีที่นี่ถ้าต้องการ)
+                            -- ตัวอย่างการโจมตีอาจจะใช้การสัมผัส หรือการใช้เครื่องมือ
+                        end
+                    end
+                end
+            end)
+            task.wait(1)  -- เลื่อนการทำงานเล็กน้อยเพื่อลดการโหลด
+        end
+    else
+        _G.AutoFarm = false  -- ปิด AutoFarm
+    end
+end)
 --------------------------
 -- เริ่มต้น
 --------------------------
