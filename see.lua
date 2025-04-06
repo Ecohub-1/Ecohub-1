@@ -20,8 +20,8 @@ local Window = Fluent:CreateWindow({
  -- เเทบช่อง
 ------------------
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "house" }),
-    Dungeon = Window:AddTab({ Title = "Auto Dungeon", Icon = "radar" }),
+    Main = Window:AddTab({ Title = "Main", Icon = "app-window" }),
+    Dungeon = Window:AddTab({ Title = "Auto Dungeon", Icon = "align-justify" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
     misc = Window:AddTab({ Title = "misc", Icon = "align-justify" })
 }
@@ -170,50 +170,37 @@ task.spawn(function()
     end
 end)
 ------------------
- --Auto skill
+ --Auto Farm
 ------------------
-Tabs.Settings:AddSection("Auto skill")
--- สร้าง Toggle สำหรับแต่ละสกิลใน Tabs.Settings
-local ToggleZ = Tabs.Settings:AddToggle("AutoSkillZ", {
-    Title = "Auto Skill Z",
-    Default = false
-})
-local ToggleX = Tabs.Settings:AddToggle("AutoSkillX", {
-    Title = "Auto Skill X",
-    Default = false
-})
-local ToggleC = Tabs.Settings:AddToggle("AutoSkillC", {
-    Title = "Auto Skill C",
-    Default = false
-})
-local ToggleV = Tabs.Settings:AddToggle("AutoSkillV", {
-    Title = "Auto Skill V",
-    Default = false
-})
+Tabs.Main:AddSection("Auto Farm")
+-- สร้างตารางสำหรับเก็บชื่อที่ไม่ซ้ำ
+local mobNames = {}
 
--- ฟังก์ชัน Auto Skill โดยไม่มีคูลดาวน์
-local function AutoSkill(key, toggle)
-    task.spawn(function()
-        while true do
-            if toggle.Value then
-                local useSkillEvent = game.ReplicatedStorage:FindFirstChild("UseSkill")
-                if useSkillEvent then
-                    print("Using skill: " .. key)  -- เพิ่มข้อความเพื่อยืนยันว่าฟังก์ชันทำงาน
-                    useSkillEvent:FireServer(key)  -- เรียก RemoteEvent
-                else
-                    warn("UseSkill RemoteEvent not found!")
-                end
-            end
-            task.wait(0.1)  -- รอเล็กน้อยในทุกลูปเพื่อไม่ให้ใช้ CPU มากเกินไป
+-- วนลูปผ่านทุกโมเดลใน Workspace
+for _, obj in pairs(workspace:GetChildren()) do
+    if obj:IsA("Model") and obj.Name == "mob" then
+        -- ถ้าโมเดลมีชื่อว่า "mob" ให้เพิ่มเข้าไปในตาราง
+        if not table.find(mobNames, obj) then
+            table.insert(mobNames, obj)
         end
-    end)
+    end
 end
 
--- เรียกใช้งานสำหรับแต่ละปุ่ม
-AutoSkill("Z", ToggleZ)
-AutoSkill("X", ToggleX)
-AutoSkill("C", ToggleC)
-AutoSkill("V", ToggleV)
+-- สร้างฟังก์ชันสำหรับการเรียงลำดับ
+table.sort(mobNames, function(a, b)
+    return a.Name < b.Name  -- เปรียบเทียบชื่อและเรียงลำดับ
+end)
+
+-- สมมติว่าเราใช้ Fluent UI เพื่อแสดงผล
+local Tabs = {} -- ตัวอย่างการสร้าง Tab UI
+local mobList = Tabs.Main:AddList("MobList", {
+    Title = "Mob List"
+})
+
+-- แสดงรายชื่อ mob ที่ไม่ซ้ำและเรียงตามลำดับใน List UI
+for _, mob in pairs(mobNames) do
+    mobList:AddItem(mob.Name)  -- เพิ่มชื่อ mob ใน List
+end
 --------------------------
 -- เริ่มต้น
 --------------------------
