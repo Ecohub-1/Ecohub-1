@@ -241,6 +241,20 @@ Toggle:OnChanged(function(Value)
                                 -- หันหน้าไปหาม็อบ
                                 humanoidRootPart.CFrame = CFrame.lookAt(humanoidRootPart.Position, head.Position)
 
+                                -- การใช้ BodyPosition เพื่อให้ตัวละครไม่ตก
+                                local bodyPosition = humanoidRootPart:FindFirstChildOfClass("BodyPosition")
+                                if not bodyPosition then
+                                    -- ถ้ายังไม่มี BodyPosition ให้สร้างใหม่
+                                    bodyPosition = Instance.new("BodyPosition")
+                                    bodyPosition.MaxForce = Vector3.new(400000, 400000, 400000)  -- กำหนดแรงสูงสุด
+                                    bodyPosition.D = 1000  -- ความต้านทาน
+                                    bodyPosition.P = 10000  -- ความเร็วในการปรับตำแหน่ง
+                                    bodyPosition.Parent = humanoidRootPart
+                                end
+
+                                -- กำหนดตำแหน่งที่จะค้างไว้
+                                bodyPosition.Position = targetPosition
+
                                 -- การโจมตี (เช็คว่าผู้เล่นมีอาวุธหรือไม่)
                                 local tool = character:FindFirstChildOfClass("Tool")
                                 if tool then
