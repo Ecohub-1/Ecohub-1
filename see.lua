@@ -227,9 +227,21 @@ Toggle:OnChanged(function(Value)
                         if humanoid.Health > 0 then
                             -- เคลื่อนที่ผู้เล่นไปยังม็อบที่เลือก
                             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
-                            
-                            -- ตัวอย่างการโจมตี (เพิ่มโค้ดการโจมตีที่นี่ถ้าต้องการ)
-                            -- ตัวอย่างการโจมตีอาจจะใช้การสัมผัส หรือการใช้เครื่องมือ
+
+                            -- เพิ่มการโจมตี (ตัวอย่าง)
+                            local character = game.Players.LocalPlayer.Character
+                            local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+                            -- ตรวจสอบว่า character มีอาวุธ (tool) หรือไม่
+                            local tool = character:FindFirstChildOfClass("Tool")
+                            if tool then
+                                -- ถ้ามีอาวุธ ให้โจมตี
+                                tool:Activate()  -- ทำการโจมตี
+                            else
+                                -- ถ้าไม่มีอาวุธ สามารถใช้วิธีการโจมตีธรรมดา
+                                humanoid:MoveTo(v.HumanoidRootPart.Position)  -- เคลื่อนที่ไปยังม็อบ
+                                -- สามารถเพิ่มโค้ดโจมตีที่นี่ได้ถ้าจำเป็น
+                            end
                         end
                     end
                 end
