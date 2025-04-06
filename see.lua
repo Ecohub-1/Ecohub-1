@@ -172,28 +172,51 @@ end)
 ------------------
  --Auto Farm
 ------------------
-Tabs.Main:AddSection("Auto Farm")
--- ถ้ามี Dropdown เดิมอยู่ ให้ลบก่อน
-if Dropdown then
-    Dropdown:Destroy()
-end
+Tabs.Main:AddSection("Auto Farm mob")
+-- ตัวแปรเก็บชื่อมอนที่เลือก
+local selectedMobName = nil
 
--- สร้าง Dropdown ใหม่
-Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
+-- สร้าง Dropdown สำหรับเลือกชื่อมอน
+local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Title = "เลือกชื่อม่อน",
     Values = mobNamesList,
     Multi = false,
     Default = 1,
 })
 
--- ฟังชันเมื่อเลือกชื่อม่อน
 Dropdown:OnChanged(function(Value)
-    print("คุณเลือกม่อนชื่อ:", Value)
-    local selectedMob = workspace.Mob:FindFirstChild(Value)
-    if selectedMob then
-        print("พบม่อน:", selectedMob.Name, "ที่ตำแหน่ง", selectedMob.Position)
-    else
-        print("ไม่พบม่อน")
+    selectedMobName = Value
+    print("เลือกม่อนชื่อ:", selectedMobName)
+end)
+
+-- Toggle สำหรับเปิด/ปิด Auto-Farm
+local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Auto Farm", Default = false})
+
+Toggle:OnChanged(function()
+    print("Auto Farm toggle:", Options.MyToggle.Value)
+end)
+
+Options.MyToggle:SetValue(false)
+
+-- เริ่ม Auto-Farm loop
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+
+        -- ถ้า toggle ปิดอยู่ หรือยังไม่ได้เลือกมอน จะไม่ทำงาน
+        if not Options.MyToggle.Value or not selectedMobName then continue end
+
+        for _, mob in pairs(workspace.Mob:GetChildren()) do
+            if mob.Name == selectedMobName and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
+                local humanoid = mob.Humanoid
+                if humanoid.Health > 0 then
+                    local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        hrp.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+                    end
+                end
+            end
+        end
     end
 end)
 --------------------------
