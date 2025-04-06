@@ -228,7 +228,7 @@ Toggle:OnChanged(function(Value)
                             local humanoid = v:FindFirstChild("Humanoid")
                             if humanoid.Health > 0 then
                                 -- เคลื่อนที่ผู้เล่นไปยังม็อบที่เลือก
-                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, +AutoFarmDistance, 0)
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, AutoFarmDistance, 0)
 
                                 -- การโจมตี (เช็คว่าผู้เล่นมีอาวุธหรือไม่)
                                 local character = game.Players.LocalPlayer.Character
