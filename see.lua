@@ -234,6 +234,9 @@ Toggle:OnChanged(function(Value)
                                 local character = player.Character
                                 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
+                                -- ใช้ CFrame เพื่อวาปไปที่ตำแหน่ง
+                                humanoidRootPart.CFrame = CFrame.new(targetPosition)
+
                                 -- ใช้ BodyPosition เพื่อไม่ให้ตก
                                 local bodyPosition = humanoidRootPart:FindFirstChildOfClass("BodyPosition")
                                 if not bodyPosition then
