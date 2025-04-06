@@ -174,7 +174,6 @@ end)
 ------------------
 Tabs.Main:AddSection("Auto Farm mob")
 
-
 -- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
 local mobNamesSet = {}
 local mobNamesList = {}
@@ -232,13 +231,17 @@ Toggle:OnChanged(function(Value)
                             if humanoid.Health > 0 and head then
                                 -- เคลื่อนที่ผู้เล่นไปยังตำแหน่งบนหัวม็อบที่เลือก โดยเพิ่มระยะที่กรอกใน Input
                                 local targetPosition = head.Position + Vector3.new(0, 30, 0)  -- เพิ่มระยะขึ้นไปเหนือหัว
-                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+                                local player = game.Players.LocalPlayer
+                                local character = player.Character
+                                local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+                                -- ลอยอยู่ที่ตำแหน่งเหนือหัวม็อบ
+                                humanoidRootPart.CFrame = CFrame.new(targetPosition)
+
+                                -- หันหน้าไปหาม็อบ
+                                humanoidRootPart.CFrame = CFrame.lookAt(humanoidRootPart.Position, head.Position)
 
                                 -- การโจมตี (เช็คว่าผู้เล่นมีอาวุธหรือไม่)
-                                local character = game.Players.LocalPlayer.Character
-                                local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-                                -- ตรวจสอบว่า character มีอาวุธ (tool) หรือไม่
                                 local tool = character:FindFirstChildOfClass("Tool")
                                 if tool then
                                     -- ถ้ามีอาวุธ ให้โจมตี
@@ -258,7 +261,7 @@ Toggle:OnChanged(function(Value)
     else
         _G.AutoFarm = false  -- ปิด AutoFarm
     end
-end) 
+end)
 --------------------------
 -- เริ่มต้น
 --------------------------
