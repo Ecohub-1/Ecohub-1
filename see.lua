@@ -180,27 +180,27 @@ local mobNames = {}
 for _, obj in pairs(workspace:GetChildren()) do
     if obj:IsA("Model") and obj.Name == "mob" then
         -- ถ้าโมเดลมีชื่อว่า "mob" ให้เพิ่มเข้าไปในตาราง
-        if not table.find(mobNames, obj) then
-            table.insert(mobNames, obj)
+        if not table.find(mobNames, obj.Name) then
+            table.insert(mobNames, obj.Name)
         end
     end
 end
 
 -- สร้างฟังก์ชันสำหรับการเรียงลำดับ
-table.sort(mobNames, function(a, b)
-    return a.Name < b.Name  -- เปรียบเทียบชื่อและเรียงลำดับ
-end)
+table.sort(mobNames)  -- เรียงลำดับชื่อ mob
 
--- สมมติว่าเราใช้ Fluent UI เพื่อแสดงผล
-local Tabs = {} -- ตัวอย่างการสร้าง Tab UI
-local mobList = Tabs.Main:AddList("MobList", {
-    Title = "Mob List"
+-- สร้าง Dropdown UI
+local dropdown = Tabs.Main:AddDropdown("MobDropdown", {
+    Title = "เลือก Mob",
+    Values = mobNames,  -- ใส่ชื่อที่เรียงลำดับแล้ว
+    Default = 1
 })
 
--- แสดงรายชื่อ mob ที่ไม่ซ้ำและเรียงตามลำดับใน List UI
-for _, mob in pairs(mobNames) do
-    mobList:AddItem(mob.Name)  -- เพิ่มชื่อ mob ใน List
-end
+-- เมื่อมีการเลือกจาก Dropdown
+dropdown:OnChanged(function(Value)
+    print("คุณเลือก:", Value)
+    -- ใส่โค้ดที่ต้องการเมื่อเลือก Mob ที่นี่
+end)
 --------------------------
 -- เริ่มต้น
 --------------------------
