@@ -271,7 +271,7 @@ Toggle:OnChanged(function(Value)
                         end
                     end
                 end)
-                task.wait(1)  -- เลื่อนการทำงานเล็กน้อยเพื่อลดการโหลด
+                task.wait(0.1)  -- เลื่อนการทำงานเล็กน้อยเพื่อลดการโหลด
             end
         end)
     else
