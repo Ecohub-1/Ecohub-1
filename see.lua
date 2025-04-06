@@ -226,42 +226,15 @@ Toggle:OnChanged(function(Value)
                         -- ตรวจสอบว่าเป็นม็อบที่เลือกใน Dropdown
                         if v.Name == selectedMob and v:FindFirstChild("Humanoid") then
                             local humanoid = v:FindFirstChild("Humanoid")
-                            local head = v:FindFirstChild("Head")  -- หาตำแหน่งของหัวม็อบ
-                            if humanoid.Health > 0 and head then
-                                -- เคลื่อนที่ผู้เล่นไปยังตำแหน่งบนหัวม็อบที่เลือก โดยเพิ่มระยะที่กรอกใน Input
-                                local targetPosition = head.Position + Vector3.new(0, 30, 0)  -- เพิ่มระยะขึ้นไปเหนือหัว
-                                local player = game.Players.LocalPlayer
-                                local character = player.Character
-                                local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-                                -- ใช้ CFrame เพื่อวาปไปที่ตำแหน่ง
-                                humanoidRootPart.CFrame = CFrame.new(targetPosition)
-
-                                -- ใช้ BodyPosition เพื่อไม่ให้ตก
-                                local bodyPosition = humanoidRootPart:FindFirstChildOfClass("BodyPosition")
-                                if not bodyPosition then
-                                    bodyPosition = Instance.new("BodyPosition")
-                                    bodyPosition.MaxForce = Vector3.new(400000, 400000, 400000)  -- กำหนดแรงสูงสุด
-                                    bodyPosition.D = 1000  -- ความต้านทาน
-                                    bodyPosition.P = 10000  -- ความเร็วในการปรับตำแหน่ง
-                                    bodyPosition.Parent = humanoidRootPart
-                                end
-                                bodyPosition.Position = targetPosition
-
-                                -- ใช้ BodyGyro เพื่อไม่ให้หมุน (ล็อคการหมุน)
-                                local bodyGyro = humanoidRootPart:FindFirstChildOfClass("BodyGyro")
-                                if not bodyGyro then
-                                    bodyGyro = Instance.new("BodyGyro")
-                                    bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)  -- กำหนดแรงหมุนสูงสุด
-                                    bodyGyro.D = 1000  -- ความต้านทานในการหมุน
-                                    bodyGyro.CFrame = humanoidRootPart.CFrame  -- ล็อคการหมุนให้คงที่
-                                    bodyGyro.Parent = humanoidRootPart
-                                end
-
-                                -- กำหนด CFrame สำหรับ BodyGyro เพื่อไม่ให้ตัวละครหมุน
-                                bodyGyro.CFrame = CFrame.new(humanoidRootPart.Position, head.Position)  -- หันหน้าไปหาม็อบ
+                            if humanoid.Health > 0 then
+                                -- เคลื่อนที่ผู้เล่นไปยังม็อบที่เลือก
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
 
                                 -- การโจมตี (เช็คว่าผู้เล่นมีอาวุธหรือไม่)
+                                local character = game.Players.LocalPlayer.Character
+                                local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+                                -- ตรวจสอบว่า character มีอาวุธ (tool) หรือไม่
                                 local tool = character:FindFirstChildOfClass("Tool")
                                 if tool then
                                     -- ถ้ามีอาวุธ ให้โจมตี
@@ -275,7 +248,7 @@ Toggle:OnChanged(function(Value)
                         end
                     end
                 end)
-                task.wait(0.1)  -- เลื่อนการทำงานเล็กน้อยเพื่อลดการโหลด
+                task.wait(1)  -- เลื่อนการทำงานเล็กน้อยเพื่อลดการโหลด
             end
         end)
     else
