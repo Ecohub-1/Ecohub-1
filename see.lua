@@ -305,15 +305,15 @@ Fluent:Notify({
 })
 
 SaveManager:LoadAutoloadConfig()
-Tabs.Credit:AddParagraph({
+Tabs.Credits:AddParagraph({
     Title = "Owner",
     Content = "Owner:zer09Xz"
 })
-Tabs.Credit:AddParagraph({
+Tabs.Credits:AddParagraph({
     Title = "Script",
     Content = "Script:zer09Xz"
 })
-Tabs.Credit:AddParagraph({
+Tabs.Credits:AddParagraph({
     Title = "Helper",
     Content = "Helper: Lucas Dummy"
 })
