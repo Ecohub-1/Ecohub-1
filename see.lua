@@ -302,6 +302,10 @@ Tabs.Credits:AddParagraph({
     Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy"
 })
 
+Tabs.Credits:AddParagraph({
+    Title = "Credits",
+    Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy"
+})
 
 --------------------------
 -- เริ่มต้น
