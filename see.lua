@@ -288,8 +288,6 @@ for key, id in pairs(skillKeys) do
     end)
 end
 
-
-
 Tabs.Credits:AddParagraph({
     Title = "Credits",
     Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy"
