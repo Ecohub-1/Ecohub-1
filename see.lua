@@ -20,7 +20,7 @@ local Window = Fluent:CreateWindow({
  -- เเทบช่อง
 ------------------
 local Tabs = {
-    Credits = Window:AddTab({ Title = "Credits", Icon = "credit-card" }),
+    Credits = Window:AddTab({ Title = "Credits", Icon = "award" }),
     Main = Window:AddTab({ Title = "Main", Icon = "app-window" }),
     Dungeon = Window:AddTab({ Title = "Auto Dungeon", Icon = "align-justify" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
