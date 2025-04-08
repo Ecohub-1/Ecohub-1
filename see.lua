@@ -134,86 +134,90 @@ end)
  --Auto Farm
 ------------------
 Tabs.Main:AddSection("Auto Farm mob")
--- สร้างตารางสำหรับเก็บชื่อม่อนไม่ซ้ำ
 local mobNamesSet = {}
 local mobNamesList = {}
 
--- ค้นหาชื่อม่อนใน workspace.Mob
 for _, mob in pairs(workspace.Mob:GetChildren()) do
     local name = mob.Name
-    -- ตรวจสอบไม่ให้ชื่อม่อนซ้ำ
     if not mobNamesSet[name] then
         mobNamesSet[name] = true
         table.insert(mobNamesList, name)
     end
 end
 
--- เรียงลำดับชื่อม่อน
 table.sort(mobNamesList)
 
--- สร้าง Dropdown UI ด้วยชื่อม่อนที่ได้
-local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
-    Title = "เลือกชื่อม่อน",
+local toggle = Tabs.Main:AddToggle("MyToggle", {
+    Title = "Enable/Disable AutoFarm",
+    Default = false
+})
+
+local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
+    Title = "Select Mob Name",
     Values = mobNamesList,
     Multi = false,
     Default = 1,
 })
+Tabs.Main:AddSection("Auto Farm Setting")
+local dropdown = Tabs.Main:AddDropdown("MyDropdown", {
+    Title = "Select Position",
+    Values = {"Above", "Behind", "Below"},
+    Default = 1
+})
 
--- ตัวแปรสำหรับเก็บชื่อม่อนที่เลือก
+local input = Tabs.Main:AddInput("MyInput", {
+    Title = "Distance",
+    Placeholder = "Enter the desired distance",
+    Callback = function(Value)
+        local distance = tonumber(Value)
+        if distance then
+        end
+    end
+})
+
 local selectedMob = ""
 
--- ฟังก์ชันเมื่อเลือกชื่อม่อน
-Dropdown:OnChanged(function(Value)
-    print("คุณเลือกม่อนชื่อ:", Value)
+mobDropdown:OnChanged(function(Value)
     selectedMob = Value
 end)
 
--- สร้าง Toggle UI
-local Toggle = Tabs.Main:AddToggle("AutoFarmToggle", {Title = "เปิด/ปิด AutoFarm", Default = false })
-
--- ฟังก์ชันเมื่อ Toggle เปลี่ยน
-Toggle:OnChanged(function(Value)
-    print("AutoFarm Toggle เปลี่ยนเป็น:", Value)
-
-    -- หาก Toggle ถูกเปิด
-    if Value then
+toggle:OnChanged(function()
+    if toggle.Value then
         _G.AutoFarm = true
-        -- เริ่มทำการ AutoFarm
-        spawn(function()  -- Use spawn to prevent blocking other code
+        spawn(function()
             while _G.AutoFarm do
                 pcall(function()
-                    -- ค้นหาม็อบใน workspace
                     for _, v in pairs(workspace.Mob:GetChildren()) do
-                        -- ตรวจสอบว่าเป็นม็อบที่เลือกใน Dropdown
                         if v.Name == selectedMob and v:FindFirstChild("Humanoid") then
                             local humanoid = v:FindFirstChild("Humanoid")
                             if humanoid.Health > 0 then
-                                -- เคลื่อนที่ผู้เล่นไปยังม็อบที่เลือก
-                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
-
-                                -- การโจมตี (เช็คว่าผู้เล่นมีอาวุธหรือไม่)
+                                local distance = tonumber(input.Value) or 5
+                                local position = v.HumanoidRootPart.Position
+                                if dropdown.Value == "Above" then
+                                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(position + Vector3.new(0, distance, 0))
+                                elseif dropdown.Value == "Behind" then
+                                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(position - v.HumanoidRootPart.CFrame.LookVector * distance)
+                                elseif dropdown.Value == "Below" then
+                                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(position - Vector3.new(0, distance, 0))
+                                end
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.rad(-30), 0, 0)
                                 local character = game.Players.LocalPlayer.Character
                                 local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-                                -- ตรวจสอบว่า character มีอาวุธ (tool) หรือไม่
                                 local tool = character:FindFirstChildOfClass("Tool")
-                                if tool then
-                                    -- ถ้ามีอาวุธ ให้โจมตี
-                                    tool:Activate()  -- ทำการโจมตี
-                                else
-                                    -- ถ้าไม่มีอาวุธ สามารถใช้วิธีการโจมตีธรรมดา
-                                    humanoid:MoveTo(v.HumanoidRootPart.Position)  -- เคลื่อนที่ไปยังม็อบ
-                                    -- สามารถเพิ่มโค้ดโจมตีที่นี่ได้ถ้าจำเป็น
+                                if not tool then
+                                    humanoid:MoveTo(v.HumanoidRootPart.Position)
                                 end
                             end
+                        elseif humanoid.Health <= 0 then
+                            break
                         end
                     end
                 end)
-                task.wait(1)  -- เลื่อนการทำงานเล็กน้อยเพื่อลดการโหลด
+                task.wait(1)
             end
         end)
     else
-        _G.AutoFarm = false  -- ปิด AutoFarm
+        _G.AutoFarm = false
     end
 end)
 --------------------
