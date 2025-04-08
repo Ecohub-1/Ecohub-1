@@ -188,7 +188,7 @@ end)
 toggle:OnChanged(function()
     if toggle.Value then
         _G.AutoFarm = true
-        enableNoClip()  -- เปิด No-Clip เมื่อเปิด AutoFarm
+        enableNoClip()  
         spawn(function()
             while _G.AutoFarm do
                 pcall(function()
@@ -209,10 +209,8 @@ toggle:OnChanged(function()
                                     targetPosition = position - Vector3.new(0, distance, 0)
                                 end
                                 
-                                -- วาร์ปตัวละครไปที่ตำแหน่งที่มอนสเตอร์และหันหน้าไปหามอนสเตอร์
                                 playerRoot.CFrame = CFrame.new(targetPosition, mob.HumanoidRootPart.Position)
 
-                                -- หันหน้าตัวละครไปหามอนสเตอร์
                                 local character = game.Players.LocalPlayer.Character
                                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                                 local tool = character:FindFirstChildOfClass("Tool")
@@ -228,11 +226,10 @@ toggle:OnChanged(function()
         end)
     else
         _G.AutoFarm = false
-        disableNoClip() -- ปิด No-Clip เมื่อปิด AutoFarm
+        disableNoClip() 
     end
 end)
 
--- ฟังก์ชัน No-Clip
 local function enableNoClip()
     local character = game.Players.LocalPlayer.Character
     for _, part in pairs(character:GetChildren()) do
