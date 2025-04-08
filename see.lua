@@ -159,7 +159,6 @@ local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Default = 1,
 })
 Tabs.Main:AddSection("Auto Farm Setting")
-
 local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
     Title = "Select Position",
     Values = {"Above", "Behind", "Below"},
@@ -189,6 +188,7 @@ end)
 toggle:OnChanged(function()
     if toggle.Value then
         _G.AutoFarm = true
+        enableNoClip()  -- เปิด No-Clip เมื่อเปิด AutoFarm
         spawn(function()
             while _G.AutoFarm do
                 pcall(function()
@@ -209,8 +209,10 @@ toggle:OnChanged(function()
                                     targetPosition = position - Vector3.new(0, distance, 0)
                                 end
                                 
+                                -- วาร์ปตัวละครไปที่ตำแหน่งที่มอนสเตอร์
                                 playerRoot.CFrame = CFrame.new(targetPosition)
                                 
+                                -- หันหน้าตัวละครไปหามอนสเตอร์
                                 local lookAt = (mob.HumanoidRootPart.Position - playerRoot.Position).unit
                                 playerRoot.CFrame = CFrame.new(playerRoot.Position, playerRoot.Position + lookAt)
 
@@ -229,12 +231,14 @@ toggle:OnChanged(function()
         end)
     else
         _G.AutoFarm = false
+        disableNoClip() -- ปิด No-Clip เมื่อปิด AutoFarm
     end
 end)
 
 -- ฟังก์ชัน No-Clip
 local function enableNoClip()
-    for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+    local character = game.Players.LocalPlayer.Character
+    for _, part in pairs(character:GetChildren()) do
         if part:IsA("BasePart") then
             part.CanCollide = false
         end
@@ -242,23 +246,13 @@ local function enableNoClip()
 end
 
 local function disableNoClip()
-    for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+    local character = game.Players.LocalPlayer.Character
+    for _, part in pairs(character:GetChildren()) do
         if part:IsA("BasePart") then
             part.CanCollide = true
         end
     end
 end
-
--- เชื่อมโยงฟังก์ชัน No-Clip กับ AutoFarm
-toggle:OnChanged(function()
-    if toggle.Value then
-        _G.AutoFarm = true
-        enableNoClip()  -- เปิด No-Clip เมื่อเปิด AutoFarm
-    else
-        _G.AutoFarm = false
-        disableNoClip() -- ปิด No-Clip เมื่อปิด AutoFarm
-    end
-end)
 --------------------
  -- auto skill
 --------------------
