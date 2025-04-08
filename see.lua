@@ -260,7 +260,7 @@ end)
 --------------------
 Tabs.Settings:AddSection("Auto Skill")
 
-local Toggle = Tabs.Settings:AddToggle("MyToggle", {
+local Toggle = Tabs.Settings:AddToggle("Auto skill Z", {
     Title = "Skill Z", 
     Default = false 
 })
@@ -284,7 +284,7 @@ end)
 
 Options.MyToggle:SetValue(false)
 -- Skill x กุเขียนเอง
-local Toggle = Tabs.Settings:AddToggle("MyToggle", {
+local Toggle = Tabs.Settings:AddToggle("Auto skill X", {
     Title = "Skill X", 
     Default = false 
 })
@@ -308,7 +308,7 @@ end)
 
 Options.MyToggle:SetValue(false)
 
-local Toggle = Tabs.Setting:AddToggle("MyToggle", {
+local Toggle = Tabs.Setting:AddToggle("Auto skill C", {
     Title = "Skill C", 
     Default = false 
 })
@@ -332,7 +332,7 @@ end)
 
 Options.MyToggle:SetValue(false)
 -- Skill V
-local Toggle = Tabs.Settings:AddToggle("MyToggle", {
+local Toggle = Tabs.Settings:AddToggle("Auto skill V", {
     Title = "Skill V", 
     Default = false 
 })
@@ -356,7 +356,7 @@ end)
 
 Options.MyToggle:SetValue(false)
 
-local Toggle = Tabs.Settings:AddToggle("MyToggle", {
+local Toggle = Tabs.Settings:AddToggle("Auto skill F", {
     Title = "Skill F", 
     Default = false 
 })
