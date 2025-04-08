@@ -137,7 +137,7 @@ Tabs.Main:AddSection("Auto Farm mob")
 local mobNamesSet = {}
 local mobNamesList = {}
 
--- ฟังก์ชันรีเฟรชชื่อมอนสเตอร์
+-- รีเฟรชชื่อมอนสเตอร์
 local function refreshMobNames()
     mobNamesSet = {}
     mobNamesList = {}
@@ -156,24 +156,35 @@ end
 
 refreshMobNames()
 
+-- สร้าง Toggle สำหรับเปิด/ปิด AutoFarm
 local toggle = Tabs.Main:AddToggle("AutoFarmToggle", {
     Title = "Enable/Disable AutoFarm",
     Default = false
 })
 
+-- สร้าง Dropdown สำหรับเลือกชื่อมอนสเตอร์
 local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Title = "Select Mob Name",
     Values = mobNamesList,
     Multi = false,
     Default = 1,
 })
-Tabs.Main:AddSection("Auto Farm Settings")
+Tabs.Main:AddSection("Auto Farm mob")
+
+Tabs.Main:AddButton({
+    Title = "Refresh",
+    Callback = function()
+        refreshMobNames()
+    end
+})
+-- สร้าง Dropdown สำหรับเลือกตำแหน่ง
 local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
     Title = "Select Position",
     Values = {"Above", "Behind", "Below"},
     Default = 1
 })
 
+-- สร้าง Input สำหรับระบุระยะห่าง
 local input = Tabs.Main:AddInput("DistanceInput", {
     Title = "Enter Distance (1-125)",
     Placeholder = "Enter the desired distance",
@@ -190,14 +201,16 @@ local input = Tabs.Main:AddInput("DistanceInput", {
 
 local selectedMob = ""
 
+-- เมื่อเลือกชื่อมอนสเตอร์จาก Dropdown
 mobDropdown:OnChanged(function(Value)
     selectedMob = Value
 end)
 
+-- เมื่อเปลี่ยนสถานะของ AutoFarm
 toggle:OnChanged(function()
     if toggle.Value then
         _G.AutoFarm = true
-        enableNoClip()
+        enableNoClip() -- เปิด NoClip เมื่อเปิด AutoFarm
         spawn(function()
             while _G.AutoFarm do
                 pcall(function()
@@ -209,6 +222,7 @@ toggle:OnChanged(function()
                                 local position = mob.HumanoidRootPart.Position
                                 local playerRoot = game.Players.LocalPlayer.Character.HumanoidRootPart
                                 
+                                -- คำนวณตำแหน่งที่ต้องการให้ผู้เล่นไป
                                 local targetPosition
                                 if positionDropdown.Value == "Above" then
                                     targetPosition = position + Vector3.new(0, distance, 0)
@@ -218,12 +232,15 @@ toggle:OnChanged(function()
                                     targetPosition = position - Vector3.new(0, distance, 0)
                                 end
                                 
+                                -- วาร์ปผู้เล่นไปที่ตำแหน่งที่คำนวณ
                                 playerRoot.CFrame = CFrame.new(targetPosition)
 
+                                -- หมุนผู้เล่นให้หันไปที่มอนสเตอร์
                                 local direction = (mob.HumanoidRootPart.Position - playerRoot.Position).unit
                                 local lookAt = playerRoot.Position + direction
                                 playerRoot.CFrame = CFrame.new(playerRoot.Position, lookAt)
 
+                                -- ถ้าไม่มีอาวุธก็ให้เดินไปที่มอนสเตอร์
                                 local character = game.Players.LocalPlayer.Character
                                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                                 local tool = character:FindFirstChildOfClass("Tool")
@@ -239,10 +256,11 @@ toggle:OnChanged(function()
         end)
     else
         _G.AutoFarm = false
-        disableNoClip()
+        disableNoClip() -- ปิด NoClip เมื่อปิด AutoFarm
     end
 end)
 
+-- ฟังก์ชันเปิด NoClip
 local function enableNoClip()
     local character = game.Players.LocalPlayer.Character
     for _, part in pairs(character:GetChildren()) do
@@ -252,6 +270,7 @@ local function enableNoClip()
     end
 end
 
+-- ฟังก์ชันปิด NoClip
 local function disableNoClip()
     local character = game.Players.LocalPlayer.Character
     for _, part in pairs(character:GetChildren()) do
@@ -260,14 +279,6 @@ local function disableNoClip()
         end
     end
 end
-
-Tabs.Main:AddButton({
-    Title = "Refresh",
-    Callback = function()
-        refreshMobNames()
-    end
-})
-
 --------------------
  -- auto skill
 --------------------
