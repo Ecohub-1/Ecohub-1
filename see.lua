@@ -30,7 +30,7 @@ Tabs.Credits:AddParagraph({
 -- ออโต้ฟามยังบัค
 Tabs.Settings:AddSection("Auto Farm")
 _G.AutoFarm = false
-local selectedMob = nil
+local selectedMob = bacon
 local selectedDirection = "upstairs"
 local attackDistance = 10
 
