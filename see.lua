@@ -44,15 +44,11 @@ SaveManager:BuildConfigSection(Tabs.misc)
 -- หมวด: Auto Equip
 --------------------------
 Tabs.Settings:AddSection("Auto Equip")
+local autoEquipRunning, selectedOption = false, "Melee"
 
-local autoEquipRunning = false
-local selectedOption = "Melee"
-
--- Dropdown เลือกประเภทอาวุธ
 Tabs.Settings:AddDropdown("TypeDropdown", {
     Title = "เลือกประเภทอาวุธ",
     Values = { "Melee", "Sword", "DevilFruit", "Special" },
-    Multi = false,
     Default = 1,
     Callback = function(value)
         selectedOption = value
@@ -60,67 +56,31 @@ Tabs.Settings:AddDropdown("TypeDropdown", {
     end
 })
 
--- ฟังก์ชัน Auto Equip
 local function autoEquip()
-    if not autoEquipRunning then return end
-
-    local equipped = false
-    for _, tool in ipairs(backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            local toolType = tool:GetAttribute("Type")
-            if toolType and string.lower(toolType) == string.lower(selectedOption) then
-                if tool.Parent ~= player.Character then
-                    tool.Parent = player.Character
-                    equipped = true
-                    if selectedOption == "Melee" then break end -- ใส่แค่อันเดียวสำหรับ Melee
-                end
+    if autoEquipRunning then
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") and tool:GetAttribute("Type") == selectedOption then
+                tool.Parent = player.Character
+                if selectedOption == "Melee" then break end
             end
         end
     end
 end
 
--- toggle เปิด/ปิด Auto Equip พร้อม Notify
-local equipToggle = Tabs.Settings:AddToggle("AutoEquipToggle", {
+Tabs.Settings:AddToggle("AutoEquipToggle", {
     Title = "เปิด/ปิด Auto Equip",
-    Default = false
+    Default = false,
+    OnChanged = function() autoEquipRunning = equipToggle.Value; if autoEquipRunning then autoEquip() end end
 })
 
-equipToggle:OnChanged(function()
-    autoEquipRunning = equipToggle.Value
-    if autoEquipRunning then
-        autoEquip()
-        Fluent:Notify({
-            Title = "Auto Equip",
-            Content = "Auto Equip: true",
-            Duration = 3
-        })
-    else
-        Fluent:Notify({
-            Title = "Auto Equip",
-            Content = "Auto Equip: false",
-            Duration = 3
-        })
-    end
-end)
-
--- ตรวจจับเมื่อมี Tool ใหม่
 backpack.ChildAdded:Connect(function(child)
-    if child:IsA("Tool") then
-        task.wait(0.1)
-        if autoEquipRunning then
-            local toolType = child:GetAttribute("Type")
-            if toolType and string.lower(toolType) == string.lower(selectedOption) then
-                child.Parent = player.Character
-            end
-        end
+    if child:IsA("Tool") and autoEquipRunning and child:GetAttribute("Type") == selectedOption then
+        child.Parent = player.Character
     end
 end)
 
--- เมื่อโหลดตัวละครใหม่
-player.CharacterAdded:Connect(function()
-    task.wait(1)
-    if autoEquipRunning then autoEquip() end
-end)
+player.CharacterAdded:Connect(function() if autoEquipRunning then autoEquip() end end)
+
 
 --------------------------
 -- หมวด: Auto Click
