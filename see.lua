@@ -134,7 +134,125 @@ end)
  --Auto Farm
 ------------------
 Tabs.Main:AddSection("Auto Farm mob")
+local mobNamesSet = {}
+local mobNamesList = {}
 
+for _, mob in pairs(workspace.Mob:GetChildren()) do
+    local name = mob.Name
+    if not mobNamesSet[name] then
+        mobNamesSet[name] = true
+        table.insert(mobNamesList, name)
+    end
+end
+
+table.sort(mobNamesList)
+
+local toggle = Tabs.Main:AddToggle("AutoFarmToggle", {
+    Title = "Enable/Disable AutoFarm",
+    Default = false
+})
+
+local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
+    Title = "Select Mob Name",
+    Values = mobNamesList,
+    Multi = false,
+    Default = 1,
+})
+Tabs.Main:AddSection("Auto Farm Settings")
+local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
+    Title = "Select Position",
+    Values = {"Above", "Behind", "Below"},
+    Default = 1
+})
+
+local input = Tabs.Main:AddInput("DistanceInput", {
+    Title = "Enter Distance (1-125)",
+    Placeholder = "Enter the desired distance",
+    Default = "50",  
+    Callback = function(Value)
+        local distance = tonumber(Value)
+        if distance and distance >= 1 and distance <= 125 then
+            _G.Distance = distance
+        else
+            _G.Distance = 50
+        end
+    end
+})
+
+local selectedMob = ""
+
+mobDropdown:OnChanged(function(Value)
+    selectedMob = Value
+end)
+
+toggle:OnChanged(function()
+    if toggle.Value then
+        _G.AutoFarm = true
+        enableNoClip()  -- เปิด No-Clip เมื่อเปิด AutoFarm
+        spawn(function()
+            while _G.AutoFarm do
+                pcall(function()
+                    for _, mob in pairs(workspace.Mob:GetChildren()) do
+                        if mob.Name == selectedMob and mob:FindFirstChild("Humanoid") then
+                            local humanoid = mob:FindFirstChild("Humanoid")
+                            if humanoid and humanoid.Health > 0 then
+                                local distance = _G.Distance or 50
+                                local position = mob.HumanoidRootPart.Position
+                                local playerRoot = game.Players.LocalPlayer.Character.HumanoidRootPart
+                                
+                                local targetPosition
+                                if positionDropdown.Value == "Above" then
+                                    targetPosition = position + Vector3.new(0, distance, 0)
+                                elseif positionDropdown.Value == "Behind" then
+                                    targetPosition = position - mob.HumanoidRootPart.CFrame.LookVector * distance
+                                elseif positionDropdown.Value == "Below" then
+                                    targetPosition = position - Vector3.new(0, distance, 0)
+                                end
+                                
+                                -- วาร์ปตัวละครไปที่ตำแหน่งที่มอนสเตอร์
+                                playerRoot.CFrame = CFrame.new(targetPosition)
+                                
+                                -- หันหน้าตัวละครไปหามอนสเตอร์
+                                local lookAt = (mob.HumanoidRootPart.Position - playerRoot.Position).unit
+                                playerRoot.CFrame = CFrame.new(playerRoot.Position, playerRoot.Position + lookAt)
+
+                                local character = game.Players.LocalPlayer.Character
+                                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                                local tool = character:FindFirstChildOfClass("Tool")
+                                if not tool then
+                                    humanoid:MoveTo(mob.HumanoidRootPart.Position)
+                                end
+                            end
+                        end
+                    end
+                end)
+                task.wait(1)
+            end
+        end)
+    else
+        _G.AutoFarm = false
+        disableNoClip() -- ปิด No-Clip เมื่อปิด AutoFarm
+    end
+end)
+
+-- ฟังก์ชัน No-Clip
+local function enableNoClip()
+    local character = game.Players.LocalPlayer.Character
+    for _, part in pairs(character:GetChildren()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+end
+
+local function disableNoClip()
+    local character = game.Players.LocalPlayer.Character
+    for _, part in pairs(character:GetChildren()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+        end
+    end
+end
 --------------------
  -- auto skill
 --------------------
