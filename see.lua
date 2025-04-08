@@ -262,7 +262,7 @@ Tabs.Settings:AddSection("Auto Skill")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local RunService = game:GetService("RunService")
 
-local Toggle = Tabs.Settings:AddToggle("Auto skill Z", {
+local Toggle = Tabs.Settings:AddToggle("AutoskillZ", {
     Title = "Skill Z", 
     Default = false 
 })
@@ -284,9 +284,9 @@ Toggle:OnChanged(function(state)
     end
 end)
 
-Options.MyToggle:SetValue(false)
+Options.AutoskillZ:SetValue(false)
 -- Skill x กุเขียนเอง
-local Toggle = Tabs.Settings:AddToggle("Auto skill X", {
+local Toggle = Tabs.Settings:AddToggle("AutoskillX", {
     Title = "Skill X", 
     Default = false 
 })
@@ -308,9 +308,9 @@ Toggle:OnChanged(function(state)
     end
 end)
 
-Options.MyToggle:SetValue(false)
+Options.AutoskillX:SetValue(false)
 
-local Toggle = Tabs.Setting:AddToggle("Auto skill C", {
+local Toggle = Tabs.Setting:AddToggle("AutoskillC", {
     Title = "Skill C", 
     Default = false 
 })
@@ -332,9 +332,9 @@ Toggle:OnChanged(function(state)
     end
 end)
 
-Options.MyToggle:SetValue(false)
+Options.AutoskillC:SetValue(false)
 -- Skill V
-local Toggle = Tabs.Settings:AddToggle("Auto skill V", {
+local Toggle = Tabs.Settings:AddToggle("AutoskillV", {
     Title = "Skill V", 
     Default = false 
 })
@@ -356,9 +356,9 @@ Toggle:OnChanged(function(state)
     end
 end)
 
-Options.MyToggle:SetValue(false)
+Options.AutoskillV:SetValue(false)
 
-local Toggle = Tabs.Settings:AddToggle("Auto skill F", {
+local Toggle = Tabs.Settings:AddToggle("AutoskillF", {
     Title = "Skill F", 
     Default = false 
 })
@@ -380,7 +380,7 @@ Toggle:OnChanged(function(state)
     end
 end)
 
-Options.MyToggle:SetValue(false)
+Options.AutoskillF:SetValue(false)
 --------------------------
 -- เริ่มต้น
 --------------------------
