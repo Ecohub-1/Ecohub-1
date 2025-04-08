@@ -380,6 +380,42 @@ Toggle:OnChanged(function(state)
 end)
 
 Options.AutoskillF:SetValue(false)
+
+Tabs.Settings:AddSection("o")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local skillKeys = {
+    Z = "AutoSkillZ",
+    X = "AutoSkillX",
+    C = "AutoSkillC",
+    V = "AutoSkillV",
+    F = "AutoSkillF"
+}
+
+for key, id in pairs(skillKeys) do
+    local state = false
+
+    local toggle = Tabs.Settings:AddToggle(id, {
+        Title = "Skill " .. key,
+        Default = false
+    })
+
+    toggle:OnChanged(function(enabled)
+        state = enabled
+        if state then
+            task.spawn(function()
+                while state do
+                    VirtualInputManager:SendKeyEvent(true, key, false, game)
+                    task.wait(0.05)
+                    VirtualInputManager:SendKeyEvent(false, key, false, game)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end)
+
+    Options[id]:SetValue(false)
+end
 --------------------------
 -- เริ่มต้น
 --------------------------
