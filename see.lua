@@ -259,6 +259,8 @@ end)
  -- auto skill
 --------------------
 Tabs.Settings:AddSection("Auto Skill")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
 
 local Toggle = Tabs.Settings:AddToggle("Auto skill Z", {
     Title = "Skill Z", 
