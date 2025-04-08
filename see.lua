@@ -47,7 +47,7 @@ Tabs.Settings:AddSection("Auto Equip")
 local autoEquipRunning, selectedOption = false, "Melee"
 
 Tabs.Settings:AddDropdown("TypeDropdown", {
-    Title = "เลือกประเภทอาวุธ",
+    Title = "Auto Equip",
     Values = { "Melee", "Sword", "DevilFruit", "Special" },
     Default = 1,
     Callback = function(value)
@@ -68,7 +68,7 @@ local function autoEquip()
 end
 
 Tabs.Settings:AddToggle("AutoEquipToggle", {
-    Title = "เปิด/ปิด Auto Equip",
+    Title = "Auto Equip",
     Default = false,
     OnChanged = function() autoEquipRunning = equipToggle.Value; if autoEquipRunning then autoEquip() end end
 })
@@ -91,16 +91,16 @@ local autoClicking = false
 local clickDelay = 0.1
 
 Tabs.Settings:AddToggle("AutoClickToggle", {
-    Title = "เปิด/ปิด Auto Click",
+    Title = "Auto Click",
     Default = false
 }):OnChanged(function(value)
     autoClicking = value
 end)
 
 Tabs.Settings:AddInput("ClickDelayInput", {
-    Title = "Click Delay (วินาที)",
+    Title = "Click Delay",
     Default = "0.1",
-    Placeholder = "ใส่ตัวเลข เช่น 0.1",
+    Placeholder = "Enter the number 0.1",
     Numeric = true,
     Callback = function(text)
         local num = tonumber(text)
@@ -109,8 +109,8 @@ Tabs.Settings:AddInput("ClickDelayInput", {
         else
             Fluent:Notify({
                 Title = "Eco Hub",
-                Content = "กรุณาใส่เลขมากกว่า 0",
-                Duration = 3
+                Content = "Please enter a number greater than 0.",
+                Duration = 5
             })
         end
     end
@@ -147,30 +147,36 @@ end
 
 table.sort(mobNamesList)
 
-local toggle = Tabs.Main:AddToggle("MyToggle", {
-    Title = "Enable/Disable AutoFarm",
+local toggle = Tabs.Main:AddToggle("AutoFarmToggle", {
+    Title = "AutoFarm",
     Default = false
 })
 
 local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
-    Title = "Select Mob Name",
+    Title = "Select Mob",
     Values = mobNamesList,
     Multi = false,
     Default = 1,
 })
 Tabs.Main:AddSection("Auto Farm Setting")
-local dropdown = Tabs.Main:AddDropdown("MyDropdown", {
+
+local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
     Title = "Select Position",
     Values = {"Above", "Behind", "Below"},
     Default = 1
 })
 
-local input = Tabs.Main:AddInput("MyInput", {
-    Title = "Distance",
+local input = Tabs.Main:AddInput("DistanceInput", {
+    Title = "Enter Distance (1-125)",
     Placeholder = "Enter the desired distance",
+    Default = "50",  -- Default distance set to 50
     Callback = function(Value)
         local distance = tonumber(Value)
-        if distance then
+        if distance and distance >= 1 and distance <= 125 then
+            _G.Distance = distance
+        else
+           
+            _G.Distance = 50
         end
     end
 })
@@ -187,29 +193,31 @@ toggle:OnChanged(function()
         spawn(function()
             while _G.AutoFarm do
                 pcall(function()
-                    for _, v in pairs(workspace.Mob:GetChildren()) do
-                        if v.Name == selectedMob and v:FindFirstChild("Humanoid") then
-                            local humanoid = v:FindFirstChild("Humanoid")
-                            if humanoid.Health > 0 then
-                                local distance = tonumber(input.Value) or 5
-                                local position = v.HumanoidRootPart.Position
-                                if dropdown.Value == "Above" then
-                                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(position + Vector3.new(0, distance, 0))
-                                elseif dropdown.Value == "Behind" then
-                                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(position - v.HumanoidRootPart.CFrame.LookVector * distance)
-                                elseif dropdown.Value == "Below" then
-                                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(position - Vector3.new(0, distance, 0))
+                    for _, mob in pairs(workspace.Mob:GetChildren()) do
+                        if mob.Name == selectedMob and mob:FindFirstChild("Humanoid") then
+                            local humanoid = mob:FindFirstChild("Humanoid")
+                            if humanoid and humanoid.Health > 0 then
+                                local distance = _G.Distance or 50
+                                local position = mob.HumanoidRootPart.Position
+                                local playerRoot = game.Players.LocalPlayer.Character.HumanoidRootPart
+                                
+                                if positionDropdown.Value == "Above" then
+                                    playerRoot.CFrame = CFrame.new(position + Vector3.new(0, distance, 0))
+                                elseif positionDropdown.Value == "Behind" then
+                                    playerRoot.CFrame = CFrame.new(position - mob.HumanoidRootPart.CFrame.LookVector * distance)
+                                elseif positionDropdown.Value == "Below" then
+                                    playerRoot.CFrame = CFrame.new(position - Vector3.new(0, distance, 0))
                                 end
-                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.rad(-30), 0, 0)
+                                
+                                playerRoot.CFrame = playerRoot.CFrame * CFrame.Angles(math.rad(-30), 0, 0)
+
                                 local character = game.Players.LocalPlayer.Character
                                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                                 local tool = character:FindFirstChildOfClass("Tool")
                                 if not tool then
-                                    humanoid:MoveTo(v.HumanoidRootPart.Position)
+                                    humanoid:MoveTo(mob.HumanoidRootPart.Position)
                                 end
                             end
-                        elseif humanoid.Health <= 0 then
-                            break
                         end
                     end
                 end)
