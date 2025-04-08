@@ -295,32 +295,28 @@ for key, id in pairs(skillKeys) do
 end
 
 Tabs.Credits:AddParagraph({
-    Title = "Owner & Script",
-    Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy",
-    Description = "All credits go to the mentioned people."
+    Title = "Credits",
+    Content = "Here are the credits for this script!"
 })
 
-local creditLabel = Instance.new("TextLabel")
-creditLabel.Size = UDim2.new(0, 500, 0, 200)
-creditLabel.Position = UDim2.new(0.5, -250, 0.5, -100)
-creditLabel.Text = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy"
-creditLabel.TextSize = 20
-creditLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-creditLabel.BackgroundTransparency = 1
-creditLabel.TextAlign = Enum.TextXAlignment.Center
-creditLabel.Parent = Window
+Tabs.Credits:AddParagraph({
+    Title = "Join My Discord",
+    Content = "Click the link below to join our Discord server!"
+})
 
-local creditButton = Instance.new("TextButton")
-creditButton.Size = UDim2.new(0, 500, 0, 50)
-creditButton.Position = UDim2.new(0.5, -250, 0.6, -100)
-creditButton.Text = "Click for Credits"
-creditButton.TextSize = 20
-creditButton.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
-creditButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-creditButton.Parent = Window
+local discordButton = Instance.new("TextButton")
+discordButton.Size = UDim2.new(0, 500, 0, 50)
+discordButton.Position = UDim2.new(0.5, -250, 0.5, 100)
+discordButton.Text = "Join My Discord"
+discordButton.TextSize = 20
+discordButton.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
+discordButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+discordButton.Parent = Window
 
-creditButton.MouseButton1Click:Connect(function()
-    print("Credits: Owner - zer09Xz, Script - zer09Xz, Helper - Lucas, Dummy")
+discordButton.MouseButton1Click:Connect(function()
+    setclipboard("https://discord.gg/4WURPqJF")
+    print("Discord link copied to clipboard!")
+end)
 --------------------------
 -- เริ่มต้น
 --------------------------
