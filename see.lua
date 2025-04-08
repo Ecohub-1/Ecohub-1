@@ -294,13 +294,7 @@ for key, id in pairs(skillKeys) do
     end)
 end
 
-Tabs.Credits = Window:AddTab({ Title = "Credits", Icon = "award" })
 
-
-Tabs.Credits:AddParagraph({
-    Title = "Credits",
-    Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy"
-})
 
 Tabs.Credits:AddParagraph({
     Title = "Credits",
