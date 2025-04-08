@@ -256,7 +256,7 @@ Toggle:OnChanged(function(Value)
     end
 end)
 ------Auto skill ----------------
-local Toggle = Tabs.Setting:AddToggle("MyToggle", {
+local Toggle = Tabs.Settings:AddToggle("MyToggle", {
     Title = "Skill Z", 
     Default = false 
 })
