@@ -294,16 +294,11 @@ for key, id in pairs(skillKeys) do
     end)
 end
 
-Tabs.Credits = Tabs:AddSection({
-    Title = "Credits",
-    Content = "Here are the credits for this script!"
-})
 
--- ใส่เครดิตแบบรวมในกล่องเดียว
+
 Tabs.Credits:AddParagraph({
-    Title = "Owner & Script",
-    Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy",
-    Description = "All credits go to the mentioned people."
+    Title = "Credits",
+    Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy"
 })
 
 
