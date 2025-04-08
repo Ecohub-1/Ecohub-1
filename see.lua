@@ -255,7 +255,9 @@ Toggle:OnChanged(function(Value)
         _G.AutoFarm = false  -- ปิด AutoFarm
     end
 end)
-------Auto skill ----------------
+--------------------
+ -- auto skill
+--------------------
 Tabs.Settings:AddSection("Auto Skill")
 
 local Toggle = Tabs.Settings:AddToggle("MyToggle", {
