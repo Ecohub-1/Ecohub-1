@@ -13,10 +13,10 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    credit = Window:AddTab({ Title = "credit", Icon = "" })
-    Auto Farm = Window:AddTab({ Title = "Auto Farm", Icon = "" }),
-    Auto Boss = Window:AddTab({ Title = "Main", Icon = "" }),
-    Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "" }),
-    Teleport = Window:AddTab({ Title = "Main", Icon = "" }),
+    credit = Window:AddTab({ Title = "credit", Icon = "sticky-note" })
+    Auto Farm = Window:AddTab({ Title = "Auto Farm", Icon = "gamepad" }),
+    Auto boss = Window:AddTab({ Title = "Auto boss", Icon = "gamepad" }),
+    Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "globe" }),
+    Teleport = Window:AddTab({ Title = "Teleport", Icon = "map-pinned" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
