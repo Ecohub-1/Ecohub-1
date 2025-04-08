@@ -158,7 +158,7 @@ local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Multi = false,
     Default = 1,
 })
-Tabs.Main:AddSection("Auto Farm Settings")
+
 local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
     Title = "Select Position",
     Values = {"Above", "Behind", "Below"},
@@ -168,7 +168,7 @@ local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
 local input = Tabs.Main:AddInput("DistanceInput", {
     Title = "Enter Distance (1-125)",
     Placeholder = "Enter the desired distance",
-    Default = "50",
+    Default = "50",  
     Callback = function(Value)
         local distance = tonumber(Value)
         if distance and distance >= 1 and distance <= 125 then
@@ -192,57 +192,38 @@ toggle:OnChanged(function()
             while _G.AutoFarm do
                 pcall(function()
                     for _, mob in pairs(workspace.Mob:GetChildren()) do
-                        if mob.Name == selectedMob and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
+                        if mob.Name == selectedMob and mob:FindFirstChild("Humanoid") then
                             local humanoid = mob:FindFirstChild("Humanoid")
                             if humanoid and humanoid.Health > 0 then
+                                local distance = _G.Distance or 50
+                                local position = mob.HumanoidRootPart.Position
+                                local playerRoot = game.Players.LocalPlayer.Character.HumanoidRootPart
+                                
+                                local targetPosition
+                                if positionDropdown.Value == "Above" then
+                                    targetPosition = position + Vector3.new(0, distance, 0)
+                                elseif positionDropdown.Value == "Behind" then
+                                    targetPosition = position - mob.HumanoidRootPart.CFrame.LookVector * distance
+                                elseif positionDropdown.Value == "Below" then
+                                    targetPosition = position - Vector3.new(0, distance, 0)
+                                end
+                                
+                                playerRoot.CFrame = CFrame.new(targetPosition)
+                                
+                                local lookAt = (mob.HumanoidRootPart.Position - playerRoot.Position).unit
+                                playerRoot.CFrame = CFrame.new(playerRoot.Position, playerRoot.Position + lookAt)
+
                                 local character = game.Players.LocalPlayer.Character
-                                local playerRoot = character and character:FindFirstChild("HumanoidRootPart")
-                                local tool = character and character:FindFirstChildOfClass("Tool")
-
-                                if playerRoot then
-                                    -- ลบ BodyPosition เดิมถ้ามี
-                                    if playerRoot:FindFirstChild("FollowPosition") then
-                                        playerRoot.FollowPosition:Destroy()
-                                    end
-
-                                    local bodyPos = Instance.new("BodyPosition")
-                                    bodyPos.Name = "FollowPosition"
-                                    bodyPos.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-                                    bodyPos.P = 5000
-                                    bodyPos.D = 500
-                                    bodyPos.Parent = playerRoot
-
-                                    local distance = _G.Distance or 50
-                                    local offset = Vector3.new(0, distance, 0)
-
-                                    if positionDropdown.Value == "Behind" then
-                                        offset = -mob.HumanoidRootPart.CFrame.LookVector * distance
-                                    elseif positionDropdown.Value == "Below" then
-                                        offset = Vector3.new(0, -distance, 0)
-                                    end
-
-                                    -- อัปเดตตำแหน่ง BodyPosition ให้ตามมอน
-                                    bodyPos.Position = mob.HumanoidRootPart.Position + offset
-
-                                    -- ถ้าไม่มี Tool ให้วิ่งไปตี
-                                    if not tool then
-                                        local hum = character:FindFirstChildOfClass("Humanoid")
-                                        if hum then
-                                            hum:MoveTo(mob.HumanoidRootPart.Position)
-                                        end
-                                    end
+                                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                                local tool = character:FindFirstChildOfClass("Tool")
+                                if not tool then
+                                    humanoid:MoveTo(mob.HumanoidRootPart.Position)
                                 end
                             end
                         end
                     end
                 end)
-                task.wait(0.1)
-            end
-
-            -- ปิด AutoFarm: ลบ BodyPosition ถ้ามี
-            local playerRoot = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if playerRoot and playerRoot:FindFirstChild("FollowPosition") then
-                playerRoot.FollowPosition:Destroy()
+                task.wait(1)
             end
         end)
     else
