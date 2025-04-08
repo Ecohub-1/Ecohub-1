@@ -1,9 +1,7 @@
-
+-------------------
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-------------------
- -- เเต่งui
 ------------------
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub " .. Fluent.Version,
@@ -14,9 +12,7 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
-------------------
- -- เเทบช่อง
-------------------
+
 local Tabs = {
     Credits = Window:AddTab({ Title = "Credits", Icon = "award" }),
     Main = Window:AddTab({ Title = "Main", Icon = "gamepad-2" }),
@@ -38,8 +34,6 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 InterfaceManager:BuildInterfaceSection(Tabs.misc)
 SaveManager:BuildConfigSection(Tabs.misc)
 
---------------------------
--- หมวด: Auto Equip
 --------------------------
 Tabs.Settings:AddSection("Auto Equip")
 local autoEquipRunning, selectedOption = false, "Melee"
@@ -65,11 +59,11 @@ local function autoEquip()
     end
 end
 
-Tabs.Settings:AddToggle("AutoEquipToggle", {
+local equipToggle = Tabs.Settings:AddToggle("AutoEquipToggle", {
     Title = "Auto Equip",
     Default = false,
-    OnChanged = function()
-        autoEquipRunning = equipToggle.Value
+    OnChanged = function(value)
+        autoEquipRunning = value
         if autoEquipRunning then autoEquip() end
     end
 })
@@ -80,12 +74,8 @@ backpack.ChildAdded:Connect(function(child)
     end
 end)
 
-player.CharacterAdded:Connect(function() 
-    if autoEquipRunning then autoEquip() end 
-end)
+player.CharacterAdded:Connect(function() if autoEquipRunning then autoEquip() end end)
 
---------------------------
--- หมวด: Auto Click
 --------------------------
 Tabs.Settings:AddSection("Auto Click")
 
@@ -118,7 +108,6 @@ Tabs.Settings:AddInput("ClickDelayInput", {
     end
 })
 
--- ลูปสำหรับ Auto Click
 task.spawn(function()
     while true do
         if autoClicking then
@@ -133,9 +122,7 @@ task.spawn(function()
     end
 end)
 
---------------------------
--- หมวด: Auto Farm
---------------------------
+------------------
 Tabs.Main:AddSection("Auto Farm mob")
 local mobNamesSet = {}
 local mobNamesList = {}
@@ -161,6 +148,7 @@ local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Multi = false,
     Default = 1,
 })
+
 Tabs.Main:AddSection("Auto Farm setting")
 local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
     Title = "Select Position",
@@ -229,7 +217,7 @@ toggle:OnChanged(function()
         end)
     else
         _G.AutoFarm = false
-        disableNoClip() 
+        disableNoClip()
     end
 end)
 
@@ -252,8 +240,6 @@ local function disableNoClip()
 end
 
 --------------------
--- auto skill
---------------------
 Tabs.Settings:AddSection("Auto Skill")
 
 local VirtualInputManager = game:GetService("VirtualInputManager")
@@ -274,23 +260,19 @@ for key, id in pairs(skillKeys) do
         Default = false
     })
 
-    if toggle then
-        toggle:OnChanged(function(state)
-            AutoSkill = state
-            if AutoSkill then
-                task.spawn(function()
-                    while AutoSkill do
-                        VirtualInputManager:SendKeyEvent(true, key, false, game)
-                        task.wait(0.05)
-                        VirtualInputManager:SendKeyEvent(false, key, false, game)
-                        task.wait(0.1)
-                    end
-                end)
-            end
-        end)
-    else
-        warn("Toggle for " .. key .. " could not be created.")
-    end
+    toggle:OnChanged(function(state)
+        AutoSkill = state
+        if AutoSkill then
+            task.spawn(function()
+                while AutoSkill do
+                    VirtualInputManager:SendKeyEvent(true, key, false, game)
+                    task.wait(0.05)
+                    VirtualInputManager:SendKeyEvent(false, key, false, game)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end)
 end
 
 Tabs.Credits:AddParagraph({
@@ -298,8 +280,6 @@ Tabs.Credits:AddParagraph({
     Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy"
 })
 
---------------------------
--- เริ่มต้น
 --------------------------
 Window:SelectTab(1)
 
