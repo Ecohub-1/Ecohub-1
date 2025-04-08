@@ -31,8 +31,8 @@ Tabs.Credits:AddParagraph({
 Tabs.Settings:AddSection("Auto Farm")
 _G.AutoFarm = false
 local selectedMob = nil
-local selectedDirection = "Side"
-local attackDistance = 5
+local selectedDirection = "upstairs"
+local attackDistance = 10
 
 local function GetSortedUniqueMobNames()
     local mobFolder = game:GetService("Workspace"):FindFirstChild("mob")
@@ -72,7 +72,7 @@ end
 
 local mobList = GetSortedUniqueMobNames()
 local MobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
-    Title = "เลือกมอน",
+    Title = "Search Mob",
     Values = mobList,
     Multi = false,
     Default = 1
@@ -100,8 +100,8 @@ Toggle:OnChanged(function()
 end)
 Tabs.Settings:AddSection("Auto Farm setting")
 local DirectionDropdown = Tabs.Main:AddDropdown("DirectionDropdown", {
-    Title = "ทิศทาง",
-    Values = {"Side", "Up", "Down"},
+    Title = "direction",
+    Values = {"behind", "upstairs", "below"},
     Multi = false,
     Default = 1
 })
@@ -111,8 +111,8 @@ DirectionDropdown:OnChanged(function(Value)
 end)
 
 local DistanceSlider = Tabs.Main:AddSlider("DistanceSlider", {
-    Title = "ระยะ",
-    Default = 5,
+    Title = "Distance",
+    Default = 10,
     Min = 1,
     Max = 120,
     Rounding = 1
