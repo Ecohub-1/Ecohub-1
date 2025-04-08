@@ -137,15 +137,24 @@ Tabs.Main:AddSection("Auto Farm mob")
 local mobNamesSet = {}
 local mobNamesList = {}
 
-for _, mob in pairs(workspace.Mob:GetChildren()) do
-    local name = mob.Name
-    if not mobNamesSet[name] then
-        mobNamesSet[name] = true
-        table.insert(mobNamesList, name)
+-- ฟังก์ชันรีเฟรชชื่อมอนสเตอร์
+local function refreshMobNames()
+    mobNamesSet = {}
+    mobNamesList = {}
+
+    for _, mob in pairs(workspace.Mob:GetChildren()) do
+        local name = mob.Name
+        if not mobNamesSet[name] then
+            mobNamesSet[name] = true
+            table.insert(mobNamesList, name)
+        end
     end
+
+    table.sort(mobNamesList)
+    mobDropdown:UpdateValues(mobNamesList)
 end
 
-table.sort(mobNamesList)
+refreshMobNames()
 
 local toggle = Tabs.Main:AddToggle("AutoFarmToggle", {
     Title = "Enable/Disable AutoFarm",
@@ -158,7 +167,7 @@ local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Multi = false,
     Default = 1,
 })
-Tabs.Main:AddSection("Auto Farm Setting")
+Tabs.Main:AddSection("Auto Farm Settings")
 local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
     Title = "Select Position",
     Values = {"Above", "Behind", "Below"},
@@ -188,7 +197,7 @@ end)
 toggle:OnChanged(function()
     if toggle.Value then
         _G.AutoFarm = true
-        enableNoClip()  -- เปิด No-Clip เมื่อเปิด AutoFarm
+        enableNoClip()
         spawn(function()
             while _G.AutoFarm do
                 pcall(function()
@@ -209,12 +218,11 @@ toggle:OnChanged(function()
                                     targetPosition = position - Vector3.new(0, distance, 0)
                                 end
                                 
-                                -- วาร์ปตัวละครไปที่ตำแหน่งที่มอนสเตอร์
                                 playerRoot.CFrame = CFrame.new(targetPosition)
-                                
-                                -- หันหน้าตัวละครไปหามอนสเตอร์
-                                local lookAt = (mob.HumanoidRootPart.Position - playerRoot.Position).unit
-                                playerRoot.CFrame = CFrame.new(playerRoot.Position, playerRoot.Position + lookAt)
+
+                                local direction = (mob.HumanoidRootPart.Position - playerRoot.Position).unit
+                                local lookAt = playerRoot.Position + direction
+                                playerRoot.CFrame = CFrame.new(playerRoot.Position, lookAt)
 
                                 local character = game.Players.LocalPlayer.Character
                                 local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -231,11 +239,10 @@ toggle:OnChanged(function()
         end)
     else
         _G.AutoFarm = false
-        disableNoClip() -- ปิด No-Clip เมื่อปิด AutoFarm
+        disableNoClip()
     end
 end)
 
--- ฟังก์ชัน No-Clip
 local function enableNoClip()
     local character = game.Players.LocalPlayer.Character
     for _, part in pairs(character:GetChildren()) do
@@ -253,6 +260,14 @@ local function disableNoClip()
         end
     end
 end
+
+Tabs.Main:AddButton({
+    Title = "Refresh",
+    Callback = function()
+        refreshMobNames()
+    end
+})
+
 --------------------
  -- auto skill
 --------------------
