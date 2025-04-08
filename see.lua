@@ -28,6 +28,7 @@ Tabs.Credits:AddParagraph({
 })
  end
 -- ออโต้ฟามยังบัค
+Tabs.Settings:AddSection("Auto Farm")
 _G.AutoFarm = false
 local selectedMob = nil
 local selectedDirection = "Side"
@@ -97,7 +98,7 @@ Toggle:OnChanged(function()
         SetNoClip(false)
     end
 end)
-
+Tabs.Settings:AddSection("Auto Farm setting")
 local DirectionDropdown = Tabs.Main:AddDropdown("DirectionDropdown", {
     Title = "ทิศทาง",
     Values = {"Side", "Up", "Down"},
