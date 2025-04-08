@@ -255,6 +255,126 @@ Toggle:OnChanged(function(Value)
         _G.AutoFarm = false  -- ปิด AutoFarm
     end
 end)
+------Auto skill ----------------
+local Toggle = Tabs.Setting:AddToggle("MyToggle", {
+    Title = "Skill Z", 
+    Default = false 
+})
+
+local autoPress = false
+
+Toggle:OnChanged(function(state)
+    autoPress = state
+
+    if autoPress then
+        task.spawn(function()
+            while autoPress do
+                VirtualInputManager:SendKeyEvent(true, "Z", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "Z", false, game)
+                task.wait(0.1)
+            end
+        end)
+    end
+end)
+
+Options.MyToggle:SetValue(false)
+-- Skill x กุเขียนเอง
+local Toggle = Tabs.Settings:AddToggle("MyToggle", {
+    Title = "Skill X", 
+    Default = false 
+})
+
+local autoPress = false
+
+Toggle:OnChanged(function(state)
+    autoPress = state
+
+    if autoPress then
+        task.spawn(function()
+            while autoPress do
+                VirtualInputManager:SendKeyEvent(true, "X", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "X", false, game)
+                task.wait(0.1)
+            end
+        end)
+    end
+end)
+
+Options.MyToggle:SetValue(false)
+
+local Toggle = Tabs.Setting:AddToggle("MyToggle", {
+    Title = "Skill C", 
+    Default = false 
+})
+
+local autoPress = false
+
+Toggle:OnChanged(function(state)
+    autoPress = state
+
+    if autoPress then
+        task.spawn(function()
+            while autoPress do
+                VirtualInputManager:SendKeyEvent(true, "C", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "C", false, game)
+                task.wait(0.1)
+            end
+        end)
+    end
+end)
+
+Options.MyToggle:SetValue(false)
+-- Skill V
+local Toggle = Tabs.Settings:AddToggle("MyToggle", {
+    Title = "Skill V", 
+    Default = false 
+})
+
+local autoPress = false
+
+Toggle:OnChanged(function(state)
+    autoPress = state
+
+    if autoPress then
+        task.spawn(function()
+            while autoPress do
+                VirtualInputManager:SendKeyEvent(true, "V", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "V", false, game)
+                task.wait(0.1)
+            end
+        end)
+    end
+end)
+
+Options.MyToggle:SetValue(false)
+
+local Toggle = Tabs.Settings:AddToggle("MyToggle", {
+    Title = "Skill F", 
+    Default = false 
+})
+
+local autoPress = false
+
+Toggle:OnChanged(function(state)
+    autoPress = state
+
+    if autoPress then
+        task.spawn(function()
+            while autoPress do
+                VirtualInputManager:SendKeyEvent(true, "F", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "F", false, game)
+                task.wait(0.1)
+            end
+        end)
+    end
+end)
+
+Options.MyToggle:SetValue(false)
 --------------------------
 -- เริ่มต้น
 --------------------------
