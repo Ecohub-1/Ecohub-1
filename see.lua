@@ -158,6 +158,7 @@ local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Multi = false,
     Default = 1,
 })
+Tabs.Main:AddSection("Auto Farm Setting")
 
 local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
     Title = "Select Position",
@@ -228,6 +229,34 @@ toggle:OnChanged(function()
         end)
     else
         _G.AutoFarm = false
+    end
+end)
+
+-- ฟังก์ชัน No-Clip
+local function enableNoClip()
+    for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+end
+
+local function disableNoClip()
+    for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+        end
+    end
+end
+
+-- เชื่อมโยงฟังก์ชัน No-Clip กับ AutoFarm
+toggle:OnChanged(function()
+    if toggle.Value then
+        _G.AutoFarm = true
+        enableNoClip()  -- เปิด No-Clip เมื่อเปิด AutoFarm
+    else
+        _G.AutoFarm = false
+        disableNoClip() -- ปิด No-Clip เมื่อปิด AutoFarm
     end
 end)
 --------------------
