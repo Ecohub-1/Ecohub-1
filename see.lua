@@ -1,6 +1,4 @@
--------------------
- -- ui หน้าต่างสคริป
--------------------
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -70,7 +68,10 @@ end
 Tabs.Settings:AddToggle("AutoEquipToggle", {
     Title = "Auto Equip",
     Default = false,
-    OnChanged = function() autoEquipRunning = equipToggle.Value; if autoEquipRunning then autoEquip() end end
+    OnChanged = function()
+        autoEquipRunning = equipToggle.Value
+        if autoEquipRunning then autoEquip() end
+    end
 })
 
 backpack.ChildAdded:Connect(function(child)
@@ -79,8 +80,9 @@ backpack.ChildAdded:Connect(function(child)
     end
 end)
 
-player.CharacterAdded:Connect(function() if autoEquipRunning then autoEquip() end end)
-
+player.CharacterAdded:Connect(function() 
+    if autoEquipRunning then autoEquip() end 
+end)
 
 --------------------------
 -- หมวด: Auto Click
@@ -130,9 +132,10 @@ task.spawn(function()
         end
     end
 end)
-------------------
- --Auto Farm
-------------------
+
+--------------------------
+-- หมวด: Auto Farm
+--------------------------
 Tabs.Main:AddSection("Auto Farm mob")
 local mobNamesSet = {}
 local mobNamesList = {}
@@ -188,7 +191,7 @@ end)
 toggle:OnChanged(function()
     if toggle.Value then
         _G.AutoFarm = true
-        enableNoClip()  
+        enableNoClip()
         spawn(function()
             while _G.AutoFarm do
                 pcall(function()
@@ -247,8 +250,9 @@ local function disableNoClip()
         end
     end
 end
+
 --------------------
- -- auto skill
+-- auto skill
 --------------------
 Tabs.Settings:AddSection("Auto Skill")
 
@@ -270,19 +274,23 @@ for key, id in pairs(skillKeys) do
         Default = false
     })
 
-    toggle:OnChanged(function(state)
-        AutoSkill = state
-        if AutoSkill then
-            task.spawn(function()
-                while AutoSkill do
-                    VirtualInputManager:SendKeyEvent(true, key, false, game)
-                    task.wait(0.05)
-                    VirtualInputManager:SendKeyEvent(false, key, false, game)
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end)
+    if toggle then
+        toggle:OnChanged(function(state)
+            AutoSkill = state
+            if AutoSkill then
+                task.spawn(function()
+                    while AutoSkill do
+                        VirtualInputManager:SendKeyEvent(true, key, false, game)
+                        task.wait(0.05)
+                        VirtualInputManager:SendKeyEvent(false, key, false, game)
+                        task.wait(0.1)
+                    end
+                end)
+            end
+        end)
+    else
+        warn("Toggle for " .. key .. " could not be created.")
+    end
 end
 
 Tabs.Credits:AddParagraph({
