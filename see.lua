@@ -1,4 +1,4 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/main/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
@@ -7,30 +7,28 @@ local Window = Fluent:CreateWindow({
     SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 local Tabs = {
-    credit = Window:AddTab({ Title = "credit", Icon = "trophy" })
-    Auto Farm = Window:AddTab({ Title = "Auto Farm", Icon = "gamepad" }),
-    Auto boss = Window:AddTab({ Title = "Auto boss", Icon = "gamepad" }),
+    Credits = Window:AddTab({ Title = "credit", Icon = "trophy" }),
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "gamepad" }),
+    AutoBoss = Window:AddTab({ Title = "Auto boss", Icon = "gamepad" }),
     Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "globe" }),
     Teleport = Window:AddTab({ Title = "Teleport", Icon = "map-pinned" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
--- แท็บเครดิตโง่ๆ
+
 Tabs.Credits:AddParagraph({
     Title = "Owner & Script",
     Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy",
     Description = "All credits go to the mentioned people."
 })
- end
--- ออโต้ฟามยังบัค
-Tabs.Settings:AddSection("Auto Farm")
+
 _G.AutoFarm = false
-local selectedMob = bacon
+local selectedMob = nil
 local selectedDirection = "upstairs"
 local attackDistance = 10
 
@@ -71,26 +69,26 @@ local function SetNoClip(state)
 end
 
 local mobList = GetSortedUniqueMobNames()
-local MobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
+local MobDropdown = Tabs.AutoFarm:AddDropdown("MobDropdown", {
     Title = "Search Mob",
     Values = mobList,
     Multi = false,
     Default = 1
 })
 
-selectedMob = MobDropdown:GetValue()
-
 MobDropdown:OnChanged(function(Value)
     selectedMob = Value
 end)
 
-local Toggle = Tabs.Main:AddToggle("MyToggle", {
+selectedMob = mobList[1] or nil
+
+local Toggle = Tabs.AutoFarm:AddToggle("MyToggle", {
     Title = "AutoFarm",
     Default = false
 })
 
 Toggle:OnChanged(function()
-    _G.AutoFarm = Options.MyToggle.Value
+    _G.AutoFarm = Toggle.Value
     if _G.AutoFarm then
         SetNoClip(true)
         StartAutoFarm()
@@ -98,19 +96,21 @@ Toggle:OnChanged(function()
         SetNoClip(false)
     end
 end)
+
 Tabs.Settings:AddSection("Auto Farm setting")
-local DirectionDropdown = Tabs.Main:AddDropdown("DirectionDropdown", {
-    Title = "direction",
+
+local DirectionDropdown = Tabs.AutoFarm:AddDropdown("DirectionDropdown", {
+    Title = "Direction",
     Values = {"behind", "upstairs", "below"},
     Multi = false,
-    Default = 1
+    Default = 2
 })
 
 DirectionDropdown:OnChanged(function(Value)
     selectedDirection = Value
 end)
 
-local DistanceSlider = Tabs.Main:AddSlider("DistanceSlider", {
+local DistanceSlider = Tabs.AutoFarm:AddSlider("DistanceSlider", {
     Title = "Distance",
     Default = 10,
     Min = 1,
@@ -126,11 +126,11 @@ local function MoveTowardsMob(mob)
     local char = game.Players.LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local pos = mob.HumanoidRootPart.Position
-    if selectedDirection == "Side" then
+    if selectedDirection == "behind" then
         pos = pos + Vector3.new(attackDistance, 0, 0)
-    elseif selectedDirection == "Up" then
+    elseif selectedDirection == "upstairs" then
         pos = pos + Vector3.new(0, attackDistance, 0)
-    elseif selectedDirection == "Down" then
+    elseif selectedDirection == "below" then
         pos = pos + Vector3.new(0, -attackDistance, 0)
     end
     char.HumanoidRootPart.CFrame = CFrame.new(pos)
@@ -142,11 +142,9 @@ function StartAutoFarm()
             local mobs = game:GetService("Workspace"):FindFirstChild("mob")
             if mobs then
                 for _, v in pairs(mobs:GetChildren()) do
-                    if v.Name == selectedMob and v:FindFirstChild("Humanoid") then
-                        if v.Humanoid.Health > 0 then
-                            MoveTowardsMob(v)
-                            break
-                        end
+                    if v.Name == selectedMob and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                        MoveTowardsMob(v)
+                        break
                     end
                 end
             end
