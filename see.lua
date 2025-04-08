@@ -267,14 +267,14 @@ local Toggle = Tabs.Settings:AddToggle("AutoskillZ", {
     Default = false 
 })
 
-local autoPress = false
+local AutoskillZ = false
 
 Toggle:OnChanged(function(state)
-    autoPress = state
+    AutoskillZ = state
 
-    if autoPress then
+    if AutoskillZ then
         task.spawn(function()
-            while autoPress do
+            while AutoskillZ do
                 VirtualInputManager:SendKeyEvent(true, "Z", false, game)
                 task.wait(0.05)
                 VirtualInputManager:SendKeyEvent(false, "Z", false, game)
@@ -285,20 +285,20 @@ Toggle:OnChanged(function(state)
 end)
 
 Options.AutoskillZ:SetValue(false)
--- Skill x กุเขียนเอง
+-- Autooo skillll x
 local Toggle = Tabs.Settings:AddToggle("AutoskillX", {
     Title = "Skill X", 
     Default = false 
 })
 
-local autoPress = false
+local AutoskillX = false
 
 Toggle:OnChanged(function(state)
-    autoPress = state
+    AutoskillX = state
 
-    if autoPress then
+    if AutoskillX then
         task.spawn(function()
-            while autoPress do
+            while AutoskillX do
                 VirtualInputManager:SendKeyEvent(true, "X", false, game)
                 task.wait(0.05)
                 VirtualInputManager:SendKeyEvent(false, "X", false, game)
@@ -315,14 +315,14 @@ local Toggle = Tabs.Setting:AddToggle("AutoskillC", {
     Default = false 
 })
 
-local autoPress = false
+local AutoskillC = false
 
 Toggle:OnChanged(function(state)
-    autoPress = state
+    AutoskillC = state
 
-    if autoPress then
+    if AutoskillC then
         task.spawn(function()
-            while autoPress do
+            while AutoskillC do
                 VirtualInputManager:SendKeyEvent(true, "C", false, game)
                 task.wait(0.05)
                 VirtualInputManager:SendKeyEvent(false, "C", false, game)
@@ -339,14 +339,14 @@ local Toggle = Tabs.Settings:AddToggle("AutoskillV", {
     Default = false 
 })
 
-local autoPress = false
+local AutoskillV = false
 
 Toggle:OnChanged(function(state)
-    autoPress = state
+    AutoskillV = state
 
-    if autoPress then
+    if AutoskillV then
         task.spawn(function()
-            while autoPress do
+            while AutoskillV do
                 VirtualInputManager:SendKeyEvent(true, "V", false, game)
                 task.wait(0.05)
                 VirtualInputManager:SendKeyEvent(false, "V", false, game)
@@ -363,14 +363,14 @@ local Toggle = Tabs.Settings:AddToggle("AutoskillF", {
     Default = false 
 })
 
-local autoPress = false
+local AutoskillF = false
 
 Toggle:OnChanged(function(state)
-    autoPress = state
+    autoPressF = state
 
-    if autoPress then
+    if AutoskillF then
         task.spawn(function()
-            while autoPress do
+            while AutoskillF do
                 VirtualInputManager:SendKeyEvent(true, "F", false, game)
                 task.wait(0.05)
                 VirtualInputManager:SendKeyEvent(false, "F", false, game)
