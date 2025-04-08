@@ -158,7 +158,7 @@ local mobDropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Multi = false,
     Default = 1,
 })
-Tabs.Main:AddSection("Auto Farm Settings")
+Tabs.Main:AddSection("Auto Farm setting")
 local positionDropdown = Tabs.Main:AddDropdown("PositionDropdown", {
     Title = "Select Position",
     Values = {"Above", "Behind", "Below"},
@@ -209,13 +209,10 @@ toggle:OnChanged(function()
                                     targetPosition = position - Vector3.new(0, distance, 0)
                                 end
                                 
-                                -- วาร์ปตัวละครไปที่ตำแหน่งที่มอนสเตอร์
-                                playerRoot.CFrame = CFrame.new(targetPosition)
-                                
-                                -- หันหน้าตัวละครไปหามอนสเตอร์
-                                local lookAt = (mob.HumanoidRootPart.Position - playerRoot.Position).unit
-                                playerRoot.CFrame = CFrame.new(playerRoot.Position, playerRoot.Position + lookAt)
+                                -- วาร์ปตัวละครไปที่ตำแหน่งที่มอนสเตอร์และหันหน้าไปหามอนสเตอร์
+                                playerRoot.CFrame = CFrame.new(targetPosition, mob.HumanoidRootPart.Position)
 
+                                -- หันหน้าตัวละครไปหามอนสเตอร์
                                 local character = game.Players.LocalPlayer.Character
                                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                                 local tool = character:FindFirstChildOfClass("Tool")
