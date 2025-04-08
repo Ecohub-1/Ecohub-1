@@ -260,7 +260,6 @@ end)
 --------------------
 Tabs.Settings:AddSection("Auto Skill")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local RunService = game:GetService("RunService")
 
 local Toggle = Tabs.Settings:AddToggle("AutoskillZ", {
     Title = "Skill Z", 
@@ -366,7 +365,7 @@ local Toggle = Tabs.Settings:AddToggle("AutoskillF", {
 local AutoskillF = false
 
 Toggle:OnChanged(function(state)
-    autoPressF = state
+    AutoskillF = state
 
     if AutoskillF then
         task.spawn(function()
