@@ -259,6 +259,7 @@ end)
  -- auto skill
 --------------------
 Tabs.Settings:AddSection("Auto Skill")
+
 local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local skillKeys = {
@@ -270,18 +271,18 @@ local skillKeys = {
 }
 
 for key, id in pairs(skillKeys) do
-    local state = false
+    local AutoSkill = false
 
     local toggle = Tabs.Settings:AddToggle(id, {
         Title = "Skill " .. key,
         Default = false
     })
 
-    toggle:OnChanged(function(enabled)
-        state = enabled
-        if state then
+    toggle:OnChanged(function(state)
+        AutoSkill = state
+        if AutoSkill then
             task.spawn(function()
-                while state do
+                while AutoSkill do
                     VirtualInputManager:SendKeyEvent(true, key, false, game)
                     task.wait(0.05)
                     VirtualInputManager:SendKeyEvent(false, key, false, game)
@@ -290,8 +291,6 @@ for key, id in pairs(skillKeys) do
             end)
         end
     end)
-
-    Options[id]:SetValue(false)
 end
 --------------------------
 -- เริ่มต้น
