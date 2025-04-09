@@ -34,7 +34,6 @@ Tabs.Settings:AddSection("Auto Equip")
 
 local autoEquipRunning = false
 local selectedOption = "Melee"
-local equipToggle
 
 Tabs.Settings:AddDropdown("TypeDropdown", {
     Title = "Search weapon",
@@ -42,38 +41,36 @@ Tabs.Settings:AddDropdown("TypeDropdown", {
     Default = 1,
     Callback = function(value)
         selectedOption = value
-        if autoEquipRunning then autoEquip() end
     end
 })
 
-local function autoEquip()
-    if not autoEquipRunning or not player.Character then return end
-    for _, tool in ipairs(backpack:GetChildren()) do
-        if tool:IsA("Tool") and tool:GetAttribute("Type") == selectedOption then
-            tool.Parent = player.Character
-            if selectedOption == "Melee" then break end
+local function autoEquipLoop()
+    task.spawn(function()
+        while autoEquipRunning do
+            if player.Character then
+                for _, tool in ipairs(backpack:GetChildren()) do
+                    if tool:IsA("Tool") and tool:GetAttribute("Type") == selectedOption then
+                        tool.Parent = player.Character
+                        if selectedOption == "Melee" then break end
+                    end
+                end
+            end
+            task.wait(0.5)
         end
-    end
+    end)
 end
 
-equipToggle = Tabs.Settings:AddToggle("AutoEquipToggle", {
+Tabs.Settings:AddToggle("AutoEquipToggle", {
     Title = "Auto Equip",
     Default = false,
     Callback = function(value)
         autoEquipRunning = value
-        if autoEquipRunning then autoEquip() end
+        if autoEquipRunning then autoEquipLoop() end
     end
 })
 
-backpack.ChildAdded:Connect(function(child)
-    if child:IsA("Tool") and autoEquipRunning and child:GetAttribute("Type") == selectedOption then
-        child.Parent = player.Character
-    end
-end)
-
 player.CharacterAdded:Connect(function(char)
     char:WaitForChild("HumanoidRootPart", 5)
-    if autoEquipRunning then autoEquip() end
 end)
 
 Tabs.Settings:AddSection("Auto Click")
@@ -115,7 +112,6 @@ local skillKeys = {
 
 for key, id in pairs(skillKeys) do
     local AutoSkill = false
-
     Tabs.Settings:AddToggle(id, {
         Title = "Skill " .. key,
         Default = false,
