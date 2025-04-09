@@ -98,11 +98,11 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Tabs.Settings:AddSection("Auto Skill")
-local VirtualInputManager = game:GetService("VirtualInputManager")
+local VirtualUser = game:GetService("VirtualUser")
 
-local MultiDropdown = Tabs.Settings:AddDropdown("MultiDropdown", {
+local MultiDropdown = Tabs.Settings:AddDropdown("MultiSkillDropdown", {
     Title = "Select Skills",
-    Description = "You can select multiple skills.",
+    Description = "Choose skills to auto press",
     Values = {"Z", "X", "C", "V", "F"},
     Multi = true,
 })
@@ -111,7 +111,7 @@ local selectedSkills = {}
 
 MultiDropdown:OnChanged(function(Value)
     selectedSkills = {}
-    for skill, state in next, Value do
+    for skill, state in pairs(Value) do
         if state then
             table.insert(selectedSkills, skill)
         end
@@ -119,7 +119,7 @@ MultiDropdown:OnChanged(function(Value)
 end)
 
 local skillToggle = Tabs.Settings:AddToggle("AutoSkillToggle", {
-    Title = "Enable Skills",
+    Title = "Enable Auto Skill",
     Default = false,
 })
 
@@ -127,16 +127,18 @@ skillToggle:OnChanged(function(value)
     if value then
         task.spawn(function()
             while skillToggle.Value do
-                for _, skill in ipairs(selectedSkills) do
-                    VirtualInputManager:SendKeyEvent(true, skill, false, game)
+                for _, key in ipairs(selectedSkills) do
+                    -- จำลองการกดปุ่มด้วย VirtualUser
+                    VirtualUser:SendKeyEvent(true, key, false, game)
                     task.wait(0.05)
-                    VirtualInputManager:SendKeyEvent(false, skill, false, game)
+                    VirtualUser:SendKeyEvent(false, key, false, game)
                     task.wait(0.1)
                 end
             end
         end)
     end
 end)
+
 Tabs.AutoFarm:AddSection("Auto Farm")
 
 local MobFolder = workspace:WaitForChild("Mob")
