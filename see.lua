@@ -168,7 +168,7 @@ Input:OnChanged(function(Value)
 end)
 
 local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false})
-local isFighting = false  -- ตัวแปรตรวจสอบสถานะการต่อสู้
+local isFighting = false  
 
 Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
@@ -183,13 +183,13 @@ Toggle:OnChanged(function(Value)
 
                     if not hrp then return end
 
-                    isFighting = false  -- รีเซ็ตสถานะการต่อสู้
+                    isFighting = false  
 
                     for _, v in pairs(workspace.Mob:GetChildren()) do
                         if v.Name == SelectedMob and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
                             local humanoid = v.Humanoid
                             if humanoid.Health > 0 then
-                                isFighting = true  -- กำลังต่อสู้
+                                isFighting = true  
 
                                 local targetPos = v.HumanoidRootPart.Position + Vector3.new(0, Distance, 0)
                                 local lookDirection = Vector3.new(
@@ -241,17 +241,17 @@ Toggle:OnChanged(function(Value)
     end
 end)
 
--- เช็คการต่อสู้และหยุดขยับตัวละครเมื่อมอนสเตอร์ยังไม่ตาย
+
 game:GetService("RunService").Heartbeat:Connect(function()
     local player = game.Players.LocalPlayer
     local char = player.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
 
     if isFighting and hrp then
-        hrp.Anchored = true  -- ตัวละครจะหยุดขยับ
+        hrp.Anchored = true 
     else
         if hrp then
-            hrp.Anchored = false  -- ตัวละครขยับได้
+            hrp.Anchored = false 
         end
     end
 end)
