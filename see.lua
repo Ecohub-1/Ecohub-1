@@ -219,7 +219,7 @@ Toggle:OnChanged(function(Value)
                         end
                     end
                 end)
-                task.wait(0.1) -- ลดความเร็วของ loop ให้ช้าลง
+                task.wait(0.06) -- ลดความเร็วของ loop ให้ช้าลง
             end
         end)
     else
