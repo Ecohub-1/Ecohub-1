@@ -24,8 +24,9 @@ local Tabs = {
 Tabs.Credits:AddParagraph({
     Title = "Owner & Script",
     Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy",
-    Description = "All credits go to the mentioned people."
+    Description = ""
 })
+
 Tabs.AutoFarm:AddSection("Auto Farm")
 
 _G.AutoFarm = false
@@ -33,23 +34,28 @@ _G.SelectedMob = nil
 
 local player = game.Players.LocalPlayer
 
--- แสดงชื่อทั้งหมดใน workspace เพื่อตรวจสอบว่า mob ชื่ออะไร
-for _, obj in pairs(workspace:GetChildren()) do
-    warn("FOUND IN WORKSPACE: " .. obj.Name)
+local mobFolder = nil
+for _, obj in ipairs(workspace:GetChildren()) do
+    if obj:IsA("Folder") or obj:IsA("Model") then
+        for _, item in ipairs(obj:GetChildren()) do
+            if item:IsA("Model") and item:FindFirstChild("Humanoid") then
+                mobFolder = obj
+                break
+            end
+        end
+    end
+    if mobFolder then break end
 end
 
--- แก้ตรงนี้ถ้าชื่อไม่ใช่ "mob" เช่น "Mob", "Enemies", ฯลฯ
-local mobFolder = workspace:FindFirstChild("mob")
 while not mobFolder do
     task.wait(0.5)
-    mobFolder = workspace:FindFirstChild("mob")
 end
 
 local mobNames = {"search mob"}
 local nameSet = {}
 
 for _, mob in ipairs(mobFolder:GetChildren()) do
-    if mob:IsA("Model") and not nameSet[mob.Name] then
+    if mob:IsA("Model") and mob:FindFirstChild("Humanoid") and not nameSet[mob.Name] then
         table.insert(mobNames, mob.Name)
         nameSet[mob.Name] = true
     end
