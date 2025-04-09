@@ -74,7 +74,6 @@ player.CharacterAdded:Connect(function(char)
 end)
 
 Tabs.Settings:AddSection("Auto Click")
-
 local autoClicking = false
 local clickDelay = 0.1
 
@@ -86,16 +85,14 @@ Tabs.Settings:AddToggle("AutoClickToggle", {
     end
 })
 
-local VirtualInputManager = game:GetService("VirtualInputManager")
+local VirtualUser = game:GetService("VirtualUser")
 local RunService = game:GetService("RunService")
 
 RunService.RenderStepped:Connect(function()
     if autoClicking then
-        local cam = workspace.CurrentCamera
-        local x = cam.ViewportSize.X / 2
-        local y = cam.ViewportSize.Y / 2
-        VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 0)
-        VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 0)
+      
+        VirtualUser:Button1Down(Vector2.new(0.9, 0.9))
+        VirtualUser:Button1Up(Vector2.new(0.9, 0.9))
         task.wait(clickDelay)
     end
 end)
