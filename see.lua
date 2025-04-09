@@ -29,7 +29,6 @@ Tabs.Credits:AddParagraph({
 
 local player = game.Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
-local Tabs = ...
 
 Tabs.Settings:AddSection("Auto Equip")
 
@@ -60,7 +59,7 @@ end
 equipToggle = Tabs.Settings:AddToggle("AutoEquipToggle", {
     Title = "Auto Equip",
     Default = false,
-    OnChanged = function(value)
+    Callback = function(value)
         autoEquipRunning = value
         if autoEquipRunning then autoEquip() end
     end
@@ -84,10 +83,11 @@ local clickDelay = 0.1
 
 Tabs.Settings:AddToggle("AutoClickToggle", {
     Title = "Auto Click",
-    Default = false
-}):OnChanged(function(value)
-    autoClicking = value
-end)
+    Default = false,
+    Callback = function(value)
+        autoClicking = value
+    end
+})
 
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local RunService = game:GetService("RunService")
@@ -115,21 +115,22 @@ local skillKeys = {
 
 for key, id in pairs(skillKeys) do
     local AutoSkill = false
-    local toggle = Tabs.Settings:AddToggle(id, {
+
+    Tabs.Settings:AddToggle(id, {
         Title = "Skill " .. key,
-        Default = false
-    })
-    toggle:OnChanged(function(state)
-        AutoSkill = state
-        if AutoSkill then
-            task.spawn(function()
-                while AutoSkill do
-                    VirtualInputManager:SendKeyEvent(true, key, false, game)
-                    task.wait(0.05)
-                    VirtualInputManager:SendKeyEvent(false, key, false, game)
-                    task.wait(0.1)
-                end
-            end)
+        Default = false,
+        Callback = function(state)
+            AutoSkill = state
+            if AutoSkill then
+                task.spawn(function()
+                    while AutoSkill do
+                        VirtualInputManager:SendKeyEvent(true, key, false, game)
+                        task.wait(0.05)
+                        VirtualInputManager:SendKeyEvent(false, key, false, game)
+                        task.wait(0.1)
+                    end
+                end)
+            end
         end
-    end)
+    })
 end
