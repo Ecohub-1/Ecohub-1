@@ -7,11 +7,10 @@ local Window = Fluent:CreateWindow({
     SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
-
 
 local Tabs = {
     Credits = Window:AddTab({ Title = "credit", Icon = "trophy" }),
@@ -33,11 +32,16 @@ _G.AutoFarm = false
 _G.SelectedMob = nil
 
 local player = game.Players.LocalPlayer
-local mobFolder = workspace:WaitForChild("mob")
+
+local mobFolder = workspace:FindFirstChild("mob")
+while not mobFolder do
+    task.wait(0.5)
+    mobFolder = workspace:FindFirstChild("mob")
+end
+
 local mobNames = {"search mob"}
 local nameSet = {}
 
--- สร้าง Dropdown Mob
 for _, mob in ipairs(mobFolder:GetChildren()) do
     if mob:IsA("Model") and not nameSet[mob.Name] then
         table.insert(mobNames, mob.Name)
