@@ -28,7 +28,42 @@ Tabs.Credits:AddParagraph({
 })
 
 Tabs.Settings:AddSection("Auto Equip")
+local autoEquipRunning, selectedOption = false, "Melee"
 
+Tabs.Settings:AddDropdown("TypeDropdown", {
+    Title = "Search weapon",
+    Values = { "Melee", "Sword", "DevilFruit", "Special" },
+    Default = 1,
+    Callback = function(value)
+        selectedOption = value
+        if autoEquipRunning then autoEquip() end
+    end
+})
+
+local function autoEquip()
+    if autoEquipRunning then
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") and tool:GetAttribute("Type") == selectedOption then
+                tool.Parent = player.Character
+                if selectedOption == "Melee" then break end
+            end
+        end
+    end
+end
+
+Tabs.Settings:AddToggle("AutoEquipToggle", {
+    Title = "Auto Equip",
+    Default = false,
+    OnChanged = function() autoEquipRunning = equipToggle.Value; if autoEquipRunning then autoEquip() end end
+})
+
+backpack.ChildAdded:Connect(function(child)
+    if child:IsA("Tool") and autoEquipRunning and child:GetAttribute("Type") == selectedOption then
+        child.Parent = player.Character
+    end
+end)
+
+player.CharacterAdded:Connect(function() if autoEquipRunning then autoEquip() end end)
 Tabs.Settings:AddSection("Auto Cilck")
 
 Tabs.Settings:AddSection("Auto Skill")
