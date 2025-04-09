@@ -27,7 +27,7 @@ Tabs.Credits:AddParagraph({
     Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy",
     Description = "All credits go to the mentioned people."
 })
-Tabs.Settings:AddSection("Auto Farm")
+Tabs.AutoFarm:AddSection("Auto Farm")
 _G.AutoFarm = false
 _G.SelectedMob = nil
 
