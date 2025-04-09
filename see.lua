@@ -42,7 +42,7 @@ for _, mob in ipairs(mobFolder:GetChildren()) do
     end
 end
 
-local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
+local Dropdown = Tabs.AutoFarm:AddDropdown("MobDropdown", {
     Title = "Search mob",
     Values = mobNames,
     Multi = false,
@@ -55,7 +55,7 @@ Dropdown:OnChanged(function(Value)
     end
 end)
 
-local Toggle = Tabs.Main:AddToggle("AutoFarmToggle", {
+local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {
     Title = "Auto Farm",
     Default = false
 })
