@@ -27,8 +27,15 @@ Tabs.Credits:AddParagraph({
     Description = ""
 })
 
+local player = game.Players.LocalPlayer
+local backpack = player:WaitForChild("Backpack")
+local Tabs = ...
+
 Tabs.Settings:AddSection("Auto Equip")
-local autoEquipRunning, selectedOption = false, "Melee"
+
+local autoEquipRunning = false
+local selectedOption = "Melee"
+local equipToggle
 
 Tabs.Settings:AddDropdown("TypeDropdown", {
     Title = "Search weapon",
@@ -41,20 +48,22 @@ Tabs.Settings:AddDropdown("TypeDropdown", {
 })
 
 local function autoEquip()
-    if autoEquipRunning then
-        for _, tool in ipairs(backpack:GetChildren()) do
-            if tool:IsA("Tool") and tool:GetAttribute("Type") == selectedOption then
-                tool.Parent = player.Character
-                if selectedOption == "Melee" then break end
-            end
+    if not autoEquipRunning or not player.Character then return end
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") and tool:GetAttribute("Type") == selectedOption then
+            tool.Parent = player.Character
+            if selectedOption == "Melee" then break end
         end
     end
 end
 
-Tabs.Settings:AddToggle("AutoEquipToggle", {
+equipToggle = Tabs.Settings:AddToggle("AutoEquipToggle", {
     Title = "Auto Equip",
     Default = false,
-    OnChanged = function() autoEquipRunning = equipToggle.Value; if autoEquipRunning then autoEquip() end end
+    OnChanged = function(value)
+        autoEquipRunning = value
+        if autoEquipRunning then autoEquip() end
+    end
 })
 
 backpack.ChildAdded:Connect(function(child)
@@ -63,8 +72,12 @@ backpack.ChildAdded:Connect(function(child)
     end
 end)
 
-player.CharacterAdded:Connect(function() if autoEquipRunning then autoEquip() end end)
-Tabs.Settings:AddSection("Auto Cilck")
+player.CharacterAdded:Connect(function(char)
+    char:WaitForChild("HumanoidRootPart", 5)
+    if autoEquipRunning then autoEquip() end
+end)
+
+Tabs.Settings:AddSection("Auto Click")
 
 local autoClicking = false
 local clickDelay = 0.1
@@ -84,14 +97,13 @@ RunService.RenderStepped:Connect(function()
         local cam = workspace.CurrentCamera
         local x = cam.ViewportSize.X / 2
         local y = cam.ViewportSize.Y / 2
-
         VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 0)
         VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 0)
-        task.wait(clickDelay) 
+        task.wait(clickDelay)
     end
 end)
+
 Tabs.Settings:AddSection("Auto Skill")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local skillKeys = {
     Z = "AutoSkillZ",
@@ -103,12 +115,10 @@ local skillKeys = {
 
 for key, id in pairs(skillKeys) do
     local AutoSkill = false
-
     local toggle = Tabs.Settings:AddToggle(id, {
         Title = "Skill " .. key,
         Default = false
     })
-
     toggle:OnChanged(function(state)
         AutoSkill = state
         if AutoSkill then
