@@ -196,7 +196,15 @@ Toggle:OnChanged(function(Value)
                                     v.HumanoidRootPart.Position.Z
                                 )
 
-                                hrp.CFrame = CFrame.lookAt(targetPos, lookDirection)
+                                local newCFrame = CFrame.lookAt(targetPos, lookDirection)
+
+                                -- ป้องกันการกลับหลังหัน
+                                local directionToTarget = (lookDirection - targetPos).Unit
+                                if newCFrame.LookVector:Dot(directionToTarget) < 0 then
+                                    newCFrame = newCFrame * CFrame.Angles(0, math.pi, 0)
+                                end
+
+                                hrp.CFrame = newCFrame
                                 break
                             end
                         end
