@@ -98,46 +98,34 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Tabs.Settings:AddSection("Auto Skill")
-local VirtualUser = game:GetService("VirtualUser")
+local skillKeys = {
+    Z = "AutoSkillZ",
+    X = "AutoSkillX",
+    C = "AutoSkillC",
+    V = "AutoSkillV",
+    F = "AutoSkillF"
+}
 
-local MultiDropdown = Tabs.Settings:AddDropdown("MultiSkillDropdown", {
-    Title = "Select Skills",
-    Description = "Choose skills to auto press",
-    Values = {"Z", "X", "C", "V", "F"},
-    Multi = true,
-})
-
-local selectedSkills = {}
-
-MultiDropdown:OnChanged(function(Value)
-    selectedSkills = {}
-    for skill, state in pairs(Value) do
-        if state then
-            table.insert(selectedSkills, skill)
-        end
-    end
-end)
-
-local skillToggle = Tabs.Settings:AddToggle("AutoSkillToggle", {
-    Title = "Enable Auto Skill",
-    Default = false,
-})
-
-skillToggle:OnChanged(function(value)
-    if value then
-        task.spawn(function()
-            while skillToggle.Value do
-                for _, key in ipairs(selectedSkills) do
-                    -- จำลองการกดปุ่มด้วย VirtualUser
-                    VirtualUser:SendKeyEvent(true, key, false, game)
-                    task.wait(0.05)
-                    VirtualUser:SendKeyEvent(false, key, false, game)
-                    task.wait(0.1)
-                end
+for key, id in pairs(skillKeys) do
+    local AutoSkill = false
+    Tabs.Settings:AddToggle(id, {
+        Title = "Skill " .. key,
+        Default = false,
+        Callback = function(state)
+            AutoSkill = state
+            if AutoSkill then
+                task.spawn(function()
+                    while AutoSkill do
+                        VirtualInputManager:SendKeyEvent(true, key, false, game)
+                        task.wait(0.05)
+                        VirtualInputManager:SendKeyEvent(false, key, false, game)
+                        task.wait(0.1)
+                    end
+                end)
             end
-        end)
-    end
-end)
+        end
+    })
+end
 
 Tabs.AutoFarm:AddSection("Auto Farm")
 
