@@ -27,3 +27,25 @@ Tabs.Credits:AddParagraph({
     Content = "Owner: zer09Xz\nScript: zer09Xz\nHelper: Lucas, Dummy",
     Description = "All credits go to the mentioned people."
 })
+
+local mobFolder = workspace:WaitForChild("mob")
+local mobNames = {"search mob"}
+local nameSet = {}
+
+for _, mob in ipairs(mobFolder:GetChildren()) do
+    if mob:IsA("Model") and not nameSet[mob.Name] then
+        table.insert(mobNames, mob.Name)
+        nameSet[mob.Name] = true
+    end
+end
+
+local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+    Title = "Search mob",
+    Values = mobNames,
+    Multi = false,
+    Default = "search mob",
+})
+
+Dropdown:OnChanged(function(Value)
+    
+end)
