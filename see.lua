@@ -101,35 +101,45 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Tabs.Settings:AddSection("Auto Skill")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
-local skillKeys = {
-    Z = "AutoSkillZ",
-    X = "AutoSkillX",
-    C = "AutoSkillC",
-    V = "AutoSkillV",
-    F = "AutoSkillF"
-}
+local MultiDropdown = Tabs.Settings:AddDropdown("MultiDropdown", {
+    Title = "Select Skills",
+    Description = "You can select multiple skills.",
+    Values = {"Z", "X", "C", "V", "F"},
+    Multi = true,
+})
 
-for key, id in pairs(skillKeys) do
-    local AutoSkill = false
-    Tabs.Settings:AddToggle(id, {
-        Title = "Skill " .. key,
-        Default = false,
-        Callback = function(state)
-            AutoSkill = state
-            if AutoSkill then
-                task.spawn(function()
-                    while AutoSkill do
-                        VirtualInputManager:SendKeyEvent(true, key, false, game)
-                        task.wait(0.05)
-                        VirtualInputManager:SendKeyEvent(false, key, false, game)
-                        task.wait(0.1)
-                    end
-                end)
-            end
+local selectedSkills = {}
+
+MultiDropdown:OnChanged(function(Value)
+    selectedSkills = {}
+    for skill, state in next, Value do
+        if state then
+            table.insert(selectedSkills, skill)
         end
-    })
-end
+    end
+end)
+
+local skillToggle = Tabs.Settings:AddToggle("AutoSkillToggle", {
+    Title = "Enable Skills",
+    Default = false,
+})
+
+skillToggle:OnChanged(function(value)
+    if value then
+        task.spawn(function()
+            while skillToggle.Value do
+                for _, skill in ipairs(selectedSkills) do
+                    VirtualInputManager:SendKeyEvent(true, skill, false, game)
+                    task.wait(0.05)
+                    VirtualInputManager:SendKeyEvent(false, skill, false, game)
+                    task.wait(0.1)
+                end
+            end
+        end)
+    end
+end)
 Tabs.AutoFarm:AddSection("Auto Farm")
 
 local MobFolder = workspace:WaitForChild("Mob")
