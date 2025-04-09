@@ -214,13 +214,14 @@ Input:OnChanged(function(Value)
     end
 end)
 
-local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false})
-local isFighting = false  
+local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false })
 
 Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
 
     if _G.AutoFarm then
+        wait(0.1)
+
         task.spawn(function()
             while _G.AutoFarm do
                 pcall(function()
@@ -230,15 +231,12 @@ Toggle:OnChanged(function(Value)
 
                     if not hrp then return end
 
-                    isFighting = false  
-
                     for _, v in pairs(workspace.Mob:GetChildren()) do
                         if v.Name == SelectedMob and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
                             local humanoid = v.Humanoid
                             if humanoid.Health > 0 then
-                                isFighting = true  
-
                                 local targetPos = v.HumanoidRootPart.Position + Vector3.new(0, Distance, 0)
+
                                 local lookDirection = Vector3.new(
                                     v.HumanoidRootPart.Position.X,
                                     hrp.Position.Y,
@@ -258,7 +256,8 @@ Toggle:OnChanged(function(Value)
                         end
                     end
                 end)
-                task.wait(0.001)
+                
+                wait(0.02)
             end
         end)
     else
@@ -277,28 +276,8 @@ Toggle:OnChanged(function(Value)
             local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
 
             if result then
-                local newPosition = result.Position + Vector3.new(0, 3, 0)
-                if workspace:FindPartOnRay(Ray.new(newPosition, Vector3.new(0, -10, 0))) then
-                    hrp.CFrame = CFrame.new(newPosition)
-                else
-                    hrp.CFrame = CFrame.new(rayOrigin.X, rayOrigin.Y, rayOrigin.Z)
-                end
+                hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 3, 0))
             end
-        end
-    end
-end)
-
-
-game:GetService("RunService").Heartbeat:Connect(function()
-    local player = game.Players.LocalPlayer
-    local char = player.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-
-    if isFighting and hrp then
-        hrp.Anchored = true 
-    else
-        if hrp then
-            hrp.Anchored = false 
         end
     end
 end)
