@@ -72,6 +72,53 @@ Tabs.Settings:AddToggle("AutoEquipToggle", {
 player.CharacterAdded:Connect(function(char)
     char:WaitForChild("HumanoidRootPart", 5)
 end)
+local player = game.Players.LocalPlayer
+local backpack = player.Backpack
+local selectedOptions = {}
+
+local weaponDropdown = Tabs.Settings:AddDropdown("Search weapon", {
+    Title = "Search weapon",
+    Values = { "Melee", "Sword", "DevilFruit", "Special" },
+    Multi = true,
+    Default = { "Melee", "Sword" },
+    Callback = function(value)
+        selectedOptions = value
+    end
+})
+
+local autoEquipRunning = false
+
+local function autoEquipLoop()
+    task.spawn(function()
+        while autoEquipRunning do
+            if player.Character then
+                for _, tool in ipairs(backpack:GetChildren()) do
+                    if tool:IsA("Tool") then
+                        if table.find(selectedOptions, tool:GetAttribute("Type")) then
+                            tool.Parent = player.Character
+                        end
+                    end
+                end
+            end
+            task.wait(0.1)
+        end
+    end)
+end
+
+Tabs.Settings:AddToggle("AutoEquipToggle", {
+    Title = "Auto Equip all",
+    Default = false,
+    Callback = function(value)
+        autoEquipRunning = value
+        if autoEquipRunning then
+            autoEquipLoop()
+        end
+    end
+})
+
+player.CharacterAdded:Connect(function(char)
+    char:WaitForChild("HumanoidRootPart", 5)
+end)
 
 Tabs.Settings:AddSection("Auto Click")
 local autoClicking = false
