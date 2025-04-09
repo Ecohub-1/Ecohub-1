@@ -33,23 +33,7 @@ _G.AutoFarm = false
 _G.SelectedMob = nil
 
 local player = game.Players.LocalPlayer
-
-local mobFolder = nil
-for _, obj in ipairs(workspace:GetChildren()) do
-    if obj:IsA("Folder") or obj:IsA("Model") then
-        for _, item in ipairs(obj:GetChildren()) do
-            if item:IsA("Model") and item:FindFirstChild("Humanoid") then
-                mobFolder = obj
-                break
-            end
-        end
-    end
-    if mobFolder then break end
-end
-
-while not mobFolder do
-    task.wait(0.5)
-end
+local mobFolder = workspace:WaitForChild("Mob")
 
 local mobNames = {"search mob"}
 local nameSet = {}
@@ -96,19 +80,19 @@ function StartAutoFarm()
                 for _, v in pairs(mobFolder:GetChildren()) do
                     if v.Name == _G.SelectedMob and v:FindFirstChild("Humanoid") then
                         local humanoid = v.Humanoid
-                        if humanoid.Health > 0 then
-                            local char = player.Character
-                            if char and char:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("HumanoidRootPart") then
-                                local mobHRP = v.HumanoidRootPart
-                                local playerHRP = char.HumanoidRootPart
-                                local targetPosition = mobHRP.Position + Vector3.new(0, 25, 0)
-                                playerHRP.CFrame = CFrame.new(targetPosition, mobHRP.Position)
-                            end
+                        if humanoid.Health <= 0 then
+                            continue
+                        end
+                        local char = player.Character
+                        if char and char:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("HumanoidRootPart") then
+                            local mobHRP = v.HumanoidRootPart
+                            local targetCFrame = mobHRP.CFrame * CFrame.new(0, 25, 0)
+                            char:PivotTo(targetCFrame)
                         end
                     end
                 end
             end)
-            task.wait(1)
+            task.wait(0.5)
         end
     end)
 end
