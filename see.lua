@@ -28,13 +28,16 @@ Tabs.Credits:AddParagraph({
     Description = "All credits go to the mentioned people."
 })
 Tabs.AutoFarm:AddSection("Auto Farm")
+
 _G.AutoFarm = false
 _G.SelectedMob = nil
 
+local player = game.Players.LocalPlayer
 local mobFolder = workspace:WaitForChild("mob")
 local mobNames = {"search mob"}
 local nameSet = {}
 
+-- สร้าง Dropdown Mob
 for _, mob in ipairs(mobFolder:GetChildren()) do
     if mob:IsA("Model") and not nameSet[mob.Name] then
         table.insert(mobNames, mob.Name)
@@ -52,6 +55,9 @@ local Dropdown = Tabs.AutoFarm:AddDropdown("MobDropdown", {
 Dropdown:OnChanged(function(Value)
     if Value ~= "search mob" then
         _G.SelectedMob = Value
+        if _G.AutoFarm then
+            StartAutoFarm()
+        end
     end
 end)
 
@@ -62,29 +68,25 @@ local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {
 
 Toggle:OnChanged(function(value)
     _G.AutoFarm = value
-    
-    if value then
+    if value and _G.SelectedMob then
         StartAutoFarm()
     end
 end)
 
 function StartAutoFarm()
     task.spawn(function()
-        while _G.AutoFarm do
+        while _G.AutoFarm and _G.SelectedMob do
             pcall(function()
-                if _G.SelectedMob then
-                    for _, v in pairs(mobFolder:GetChildren()) do
-                        if v.Name == _G.SelectedMob and v:FindFirstChild("Humanoid") then
-                            local humanoid = v.Humanoid
-                            if humanoid.Health > 0 then
-                                local player = game.Players.LocalPlayer
-                                local char = player.Character
-                                if char and char:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("HumanoidRootPart") then
-                                    local mobHRP = v.HumanoidRootPart
-                                    local playerHRP = char.HumanoidRootPart
-                                    local targetPosition = mobHRP.Position + Vector3.new(0, 25, 0)
-                                    playerHRP.CFrame = CFrame.new(targetPosition, mobHRP.Position)
-                                end
+                for _, v in pairs(mobFolder:GetChildren()) do
+                    if v.Name == _G.SelectedMob and v:FindFirstChild("Humanoid") then
+                        local humanoid = v.Humanoid
+                        if humanoid.Health > 0 then
+                            local char = player.Character
+                            if char and char:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("HumanoidRootPart") then
+                                local mobHRP = v.HumanoidRootPart
+                                local playerHRP = char.HumanoidRootPart
+                                local targetPosition = mobHRP.Position + Vector3.new(0, 25, 0)
+                                playerHRP.CFrame = CFrame.new(targetPosition, mobHRP.Position)
                             end
                         end
                     end
