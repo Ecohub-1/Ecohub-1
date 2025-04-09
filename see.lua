@@ -257,7 +257,7 @@ Toggle:OnChanged(function(Value)
                     end
                 end)
                 
-                wait(0.02)
+                wait(0.001)
             end
         end)
     else
