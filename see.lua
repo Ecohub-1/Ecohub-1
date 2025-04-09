@@ -168,6 +168,7 @@ Input:OnChanged(function(Value)
 end)
 
 local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false })
+local AutoClickToggle = Tabs.AutoFarm:AddToggle("AutoClickToggle", {Title = "Auto Click", Default = false })
 
 Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
@@ -204,12 +205,21 @@ Toggle:OnChanged(function(Value)
                                 end
 
                                 hrp.CFrame = newCFrame
+
+                                -- ถ้าเปิด Auto Click
+                                if AutoClickToggle.Value then
+                                    -- ทำการคลิกที่ศัตรู
+                                    local mouse = game.Players.LocalPlayer:GetMouse()
+                                    mouse.Target = v.HumanoidRootPart
+                                    mouse:Click()
+                                end
+
                                 break
                             end
                         end
                     end
                 end)
-                task.wait(0.01)
+                task.wait(0.1) -- ลดความเร็วของ loop ให้ช้าลง
             end
         end)
     else
