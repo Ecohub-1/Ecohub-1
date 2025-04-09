@@ -1,4 +1,4 @@
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/main/main.lua"))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
@@ -7,10 +7,11 @@ local Window = Fluent:CreateWindow({
     SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true,
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 })
+
 
 local Tabs = {
     Credits = Window:AddTab({ Title = "credit", Icon = "trophy" }),
