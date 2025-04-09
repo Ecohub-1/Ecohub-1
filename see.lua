@@ -33,6 +33,12 @@ _G.SelectedMob = nil
 
 local player = game.Players.LocalPlayer
 
+-- แสดงชื่อทั้งหมดใน workspace เพื่อตรวจสอบว่า mob ชื่ออะไร
+for _, obj in pairs(workspace:GetChildren()) do
+    warn("FOUND IN WORKSPACE: " .. obj.Name)
+end
+
+-- แก้ตรงนี้ถ้าชื่อไม่ใช่ "mob" เช่น "Mob", "Enemies", ฯลฯ
 local mobFolder = workspace:FindFirstChild("mob")
 while not mobFolder do
     task.wait(0.5)
