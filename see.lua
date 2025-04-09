@@ -128,7 +128,6 @@ for key, id in pairs(skillKeys) do
 end
 
 Tabs.AutoFarm:AddSection("Auto Farm")
-
 local MobFolder = workspace:WaitForChild("Mob")
 local MobNames = {}
 
@@ -213,5 +212,26 @@ Toggle:OnChanged(function(Value)
                 task.wait(0.001)
             end
         end)
+    else
+        -- รีเซ็ตตำแหน่งลงพื้นเมื่อปิด AutoFarm
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+        if hrp then
+            -- ใช้ Raycast เพื่อตรวจสอบพื้น
+            local rayOrigin = hrp.Position
+            local rayDirection = Vector3.new(0, -100, 0) -- มองลง
+
+            local raycastParams = RaycastParams.new()
+            raycastParams.FilterDescendantsInstances = {char}
+            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+            local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+
+            if result then
+                hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 3, 0)) -- ยืนเหนือตำแหน่งพื้น 3 หน่วย
+            end
+        end
     end
 end)
