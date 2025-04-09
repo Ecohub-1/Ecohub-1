@@ -55,7 +55,7 @@ local function autoEquipLoop()
                     end
                 end
             end
-            task.wait(0.5)
+            task.wait(0.1)
         end
     end)
 end
@@ -131,6 +131,7 @@ for key, id in pairs(skillKeys) do
     })
 end
 Tabs.AutoFarm:AddSection("Auto Farm")
+
 local MobFolder = workspace:WaitForChild("Mob")
 local MobNames = {}
 
@@ -155,17 +156,19 @@ Dropdown:OnChanged(function(Value)
 end)
 
 local Distance = 25
-local Slider = Tabs.AutoFarm:AddSlider("FarmDistance", {
+local Input = Tabs.AutoFarm:AddInput("DistanceInput", {
     Title = "Distance",
-    Description = "ปรับความสูงขณะฟาร์ม",
-    Default = 25,
-    Min = 25,
-    Max = 100,
-    Rounding = 1,
+    Default = "25",
+    Placeholder = "ใส่ตัวเลข เช่น 50",
+    Numeric = true,
+    Finished = true,
 })
 
-Slider:OnChanged(function(Value)
-    Distance = Value
+Input:OnChanged(function(Value)
+    local num = tonumber(Value)
+    if num then
+        Distance = math.clamp(num, 0, 100) 
+    end
 end)
 
 local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false })
@@ -177,19 +180,24 @@ Toggle:OnChanged(function(Value)
         task.spawn(function()
             while _G.AutoFarm do
                 pcall(function()
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+                    if not hrp then return end
+
                     for _, v in pairs(workspace.Mob:GetChildren()) do
-                        if v.Name == SelectedMob and v:FindFirstChild("Humanoid") then
+                        if v.Name == SelectedMob and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
                             local humanoid = v.Humanoid
-                            if humanoid.Health <= 0 then
-                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame =
-                                    v.HumanoidRootPart.CFrame * CFrame.new(0, Distance, 0)
+                            if humanoid.Health > 0 then
+                                hrp.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, Distance, 0)
+                                break
                             end
                         end
                     end
                 end)
-                task.wait(.1)
+                task.wait(0.1)
             end
         end)
     end
 end)
-
