@@ -187,7 +187,16 @@ Toggle:OnChanged(function(Value)
                         if v.Name == SelectedMob and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
                             local humanoid = v.Humanoid
                             if humanoid.Health > 0 then
-                                hrp.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, Distance, 0)
+                                local targetPos = v.HumanoidRootPart.Position + Vector3.new(0, Distance, 0)
+
+                                -- หันหน้าเฉพาะแนวนอน (ล็อก Y)
+                                local lookDirection = Vector3.new(
+                                    v.HumanoidRootPart.Position.X,
+                                    hrp.Position.Y,
+                                    v.HumanoidRootPart.Position.Z
+                                )
+
+                                hrp.CFrame = CFrame.lookAt(targetPos, lookDirection)
                                 break
                             end
                         end
