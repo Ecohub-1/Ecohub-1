@@ -139,6 +139,36 @@ end
 
 table.sort(MobNames)
 
+local SelectedMob = MobNames[1]
+local Dropdown = Tabs.AutoFarm:AddDropdown("MobDropdown", {
+    Title = "SelectedMob",
+    Values = MobNames,
+    Multi = false,
+    Default = SelectedMob,
+})
+
+Dropdown:OnChanged(function(Value)
+    SelectedMob = Value
+end)
+
+local Distance = 25
+local Input = Tabs.AutoFarm:AddInput("DistanceInput", {
+    Title = "Distance",
+    Default = "25",
+    Placeholder = "ใส่ตัวเลข เช่น 50",
+    Numeric = true,
+    Finished = true,
+})
+
+Input:OnChanged(function(Value)
+    local num = tonumber(Value)
+    if num then
+        Distance = math.clamp(num, 0, 100)
+    end
+end)
+
+local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false})
+
 Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
 
@@ -181,15 +211,13 @@ Toggle:OnChanged(function(Value)
             end
         end)
     else
-            
         local player = game.Players.LocalPlayer
         local char = player.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
 
         if hrp then
-                
             local rayOrigin = hrp.Position
-            local rayDirection = Vector3.new(0, -100, 0) 
+            local rayDirection = Vector3.new(0, -100, 0)
 
             local raycastParams = RaycastParams.new()
             raycastParams.FilterDescendantsInstances = {char}
@@ -198,7 +226,12 @@ Toggle:OnChanged(function(Value)
             local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
 
             if result then
-                hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 3, 0)) 
+                local newPosition = result.Position + Vector3.new(0, 3, 0)
+                if workspace:FindPartOnRay(Ray.new(newPosition, Vector3.new(0, -10, 0))) then
+                    hrp.CFrame = CFrame.new(newPosition)
+                else
+                    hrp.CFrame = CFrame.new(rayOrigin.X, rayOrigin.Y, rayOrigin.Z)
+                end
             end
         end
     end
