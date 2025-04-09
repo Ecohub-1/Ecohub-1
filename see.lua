@@ -130,3 +130,66 @@ for key, id in pairs(skillKeys) do
         end
     })
 end
+Tabs.AutoFarm:AddSection("Auto Farm")
+local MobFolder = workspace:WaitForChild("Mob")
+local MobNames = {}
+
+for _, mob in pairs(MobFolder:GetChildren()) do
+    if mob:IsA("Model") and not table.find(MobNames, mob.Name) then
+        table.insert(MobNames, mob.Name)
+    end
+end
+
+table.sort(MobNames)
+
+local SelectedMob = MobNames[1]
+local Dropdown = Tabs.AutoFarm:AddDropdown("MobDropdown", {
+    Title = "SelectedMob",
+    Values = MobNames,
+    Multi = false,
+    Default = SelectedMob,
+})
+
+Dropdown:OnChanged(function(Value)
+    SelectedMob = Value
+end)
+
+local Distance = 25
+local Slider = Tabs.AutoFarm:AddSlider("FarmDistance", {
+    Title = "Distance",
+    Description = "ปรับความสูงขณะฟาร์ม",
+    Default = 25,
+    Min = 25,
+    Max = 100,
+    Rounding = 1,
+})
+
+Slider:OnChanged(function(Value)
+    Distance = Value
+end)
+
+local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false })
+
+Toggle:OnChanged(function(Value)
+    _G.AutoFarm = Value
+
+    if _G.AutoFarm then
+        task.spawn(function()
+            while _G.AutoFarm do
+                pcall(function()
+                    for _, v in pairs(workspace.Mob:GetChildren()) do
+                        if v.Name == SelectedMob and v:FindFirstChild("Humanoid") then
+                            local humanoid = v.Humanoid
+                            if humanoid.Health <= 0 then
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame =
+                                    v.HumanoidRootPart.CFrame * CFrame.new(0, Distance, 0)
+                            end
+                        end
+                    end
+                end)
+                task.wait(.1)
+            end
+        end)
+    end
+end)
+
