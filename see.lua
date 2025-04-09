@@ -139,37 +139,6 @@ end
 
 table.sort(MobNames)
 
-local SelectedMob = MobNames[1]
-local Dropdown = Tabs.AutoFarm:AddDropdown("MobDropdown", {
-    Title = "SelectedMob",
-    Values = MobNames,
-    Multi = false,
-    Default = SelectedMob,
-})
-
-Dropdown:OnChanged(function(Value)
-    SelectedMob = Value
-end)
-
-local Distance = 25
-local Input = Tabs.AutoFarm:AddInput("DistanceInput", {
-    Title = "Distance",
-    Default = "25",
-    Placeholder = "ใส่ตัวเลข เช่น 50",
-    Numeric = true,
-    Finished = true,
-})
-
-Input:OnChanged(function(Value)
-    local num = tonumber(Value)
-    if num then
-        Distance = math.clamp(num, 0, 100) 
-    end
-end)
-
-local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false })
-local AutoClickToggle = Tabs.AutoFarm:AddToggle("AutoClickToggle", {Title = "Auto Click", Default = false })
-
 Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
 
@@ -189,7 +158,6 @@ Toggle:OnChanged(function(Value)
                             if humanoid.Health > 0 then
                                 local targetPos = v.HumanoidRootPart.Position + Vector3.new(0, Distance, 0)
 
-                                -- หันหน้าเฉพาะแนวนอน (ล็อก Y)
                                 local lookDirection = Vector3.new(
                                     v.HumanoidRootPart.Position.X,
                                     hrp.Position.Y,
@@ -198,40 +166,30 @@ Toggle:OnChanged(function(Value)
 
                                 local newCFrame = CFrame.lookAt(targetPos, lookDirection)
 
-                                -- ป้องกันการกลับหลังหัน
                                 local directionToTarget = (lookDirection - targetPos).Unit
                                 if newCFrame.LookVector:Dot(directionToTarget) < 0 then
                                     newCFrame = newCFrame * CFrame.Angles(0, math.pi, 0)
                                 end
 
                                 hrp.CFrame = newCFrame
-
-                                -- ถ้าเปิด Auto Click
-                                if AutoClickToggle.Value then
-                                    -- ทำการคลิกที่ศัตรู
-                                    local mouse = game.Players.LocalPlayer:GetMouse()
-                                    mouse.Target = v.HumanoidRootPart
-                                    mouse:Click()
-                                end
-
                                 break
                             end
                         end
                     end
                 end)
-                task.wait(0.06) -- ลดความเร็วของ loop ให้ช้าลง
+                task.wait(0.001)
             end
         end)
     else
-        -- รีเซ็ตตำแหน่งลงพื้นเมื่อปิด AutoFarm
+            
         local player = game.Players.LocalPlayer
         local char = player.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
 
         if hrp then
-            -- ใช้ Raycast เพื่อตรวจสอบพื้น
+                
             local rayOrigin = hrp.Position
-            local rayDirection = Vector3.new(0, -100, 0) -- มองลง
+            local rayDirection = Vector3.new(0, -100, 0) 
 
             local raycastParams = RaycastParams.new()
             raycastParams.FilterDescendantsInstances = {char}
@@ -240,7 +198,7 @@ Toggle:OnChanged(function(Value)
             local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
 
             if result then
-                hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 3, 0)) -- ยืนเหนือตำแหน่งพื้น 3 หน่วย
+                hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 3, 0)) 
             end
         end
     end
