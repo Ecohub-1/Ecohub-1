@@ -28,6 +28,9 @@ Tabs.Credits:AddParagraph({
     Description = "All credits go to the mentioned people."
 })
 Tabs.Settings:AddSection("Auto Farm")
+_G.AutoFarm = false
+_G.SelectedMob = nil
+
 local mobFolder = workspace:WaitForChild("mob")
 local mobNames = {"search mob"}
 local nameSet = {}
@@ -39,7 +42,7 @@ for _, mob in ipairs(mobFolder:GetChildren()) do
     end
 end
 
-local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+local Dropdown = Tabs.Main:AddDropdown("MobDropdown", {
     Title = "Search mob",
     Values = mobNames,
     Multi = false,
@@ -47,5 +50,47 @@ local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
 })
 
 Dropdown:OnChanged(function(Value)
-    
+    if Value ~= "search mob" then
+        _G.SelectedMob = Value
+    end
 end)
+
+local Toggle = Tabs.Main:AddToggle("AutoFarmToggle", {
+    Title = "Auto Farm",
+    Default = false
+})
+
+Toggle:OnChanged(function(value)
+    _G.AutoFarm = value
+    
+    if value then
+        StartAutoFarm()
+    end
+end)
+
+function StartAutoFarm()
+    task.spawn(function()
+        while _G.AutoFarm do
+            pcall(function()
+                if _G.SelectedMob then
+                    for _, v in pairs(mobFolder:GetChildren()) do
+                        if v.Name == _G.SelectedMob and v:FindFirstChild("Humanoid") then
+                            local humanoid = v.Humanoid
+                            if humanoid.Health > 0 then
+                                local player = game.Players.LocalPlayer
+                                local char = player.Character
+                                if char and char:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("HumanoidRootPart") then
+                                    local mobHRP = v.HumanoidRootPart
+                                    local playerHRP = char.HumanoidRootPart
+                                    local targetPosition = mobHRP.Position + Vector3.new(0, 25, 0)
+                                    playerHRP.CFrame = CFrame.new(targetPosition, mobHRP.Position)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+            task.wait(1)
+        end
+    end)
+end
