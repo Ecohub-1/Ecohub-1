@@ -83,16 +83,31 @@ function StartAutoFarm()
                         if humanoid.Health <= 0 then
                             continue
                         end
+
                         local char = player.Character
-                        if char and char:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("HumanoidRootPart") then
+                        if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
                             local mobHRP = v.HumanoidRootPart
+                            local playerHRP = char.HumanoidRootPart
+
+                            char.Humanoid.PlatformStand = true
+                            playerHRP.Anchored = true
+
+                            local lookAtCFrame = CFrame.lookAt(playerHRP.Position, mobHRP.Position)
+                            playerHRP.CFrame = CFrame.new(playerHRP.Position, lookAtCFrame.Position)
+
                             local targetCFrame = mobHRP.CFrame * CFrame.new(0, 25, 0)
                             char:PivotTo(targetCFrame)
                         end
                     end
                 end
             end)
-            task.wait(0.5)
+            task.wait(0.2)
+        end
+
+        local char = player.Character
+        if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") then
+            char.Humanoid.PlatformStand = false
+            char.HumanoidRootPart.Anchored = false
         end
     end)
 end
