@@ -209,7 +209,7 @@ Toggle:OnChanged(function(Value)
                         end
                     end
                 end)
-                task.wait(0.001)
+                task.wait(0.01)
             end
         end)
     else
