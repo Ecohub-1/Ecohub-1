@@ -220,8 +220,7 @@ Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
 
     if _G.AutoFarm then
-        wait(0.1)
-
+        
         task.spawn(function()
             while _G.AutoFarm do
                 pcall(function()
