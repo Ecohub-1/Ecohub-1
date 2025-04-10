@@ -317,7 +317,7 @@ Dropdown:SetValue("Ghost Gojo")
 
 local Toggle = Tabs.AutoFarm:AddToggle("AutobossToggle", {Title = "Auto Farm", Default = false})
 
-local notificationSent = false  -- Flag to track if the notification has been sent
+local notificationSent = false  -- Initialize notificationSent to prevent it from being undefined
 
 Toggle:OnChanged(function(Value)
     _G.Autoboss = Value
@@ -363,9 +363,9 @@ Toggle:OnChanged(function(Value)
                         -- If notification hasn't been sent yet, send it and mark it as sent
                         if not notificationSent then
                             Fluent:Notify({
-                                Title = "Notification",                -- Title of the notification
-                                Content = "You don't have " .. args[1] .. " In your inventory!", -- Message content
-                                Duration = 5                        -- Duration in seconds
+                                Title = "Notification",                
+                                Content = "You don't have " .. args[1] .. " in your inventory!", 
+                                Duration = 5                        
                             })
                             notificationSent = true  -- Mark notification as sent
                         end
@@ -396,7 +396,6 @@ Toggle:OnChanged(function(Value)
                                 hrp.CFrame = CFrame.lookAt(targetPos, targetPos + lookVector)
 
                                 -- Attack logic or move towards the mob
-                                -- (You can add any attack functionality here if needed)
                                 break
                             end
                         end
@@ -404,7 +403,6 @@ Toggle:OnChanged(function(Value)
 
                     -- If the mob doesn't exist, it will be summoned
                     if not mobExists then
-                        -- You can put your mob summoning code here again if you want
                         game:GetService("ReplicatedStorage").Modules.NetworkFramework.NetworkEvent:FireServer(unpack(summonArgs))
                     end
                 end)
