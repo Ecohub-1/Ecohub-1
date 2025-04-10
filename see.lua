@@ -310,7 +310,7 @@ Toggle:OnChanged(function(Value)
 end)
 
 Tabs.AutoFarm:AddSection("Auto boss")
-local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+local Dropdown = Tabs.AutoFarm:AddDropdown("Dropdown", {
     Title = "Dropdown",
     Values = {"Vasto Hollw", "Phoenix Man", "Spongebob", "Ghost Gojo"},
     Multi = false,
@@ -319,14 +319,14 @@ local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
 
 Dropdown:SetValue("Ghost Gojo")
 
-local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false})
+local Toggle = Tabs.AutoFarm:AddToggle("AutobossToggle", {Title = "Auto boss", Default = false})
 
 Toggle:OnChanged(function(Value)
-    _G.AutoFarm = Value
+    _G.Autoboss = Value
 
-    if _G.AutoFarm then
+    if _G.Autoboss then
         task.spawn(function()
-            while _G.AutoFarm do
+            while _G.Autoboss do
                 pcall(function()
                     local player = game.Players.LocalPlayer
                     local char = player.Character
