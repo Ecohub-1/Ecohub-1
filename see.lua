@@ -365,7 +365,7 @@ Toggle:OnChanged(function(Value)
                         -- Show notification if item is not in inventory
                         game:GetService("StarterGui"):SetCore("SendNotification", {
                             Title = "Item Missing",
-                            Text = "You do not have " .. args[1] .. " in your inventory!",
+                            Text = "มีงไม่มี " .. args[1] .. " ไอ้ควาย",
                             Duration = 5
                         })
                         return
