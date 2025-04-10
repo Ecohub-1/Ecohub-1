@@ -397,8 +397,11 @@ Toggle:OnChanged(function(Value)
                     }
                     game:GetService("ReplicatedStorage").Modules.NetworkFramework.NetworkEvent:FireServer(unpack(summonArgs))
 
+                    -- Loop to check if the mob already exists in the game
+                    local mobExists = false
                     for _, v in pairs(workspace.Mob:GetChildren()) do
                         if v.Name == selectedMob and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+                            mobExists = true
                             local mobHRP = v.HumanoidRootPart
                             local mobHumanoid = v.Humanoid
 
@@ -407,9 +410,17 @@ Toggle:OnChanged(function(Value)
                                 local lookVector = (mobHRP.Position - targetPos).Unit
                                 hrp.CFrame = CFrame.lookAt(targetPos, targetPos + lookVector)
 
+                                -- Attack logic or move towards the mob
+                                -- (You can add any attack functionality here if needed)
                                 break
                             end
                         end
+                    end
+
+                    -- If the mob doesn't exist, it will be summoned
+                    if not mobExists then
+                        -- You can put your mob summoning code here again if you want
+                        game:GetService("ReplicatedStorage").Modules.NetworkFramework.NetworkEvent:FireServer(unpack(summonArgs))
                     end
                 end)
 
