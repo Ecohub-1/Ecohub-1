@@ -145,18 +145,18 @@ end)
 
 Tabs.Settings:AddSection("Auto Skill")
 local skillKeys = {
-    Z = "AutoSkillZ",
-    X = "AutoSkillX",
-    C = "AutoSkillC",
-    V = "AutoSkillV",
-    F = "AutoSkillF"
+    Z = Enum.KeyCode.Z,
+    X = Enum.KeyCode.X,
+    C = Enum.KeyCode.C,
+    V = Enum.KeyCode.V,
+    F = Enum.KeyCode.F
 }
 
 local skillStates = {}
 
-for key, id in pairs(skillKeys) do
+for key, keyCode in pairs(skillKeys) do
     skillStates[key] = false
-    Tabs.Settings:AddToggle(id, {
+    Tabs.Settings:AddToggle(key, {
         Title = "Skill " .. key,
         Default = false,
         Callback = function(state)
@@ -165,13 +165,17 @@ for key, id in pairs(skillKeys) do
                 task.spawn(function()
                     while skillStates[key] do
                         local inputService = game:GetService("UserInputService")
-                        local inputObject = Instance.new("InputObject")
-                        inputObject.KeyCode = Enum.KeyCode[key]
                         
+                        -- Simulate InputBegan
+                        local inputObject = Instance.new("InputObject")
+                        inputObject.KeyCode = keyCode
                         inputService.InputBegan:Fire(inputObject, false)
+                        
                         task.wait(0.05)
                         
+                        -- Simulate InputEnded
                         inputService.InputEnded:Fire(inputObject)
+                        
                         task.wait(0.1)
                     end
                 end)
