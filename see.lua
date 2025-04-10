@@ -15,7 +15,6 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Credits = Window:AddTab({ Title = "credit", Icon = "trophy" }),
     AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "gamepad" }),
-    AutoBoss = Window:AddTab({ Title = "Auto boss", Icon = "gamepad" }),
     Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "globe" }),
     Teleport = Window:AddTab({ Title = "Teleport", Icon = "map-pinned" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
