@@ -166,15 +166,23 @@ for key, keyCode in pairs(skillKeys) do
                     while skillStates[key] do
                         local inputService = game:GetService("UserInputService")
                         
-                        -- Simulate InputBegan
-                        local inputObject = Instance.new("InputObject")
-                        inputObject.KeyCode = keyCode
-                        inputService.InputBegan:Fire(inputObject, false)
+                        -- Simulate InputBegan event
+                        local inputBegin = Instance.new("InputObject")
+                        inputBegin.KeyCode = keyCode
+                        inputBegin.UserInputType = Enum.UserInputType.Keyboard
+                        
+                        -- Fire InputBegan event
+                        inputService.InputBegan:Fire(inputBegin, false)
                         
                         task.wait(0.05)
                         
-                        -- Simulate InputEnded
-                        inputService.InputEnded:Fire(inputObject)
+                        -- Simulate InputEnded event
+                        local inputEnd = Instance.new("InputObject")
+                        inputEnd.KeyCode = keyCode
+                        inputEnd.UserInputType = Enum.UserInputType.Keyboard
+                        
+                        -- Fire InputEnded event
+                        inputService.InputEnded:Fire(inputEnd)
                         
                         task.wait(0.1)
                     end
@@ -183,7 +191,6 @@ for key, keyCode in pairs(skillKeys) do
         end
     })
 end
-
 Tabs.AutoFarm:AddSection("Auto Farm")
 local MobFolder = workspace:WaitForChild("Mob")
 local MobNames = {}
