@@ -144,7 +144,6 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Tabs.Settings:AddSection("Auto Skill")
-Tabs.Settings:AddSection("Auto Skill")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local skillKeys = {
