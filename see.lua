@@ -302,4 +302,116 @@ Toggle:OnChanged(function(Value)
     end
 end)
 
-Tabs.Settings:AddSection("Auto boss")
+Tabs.AutoFarm:AddSection("Auto boss")
+local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+    Title = "Dropdown",
+    Values = {"Vasto Hollw", "Phoenix Man", "Spongebob", "Ghost Gojo"},
+    Multi = false,
+    Default = 1,
+})
+
+Dropdown:SetValue("Ghost Gojo")
+
+local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false})
+
+Toggle:OnChanged(function(Value)
+    _G.AutoFarm = Value
+
+    if _G.AutoFarm then
+        task.spawn(function()
+            while _G.AutoFarm do
+                pcall(function()
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    local humanoid = char and char:FindFirstChild("Humanoid")
+
+                    if not hrp or not humanoid then return end
+
+                    humanoid.AutoRotate = false
+
+                    if hrp.Position.Y < workspace.FallenPartsDestroyHeight + 10 then
+                        hrp.CFrame = CFrame.new(0, 50, 0)
+                        return
+                    end
+
+                    local selectedMob = Dropdown.Value
+
+                    local args = {}
+                    if selectedMob == "Vasto Hollw" then
+                        args = {"Orb Demon"}
+                        game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
+                    elseif selectedMob == "Phoenix Man" then
+                        args = {"Banana"}
+                        game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
+                    elseif selectedMob == "Spongebob" then
+                        args = {"Banana"}
+                        game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
+                    elseif selectedMob == "Ghost Gojo" then
+                        args = {"Orb Demon"}
+                        game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
+                    end
+                    
+                    local summonArgs = {
+                        [1] = "fire",
+                        [3] = "SummonBoss",
+                        [4] = selectedMob
+                    }
+                    game:GetService("ReplicatedStorage").Modules.NetworkFramework.NetworkEvent:FireServer(unpack(summonArgs))
+
+                    for _, v in pairs(workspace.Mob:GetChildren()) do
+                        if v.Name == selectedMob and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+                            local mobHRP = v.HumanoidRootPart
+                            local mobHumanoid = v.Humanoid
+
+                            if mobHumanoid.Health > 0 then
+                                local targetPos = mobHRP.Position + Vector3.new(0, Distance, 0)
+                                local lookVector = (mobHRP.Position - targetPos).Unit
+                                hrp.CFrame = CFrame.lookAt(targetPos, targetPos + lookVector)
+
+                                break
+                            end
+                        end
+                    end
+                end)
+
+                task.wait(0.01)
+            end
+        end)
+    else
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local humanoid = char and char:FindFirstChild("Humanoid")
+
+        if humanoid then
+            humanoid.AutoRotate = true
+        end
+
+        if hrp then
+            local rayOrigin = hrp.Position
+            local rayDirection = Vector3.new(0, -100, 0)
+
+            local raycastParams = RaycastParams.new()
+            raycastParams.FilterDescendantsInstances = {char}
+            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+            local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+
+            if result then
+                local targetPosition = result.Position + Vector3.new(0, 3, 0)
+                local currentPos = hrp.Position
+                local difference = targetPosition - currentPos
+
+                local duration = 0.5
+                local startTime = tick()
+
+                while tick() - startTime < duration do
+                    hrp.CFrame = CFrame.new(currentPos + difference * ((tick() - startTime) / duration))
+                    task.wait(0.03)
+                end
+                hrp.CFrame = CFrame.new(targetPosition)
+            end
+        end
+    end
+end)
