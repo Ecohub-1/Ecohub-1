@@ -144,37 +144,38 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Tabs.Settings:AddSection("Auto Skill")
+Tabs.Settings:AddSection("Auto Skill")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local RunService = game:GetService("RunService")
 
-local MultiDropdown = Tabs.Settings:AddDropdown("MultiDropdown", {
-    Title = "Auto skill",
-    Description = "You can select Skill.",
-    Values = {"Z", "X", "C", "V", "F"},
-    Multi = true,
-    Default = {"Z", "X"},
-})
+local skillKeys = {
+    Z = "AutoSkillZ",
+    X = "AutoSkillX",
+    C = "AutoSkillC",
+    V = "AutoSkillV",
+    F = "AutoSkillF"
+}
 
-MultiDropdown:SetValue({
-    Z = true,
-    X = true
-})
+for key, id in pairs(skillKeys) do
+    local AutoSkill = false
 
-MultiDropdown:OnChanged(function(Value)
-    local Values = {}
-    for Value, State in next, Value do
-        table.insert(Values, Value)
-    end
+    local toggle = Tabs.Settings:AddToggle(id, {
+        Title = "Skill " .. key,
+        Default = false
+    })
 
-    for _, selectedKey in ipairs(Values) do
-        sendKey(selectedKey)
-    end
-end)
-
-local function sendKey(key)
-    VirtualInputManager:SendKeyEvent(true, key, false, game)
-    wait(0.05)
-    VirtualInputManager:SendKeyEvent(false, key, false, game)
+    toggle:OnChanged(function(state)
+        AutoSkill = state
+        if AutoSkill then
+            task.spawn(function()
+                while AutoSkill do
+                    VirtualInputManager:SendKeyEvent(true, key, false, game)
+                    task.wait(0.05)
+                    VirtualInputManager:SendKeyEvent(false, key, false, game)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end)
 end
 Tabs.AutoFarm:AddSection("Auto Farm")
 local MobFolder = workspace:WaitForChild("Mob")
