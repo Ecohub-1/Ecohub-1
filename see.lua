@@ -216,6 +216,8 @@ end)
 
 local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false })
 
+local lastCFrame -- สำหรับกันหมุนซ้ำ
+
 Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
 
@@ -226,22 +228,30 @@ Toggle:OnChanged(function(Value)
                     local player = game.Players.LocalPlayer
                     local char = player.Character
                     local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    local humanoid = char and char:FindFirstChild("Humanoid")
 
-                    if not hrp then return end
+                    if not hrp or not humanoid then return end
+
+                    -- ปิดการหมุนอัตโนมัติ
+                    humanoid.AutoRotate = false
+
+                    -- ป้องกันตกแมพ
+                    if hrp.Position.Y < workspace.FallenPartsDestroyHeight + 10 then
+                        hrp.CFrame = CFrame.new(0, 50, 0)
+                        return
+                    end
 
                     for _, v in pairs(workspace.Mob:GetChildren()) do
                         if v.Name == SelectedMob and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
-                            local humanoid = v.Humanoid
-                            if humanoid.Health > 0 then
-                                local targetPos = v.HumanoidRootPart.Position + Vector3.new(0, Distance, 0)
+                            local mobHRP = v.HumanoidRootPart
+                            local mobHumanoid = v.Humanoid
 
-                                -- Check for safe position (optional)
-                                if targetPos.Y < workspace.FallenPartsDestroyHeight then return end
-
+                            if mobHumanoid.Health > 0 then
+                                local targetPos = mobHRP.Position + Vector3.new(0, Distance, 0)
                                 local lookDirection = Vector3.new(
-                                    v.HumanoidRootPart.Position.X,
+                                    mobHRP.Position.X,
                                     hrp.Position.Y,
-                                    v.HumanoidRootPart.Position.Z
+                                    mobHRP.Position.Z
                                 )
 
                                 local newCFrame = CFrame.lookAt(targetPos, lookDirection)
@@ -251,20 +261,31 @@ Toggle:OnChanged(function(Value)
                                     newCFrame = newCFrame * CFrame.Angles(0, math.pi, 0)
                                 end
 
-                                hrp.CFrame = newCFrame
+                                -- เช็กว่าเปลี่ยนจริงก่อนวาร์ป
+                                if not lastCFrame or (lastCFrame.Position - newCFrame.Position).Magnitude > 0.1 then
+                                    hrp.CFrame = newCFrame
+                                    lastCFrame = newCFrame
+                                end
+
                                 break
                             end
                         end
                     end
                 end)
 
-            task.wait(0.05) -- ลดความเร็วลง
+                task.wait(0.003)
             end
         end)
     else
+        -- รีเปิด AutoRotate ตอนปิด
         local player = game.Players.LocalPlayer
         local char = player.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local humanoid = char and char:FindFirstChild("Humanoid")
+
+        if humanoid then
+            humanoid.AutoRotate = true
+        end
 
         if hrp then
             local rayOrigin = hrp.Position
