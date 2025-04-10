@@ -220,7 +220,6 @@ Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
 
     if _G.AutoFarm then
-        
         task.spawn(function()
             while _G.AutoFarm do
                 pcall(function()
@@ -235,6 +234,9 @@ Toggle:OnChanged(function(Value)
                             local humanoid = v.Humanoid
                             if humanoid.Health > 0 then
                                 local targetPos = v.HumanoidRootPart.Position + Vector3.new(0, Distance, 0)
+
+                                -- Check for safe position (optional)
+                                if targetPos.Y < workspace.FallenPartsDestroyHeight then return end
 
                                 local lookDirection = Vector3.new(
                                     v.HumanoidRootPart.Position.X,
@@ -255,8 +257,8 @@ Toggle:OnChanged(function(Value)
                         end
                     end
                 end)
-                
-                wait(0.001)
+
+            task.wait(0.05) -- ลดความเร็วลง
             end
         end)
     else
