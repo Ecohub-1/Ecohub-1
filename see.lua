@@ -230,10 +230,9 @@ Toggle:OnChanged(function(Value)
 
                     if not hrp or not humanoid then return end
 
-                    -- ปิดการหมุนอัตโนมัติ
                     humanoid.AutoRotate = false
 
-                    -- ถ้าตกแมพ ให้กลับมายืนที่ Y = 50
+                    -- ถ้าตกแมพ ให้กลับ Y = 50
                     if hrp.Position.Y < workspace.FallenPartsDestroyHeight + 10 then
                         hrp.CFrame = CFrame.new(0, 50, 0)
                         return
@@ -245,9 +244,13 @@ Toggle:OnChanged(function(Value)
                             local mobHumanoid = v.Humanoid
 
                             if mobHumanoid.Health > 0 then
-                                -- วาร์ปนิ่งๆ โดยไม่หมุน
                                 local targetPos = mobHRP.Position + Vector3.new(0, Distance, 0)
-                                hrp.CFrame = CFrame.new(targetPos)
+                                
+                                -- สร้าง LookVector จากบนลงล่างเล็กน้อย
+                                local lookVector = (mobHRP.Position - targetPos).Unit
+                                
+                                -- วาร์ปแล้วก้มมอง
+                                hrp.CFrame = CFrame.lookAt(targetPos, targetPos + lookVector)
 
                                 break
                             end
@@ -259,7 +262,6 @@ Toggle:OnChanged(function(Value)
             end
         end)
     else
-        -- เปิด AutoRotate กลับมาเมื่อปิด AutoFarm
         local player = game.Players.LocalPlayer
         local char = player.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -269,6 +271,7 @@ Toggle:OnChanged(function(Value)
             humanoid.AutoRotate = true
         end
 
+        -- Gradual repositioning when turning off AutoFarm
         if hrp then
             local rayOrigin = hrp.Position
             local rayDirection = Vector3.new(0, -100, 0)
@@ -280,9 +283,22 @@ Toggle:OnChanged(function(Value)
             local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
 
             if result then
-                hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 3, 0))
+                -- Use a smoother method instead of directly setting CFrame
+                local targetPosition = result.Position + Vector3.new(0, 3, 0)
+                local currentPos = hrp.Position
+                local difference = targetPosition - currentPos
+
+                -- Smooth transition over time
+                local duration = 0.5 -- Adjust the time taken for the transition
+                local startTime = tick()
+
+                -- Tween the HRP position back smoothly
+                while tick() - startTime < duration do
+                    hrp.CFrame = CFrame.new(currentPos + difference * ((tick() - startTime) / duration))
+                    task.wait(0.03)
+                end
+                hrp.CFrame = CFrame.new(targetPosition) -- Final position
             end
         end
     end
 end)
-
