@@ -216,8 +216,6 @@ end)
 
 local Toggle = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {Title = "Auto Farm", Default = false })
 
-local lastCFrame -- สำหรับกันหมุนซ้ำ
-
 Toggle:OnChanged(function(Value)
     _G.AutoFarm = Value
 
@@ -235,7 +233,7 @@ Toggle:OnChanged(function(Value)
                     -- ปิดการหมุนอัตโนมัติ
                     humanoid.AutoRotate = false
 
-                    -- ป้องกันตกแมพ
+                    -- ถ้าตกแมพ ให้กลับมายืนที่ Y = 50
                     if hrp.Position.Y < workspace.FallenPartsDestroyHeight + 10 then
                         hrp.CFrame = CFrame.new(0, 50, 0)
                         return
@@ -247,25 +245,9 @@ Toggle:OnChanged(function(Value)
                             local mobHumanoid = v.Humanoid
 
                             if mobHumanoid.Health > 0 then
+                                -- วาร์ปนิ่งๆ โดยไม่หมุน
                                 local targetPos = mobHRP.Position + Vector3.new(0, Distance, 0)
-                                local lookDirection = Vector3.new(
-                                    mobHRP.Position.X,
-                                    hrp.Position.Y,
-                                    mobHRP.Position.Z
-                                )
-
-                                local newCFrame = CFrame.lookAt(targetPos, lookDirection)
-
-                                local directionToTarget = (lookDirection - targetPos).Unit
-                                if newCFrame.LookVector:Dot(directionToTarget) < 0 then
-                                    newCFrame = newCFrame * CFrame.Angles(0, math.pi, 0)
-                                end
-
-                                -- เช็กว่าเปลี่ยนจริงก่อนวาร์ป
-                                if not lastCFrame or (lastCFrame.Position - newCFrame.Position).Magnitude > 0.1 then
-                                    hrp.CFrame = newCFrame
-                                    lastCFrame = newCFrame
-                                end
+                                hrp.CFrame = CFrame.new(targetPos)
 
                                 break
                             end
@@ -273,11 +255,11 @@ Toggle:OnChanged(function(Value)
                     end
                 end)
 
-                task.wait(0.003)
+                task.wait(0.01)
             end
         end)
     else
-        -- รีเปิด AutoRotate ตอนปิด
+        -- เปิด AutoRotate กลับมาเมื่อปิด AutoFarm
         local player = game.Players.LocalPlayer
         local char = player.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -303,3 +285,4 @@ Toggle:OnChanged(function(Value)
         end
     end
 end)
+
