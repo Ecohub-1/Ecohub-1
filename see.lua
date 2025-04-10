@@ -147,9 +147,9 @@ Tabs.Settings:AddSection("Auto Skill")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local RunService = game:GetService("RunService")
 
-local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
-    Title = "Multi Dropdown",
-    Description = "You can select multiple values.",
+local MultiDropdown = Tabs.Settings:AddDropdown("MultiDropdown", {
+    Title = "Auto skill",
+    Description = "You can select Skill.",
     Values = {"Z", "X", "C", "V", "F"},
     Multi = true,
     Default = {"Z", "X"},
