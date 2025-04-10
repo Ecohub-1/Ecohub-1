@@ -310,8 +310,8 @@ Toggle:OnChanged(function(Value)
 end)
 
 Tabs.AutoFarm:AddSection("Auto boss")
-local Dropdown = Tabs.AutoFarm:AddDropdown("Dropdown", {
-    Title = "Dropdown",
+local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+    Title = "Auto boss",
     Values = {"Vasto Hollw", "Phoenix Man", "Spongebob", "Ghost Gojo"},
     Multi = false,
     Default = 1,
@@ -319,7 +319,7 @@ local Dropdown = Tabs.AutoFarm:AddDropdown("Dropdown", {
 
 Dropdown:SetValue("Ghost Gojo")
 
-local Toggle = Tabs.AutoFarm:AddToggle("AutobossToggle", {Title = "Auto boss", Default = false})
+local Toggle = Tabs.AutoFarm:AddToggle("Autobosstoggle", {Title = "Auto Farm", Default = false})
 
 Toggle:OnChanged(function(Value)
     _G.Autoboss = Value
@@ -347,17 +347,32 @@ Toggle:OnChanged(function(Value)
                     local args = {}
                     if selectedMob == "Vasto Hollw" then
                         args = {"Orb Demon"}
-                        game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
                     elseif selectedMob == "Phoenix Man" then
                         args = {"Banana"}
-                        game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
                     elseif selectedMob == "Spongebob" then
                         args = {"Banana"}
-                        game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
                     elseif selectedMob == "Ghost Gojo" then
                         args = {"Orb Demon"}
-                        game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
                     end
+
+                    -- Check if the item exists in the inventory
+                    local inventoryItems = {} -- A table of items you currently have in the inventory
+                    for _, item in pairs(game:GetService("ReplicatedStorage").Remotes.Inventory:GetChildren()) do
+                        table.insert(inventoryItems, item.Name)
+                    end
+
+                    if not table.find(inventoryItems, args[1]) then
+                        -- Show notification if item is not in inventory
+                        game:GetService("StarterGui"):SetCore("SendNotification", {
+                            Title = "Item Missing",
+                            Text = "You do not have " .. args[1] .. " in your inventory!",
+                            Duration = 5
+                        })
+                        return
+                    end
+
+                    -- Remove or add item from/to inventory
+                    game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
                     
                     local summonArgs = {
                         [1] = "fire",
