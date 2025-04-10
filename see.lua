@@ -301,3 +301,5 @@ Toggle:OnChanged(function(Value)
         end
     end
 end)
+
+Tabs.Settings:AddSection("Auto boss")
