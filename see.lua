@@ -144,52 +144,37 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Tabs.Settings:AddSection("Auto Skill")
-local skillKeys = {
-    Z = Enum.KeyCode.Z,
-    X = Enum.KeyCode.X,
-    C = Enum.KeyCode.C,
-    V = Enum.KeyCode.V,
-    F = Enum.KeyCode.F
-}
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
 
-local skillStates = {}
+local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
+    Title = "Multi Dropdown",
+    Description = "You can select multiple values.",
+    Values = {"Z", "X", "C", "V", "F"},
+    Multi = true,
+    Default = {"Z", "X"},
+})
 
-for key, keyCode in pairs(skillKeys) do
-    skillStates[key] = false
-    Tabs.Settings:AddToggle(key, {
-        Title = "Skill " .. key,
-        Default = false,
-        Callback = function(state)
-            skillStates[key] = state
-            if skillStates[key] then
-                task.spawn(function()
-                    while skillStates[key] do
-                        local inputService = game:GetService("UserInputService")
-                        
-                        -- Simulate InputBegan event
-                        local inputBegin = Instance.new("InputObject")
-                        inputBegin.KeyCode = keyCode
-                        inputBegin.UserInputType = Enum.UserInputType.Keyboard
-                        
-                        -- Fire InputBegan event
-                        inputService.InputBegan:Fire(inputBegin, false)
-                        
-                        task.wait(0.05)
-                        
-                        -- Simulate InputEnded event
-                        local inputEnd = Instance.new("InputObject")
-                        inputEnd.KeyCode = keyCode
-                        inputEnd.UserInputType = Enum.UserInputType.Keyboard
-                        
-                        -- Fire InputEnded event
-                        inputService.InputEnded:Fire(inputEnd)
-                        
-                        task.wait(0.1)
-                    end
-                end)
-            end
-        end
-    })
+MultiDropdown:SetValue({
+    Z = true,
+    X = true
+})
+
+MultiDropdown:OnChanged(function(Value)
+    local Values = {}
+    for Value, State in next, Value do
+        table.insert(Values, Value)
+    end
+
+    for _, selectedKey in ipairs(Values) do
+        sendKey(selectedKey)
+    end
+end)
+
+local function sendKey(key)
+    VirtualInputManager:SendKeyEvent(true, key, false, game)
+    wait(0.05)
+    VirtualInputManager:SendKeyEvent(false, key, false, game)
 end
 Tabs.AutoFarm:AddSection("Auto Farm")
 local MobFolder = workspace:WaitForChild("Mob")
