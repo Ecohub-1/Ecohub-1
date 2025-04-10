@@ -314,8 +314,8 @@ Toggle:OnChanged(function(Value)
 end)
 
 Tabs.AutoFarm:AddSection("Auto boss")
-local Dropdown = Tabs.AutoFarm:AddDropdown("Dropdown", {
-    Title = "Auto boss",
+local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+    Title = "Dropdown",
     Values = {"Vasto Hollw", "Phoenix Man", "Spongebob", "Ghost Gojo"},
     Multi = false,
     Default = 1,
@@ -323,7 +323,9 @@ local Dropdown = Tabs.AutoFarm:AddDropdown("Dropdown", {
 
 Dropdown:SetValue("Ghost Gojo")
 
-local Toggle = Tabs.AutoFarm:AddToggle("Autobosstoggle", {Title = "Auto Farm", Default = false})
+local Toggle = Tabs.AutoFarm:AddToggle("AutobossToggle", {Title = "Auto Farm", Default = false})
+
+local notificationSent = false  -- Flag to track if the notification has been sent
 
 Toggle:OnChanged(function(Value)
     _G.Autoboss = Value
@@ -360,18 +362,21 @@ Toggle:OnChanged(function(Value)
                     end
 
                     -- Check if the item exists in the inventory
-                    local inventoryItems = {} -- A table of items you currently have in the inventory
+                    local inventoryItems = {}
                     for _, item in pairs(game:GetService("ReplicatedStorage").Remotes.Inventory:GetChildren()) do
                         table.insert(inventoryItems, item.Name)
                     end
 
                     if not table.find(inventoryItems, args[1]) then
-                        -- Show notification if item is not in inventory
-                        game:GetService("StarterGui"):SetCore("SendNotification", {
-                            Title = "Item Missing",
-                            Text = "มีงไม่มี " .. args[1] .. " ไอ้ควาย",
-                            Duration = 5
-                        })
+                        -- If notification hasn't been sent yet, send it and mark it as sent
+                        if not notificationSent then
+                            Fluent:Notify({
+                                Title = "แจ้งเตือน",                -- Title of the notification
+                                Content = "คุณไม่มี " .. args[1] .. " ในกระเป๋าของคุณ!", -- Message content
+                                Duration = 5                        -- Duration in seconds
+                            })
+                            notificationSent = true  -- Mark notification as sent
+                        end
                         return
                     end
 
