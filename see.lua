@@ -314,7 +314,7 @@ Toggle:OnChanged(function(Value)
 end)
 
 Tabs.AutoFarm:AddSection("Auto boss")
-local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+local Dropdown = Tabs.AutoFarm:AddDropdown("Dropdown", {
     Title = "Dropdown",
     Values = {"Vasto Hollw", "Phoenix Man", "Spongebob", "Ghost Gojo"},
     Multi = false,
