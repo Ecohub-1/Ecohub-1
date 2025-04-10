@@ -371,8 +371,8 @@ Toggle:OnChanged(function(Value)
                         -- If notification hasn't been sent yet, send it and mark it as sent
                         if not notificationSent then
                             Fluent:Notify({
-                                Title = "แจ้งเตือน",                -- Title of the notification
-                                Content = "คุณไม่มี " .. args[1] .. " ในกระเป๋าของคุณ!", -- Message content
+                                Title = "Notification",                -- Title of the notification
+                                Content = "You don't have " .. args[1] .. " In your inventory!", -- Message content
                                 Duration = 5                        -- Duration in seconds
                             })
                             notificationSent = true  -- Mark notification as sent
