@@ -447,3 +447,108 @@ Toggle:OnChanged(function(Value)
         end
     end
 end)
+
+Tabs.Dungeon:AddSection("Auto Dungeon")
+local Toggle = Tabs.Dungeon:AutoDunToggle("Dungeon", {Title = "Auto Dungeon", Default = false})
+
+Toggle:OnChanged(function()
+    _G.AutoDungeon = Options.MyToggle.Value
+
+    if _G.AutoDungeon then
+        task.spawn(function()
+            while _G.AutoDungeon do
+                pcall(function()
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    local humanoid = char and char:FindFirstChild("Humanoid")
+
+                    if not hrp or not humanoid then return end
+
+                    humanoid.AutoRotate = false
+
+                    if not workspace.npcClick.Raid then return end
+
+                    local args = {
+                        [1] = "Orb Dungeon"
+                    }
+                    game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(unpack(args))
+
+                    local prompt = workspace.npcClick.Raid:FindFirstChild("Prompt")
+                    if prompt then
+                        prompt:Click()
+                    end
+
+                    while not workspace.DungeonRing.Pad do
+                        task.wait(1)
+                        prompt:Click()
+                    end
+
+                    hrp.CFrame = workspace.DungeonRing.Pad.CFrame
+
+                    while not workspace.DunMob:GetChildren() do
+                        task.wait(1)
+                    end
+
+                    for _, mob in pairs(workspace.DunMob:GetChildren()) do
+                        if mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") then
+                            local mobHRP = mob.HumanoidRootPart
+                            local mobHumanoid = mob.Humanoid
+
+                            if mobHumanoid.Health > 0 then
+                                local targetPos = mobHRP.Position + Vector3.new(0, 5, 0)
+
+                                local lookVector = (mobHRP.Position - targetPos).Unit
+                                hrp.CFrame = CFrame.lookAt(targetPos, targetPos + lookVector)
+                                break
+                            end
+                        end
+                    end
+
+                    local dungeonRewardUI = game:GetService("StarterGui").HUD.DungeonReward
+                    if dungeonRewardUI then
+                        task.wait(6)
+                    else
+                        task.wait(1)
+                    end
+                end)
+                task.wait(0.01)
+            end
+        end)
+    else
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local humanoid = char and char:FindFirstChild("Humanoid")
+
+        if humanoid then
+            humanoid.AutoRotate = true
+        end
+
+        if hrp then
+            local rayOrigin = hrp.Position
+            local rayDirection = Vector3.new(0, -100, 0)
+            local raycastParams = RaycastParams.new()
+            raycastParams.FilterDescendantsInstances = {char}
+            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+            local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+
+            if result then
+                local targetPosition = result.Position + Vector3.new(0, 3, 0)
+                local currentPos = hrp.Position
+                local difference = targetPosition - currentPos
+                local duration = 0.5
+                local startTime = tick()
+
+                while tick() - startTime < duration do
+                    hrp.CFrame = CFrame.new(currentPos + difference * ((tick() - startTime) / duration))
+                    task.wait(0.03)
+                end
+                hrp.CFrame = CFrame.new(targetPosition)
+            end
+        end
+    end
+end)
+
+Options.MyToggle:SetValue(false)
