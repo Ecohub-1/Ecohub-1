@@ -152,19 +152,26 @@ local skillKeys = {
     F = "AutoSkillF"
 }
 
+local skillStates = {}
+
 for key, id in pairs(skillKeys) do
-    local AutoSkill = false
+    skillStates[key] = false
     Tabs.Settings:AddToggle(id, {
         Title = "Skill " .. key,
         Default = false,
         Callback = function(state)
-            AutoSkill = state
-            if AutoSkill then
+            skillStates[key] = state
+            if skillStates[key] then
                 task.spawn(function()
-                    while AutoSkill do
-                        VirtualInputManager:SendKeyEvent(true, key, false, game)
+                    while skillStates[key] do
+                        local inputService = game:GetService("UserInputService")
+                        local inputObject = Instance.new("InputObject")
+                        inputObject.KeyCode = Enum.KeyCode[key]
+                        
+                        inputService.InputBegan:Fire(inputObject, false)
                         task.wait(0.05)
-                        VirtualInputManager:SendKeyEvent(false, key, false, game)
+                        
+                        inputService.InputEnded:Fire(inputObject)
                         task.wait(0.1)
                     end
                 end)
