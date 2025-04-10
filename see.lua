@@ -449,7 +449,7 @@ Toggle:OnChanged(function(Value)
 end)
 
 Tabs.Dungeon:AddSection("Auto Dungeon")
-local Toggle = Tabs.Dungeon:AutoDunToggle("Dungeon", {Title = "Auto Dungeon", Default = false})
+local Toggle = Tabs.Dungeon:AddToggle("Dugeon", {Title = "Auto Dungeon", Default = false})
 
 Toggle:OnChanged(function()
     _G.AutoDungeon = Options.MyToggle.Value
