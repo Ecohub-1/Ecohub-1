@@ -23,21 +23,44 @@
         local player = game:GetService("Players").LocalPlayer
         local Settings = player
         if Settings then
-            local attributes = {AutoAttack = ture, AutoArise = true, AutoDestroy = true}
+            local attributes = 
+    {AutoAttack = ture, AutoArise = true, AutoDestroy = true}
             for name, default in pairs(attributes) do
         Tabs.Settings:AddToggle("AutoSettings", {Tile = "Auto Attack", Default = 
-                settings:GetAttribute(name or default)
+                settings:GetAttribute(name) or default)
+            )}
                     toggle:OnChanged(function(Value)
                             Settings.SetAttribute(name, Value)
-                            end
-                )}
-             end
+                    end)
+            end
         end
                     local autoClickEnabled = false
         Tabs.Settings:AddToggle("AutoClick", {Title = "Auto Click", Default = false})
                     toggle:OnChanged(function(Value)
-                            Callback = function()
+                            Callback = function(Value)
                                 autoClickEnabled = not autoClickEnabled
                                 player:SetAttribute("AutoClick", autoClickEnabled)
+                 autoClickEnabled = Value
+              
                             end
                         end)
+     for i,v in pairs(game:GetService("ReplicatedStorage").__Assets.__Weapons:GetCilldren()) do
+    local Shop = Tabs.Shop:Addinput({Tile ="Buy Item", Placeholder = "Item Name"})
+    Shop:OnChanged(function(Value)
+       if Value then
+        local args = {
+            [1] = {
+                [1] = {
+                    ["Item"] =  Value,
+                    ["Shop"] = "WeaponShop1",
+                    ["Event"] = "ItemShopAction",
+                    ["Action"] = "Buy"
+                },
+                [2] = "\n"
+            }
+        }
+
+        game:GetService("ReplicatedStorage").BridgeNet2.dataRemoteEvent:FireServer(unpack(args))
+                    print(v.Name)
+                end)
+             end
