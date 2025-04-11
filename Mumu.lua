@@ -29,12 +29,12 @@
                 settings:GetAttribute(name or default)
                     toggle:OnChanged(function(Value)
                             Settings.SetAttribute(name, Value)
-                            end)}
-                    end
-        local AutoClick 
-            game:GetService("Players").LocalPlayer
+                            end
+                )}
+             end
+        end
                     local autoClickEnabled = false
-        Tabs.Settings:AddToggle("AutoClick", {Title = "Auto Click", Default = true})
+        Tabs.Settings:AddToggle("AutoClick", {Title = "Auto Click", Default = false})
                     toggle:OnChanged(function(Value)
                             Callback = function()
                                 autoClickEnabled = not autoClickEnabled
