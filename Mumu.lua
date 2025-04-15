@@ -119,18 +119,6 @@ local function fmt(n)
     return tostring(n)
 end
 
--- ทำให้ชื่อไม่ซ้ำ
-    local name = m.Name
-    local count = 1
-    while monNames[name .. " [ HP " .. fHP .. " ]"] do
-        count += 1
-        name = m.Name .. " [" .. count .. "]"
-    end
-
-    local disp = name .. " [ HP " .. fHP .. " ]"
-    monNames[disp] = true  -- จดจำว่าชื่อนี้ถูกใช้แล้ว
-    table.insert(mons, { ID = id, Name = name, Disp = disp })
---=================--
 local mons = {}
 local monNames = {}
 
