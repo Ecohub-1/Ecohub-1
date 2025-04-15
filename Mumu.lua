@@ -122,6 +122,12 @@ end
 local mons = {}
 local monNames = {}
 
+for i, mon in pairs(monNames) do
+    if mon and mon.Name then
+        print(mon.Name)
+    end
+end
+
 for id, m in pairs(Monsters) do
     local fHP = fmt(m.HP)
     local disp = m.Name .. " [ HP " .. fHP .. " ]"
