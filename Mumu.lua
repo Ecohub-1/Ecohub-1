@@ -3,7 +3,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub = Version 1.0" ,
+    Title = "Eco Hub  V1.0" ,
     SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
