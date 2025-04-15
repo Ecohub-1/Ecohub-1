@@ -167,7 +167,8 @@ local DD = Tabs.Main:AddDropdown("SelectEnemies", {
     Default = nil,
 })
 
-Dropdown:OnChanged(function(value)
+local Dropdown = script.Parent:WaitForChild("Dropdown")
+Dropdown.OnChanged:Connect(function(value)
     selMon = value
 end)
 
