@@ -85,7 +85,7 @@ local lp = P.LocalPlayer
 local hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
 
 -- Use getfenv to create a local environment for global variables
-
+local env = {}
 env.F = false
 
 local suff = {
