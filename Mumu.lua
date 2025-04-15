@@ -140,11 +140,6 @@ Tabs.Main:AddSection("EnemiesFarmSection", {
     Title = "Enemies Farm"
 })
 
-local tgtInfo = Tabs.Main:AddLabel("TargetInfoLabel", {
-    Title = "Target Info",
-    Description = "No target"
-})
-
 local selMon = nil
 local tgt = nil
 
