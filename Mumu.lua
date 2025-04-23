@@ -19,23 +19,7 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
 
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local autoPlayRemote = replicatedStorage.Remote.Server.Units.AutoPlay
 
-
-local AutoPlay = Tabs.Game:AddToggle("AutoPlayToggle", {
-    Title = "AutoPlay",
-    Default = false
-})
-
-Toggle:OnChanged(function(value)
-    if value then
-        autoPlayRemote:FireServer()
-
-    end
-end)
-
-Options.AutoPlayToggle:SetValue(true)
 
 -------------------------
 local AutoUpgradeToggle = Tabs.Game:AddToggle("AutoUpgrade", {
