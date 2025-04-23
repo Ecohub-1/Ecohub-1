@@ -65,3 +65,28 @@ AutoUpgradeToggle:OnChanged(function(Value)
         end)
     end
 end)
+------------
+local AutoVote = Tabs.Main:AddToggle("MyToggle", {
+    Title = "AutoVote",
+    Default = false
+})
+
+local autoVoteRunning = false
+
+Toggle:OnChanged(function(value)
+    autoVoteRunning = value
+
+    -- ถ้าเปิด Toggle
+    if value then
+        task.spawn(function()
+            while autoVoteRunning do
+                local gui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("VotingGui")
+                if gui and gui.Enabled then
+                    game:GetService("ReplicatedStorage").Remote.Server.OnGame.Voting.VotePlaying:FireServer()
+                    task.wait(1) -- ป้องกัน spam
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+end)
