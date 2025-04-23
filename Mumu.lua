@@ -31,11 +31,37 @@ local AutoPlay = Tabs.Game:AddToggle("AutoPlayToggle", {
 Toggle:OnChanged(function(value)
     if value then
         autoPlayRemote:FireServer()
-    else
-        -- ถ้ามี Remote สำหรับปิด AutoPlay ให้ใส่ตรงนี้
-        -- ตัวอย่าง: replicatedStorage.Remote.Server.Units.StopAutoPlay:FireServer()
+
     end
 end)
 
 Options.AutoPlayToggle:SetValue(true)
 
+-------------------------
+local AutoUpgradeToggle = Tabs.Game:AddToggle("AutoUpgrade", {
+    Title = "Auto Upgrade",
+    Default = false
+})
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local unitsFolder = player:WaitForChild("UnitsFolder")
+local upgradeRemote = ReplicatedStorage.Remote.Server.Units.Upgrade
+
+local autoUpgradeRunning = false
+
+AutoUpgradeToggle:OnChanged(function(Value)
+    autoUpgradeRunning = Value
+    if Value then
+        task.spawn(function()
+            while autoUpgradeRunning do
+                for _, unit in pairs(unitsFolder:GetChildren()) do
+                    upgradeRemote:FireServer(unit)
+                end
+                task.wait(1.5) 
+            end
+        end)
+    end
+end)
