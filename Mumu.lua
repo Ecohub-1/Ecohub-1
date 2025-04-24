@@ -18,19 +18,24 @@ local Tabs = {
     other = Window:AddTab({ Title = "other", Icon = "chart-column-decreasing" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
+
+local players = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local localPlayer = players.LocalPlayer
+
 local autoPlayRemote = replicatedStorage.Remote.Server.Units.AutoPlay
+
 local autoPlayStatus = replicatedStorage:WaitForChild("Player_Data")
-    :WaitForChild("LocalPlayer")
+    :WaitForChild(tostring(localPlayer.UserId))
     :WaitForChild("Data")
     :WaitForChild("AutoPlay")
 
-local AutoPlay = Tabs.Game:AddToggle("AutoPlayToggle", {
+local AuP = Tabs.Main:AddToggle("AutoPlayToggle", {
     Title = "AutoPlay",
     Default = autoPlayStatus.Value
 })
 
-AutoPlay:OnChanged(function(value)
+Aup:OnChanged(function(value)
     if value and autoPlayStatus.Value == false then
         autoPlayRemote:FireServer()
     end
