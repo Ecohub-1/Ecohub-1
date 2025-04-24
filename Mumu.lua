@@ -51,21 +51,22 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
 local AutoNext = Tabs.Game:AddToggle("AutoVoteNext", {
-    Title = "Auto Vote Next",
+    Title = "Auto Next",
     Default = false
 })
 
 AutoNext:OnChanged(function()
-    if Options.AutoVoteNext.Value then
+    if AutoNext.Value then
         task.spawn(function()
-            while Options.AutoVoteNext.Value do
+            while AutoNext.Value do
                 local RewardsUI = player:FindFirstChild("PlayerGui"):FindFirstChild("RewardsUI")
                 if RewardsUI then
-                    local NextButton = RewardsUI:FindFirstChild("Main")
-                        and RewardsUI.Main:FindFirstChild("LeftSide")
-                        and RewardsUI.Main.LeftSide:FindFirstChild("Button")
-                        and RewardsUI.Main.LeftSide.Button:FindFirstChild("Next")
+                    local Main = RewardsUI:FindFirstChild("Main")
+                    local LeftSide = Main and Main:FindFirstChild("LeftSide")
+                    local Button = LeftSide and LeftSide:FindFirstChild("Button")
+                    local NextButton = Button and Button:FindFirstChild("Next")
 
+                    -- เช็คว่าปุ่ม Next มีอยู่และมองเห็นอยู่
                     if NextButton and NextButton.Visible then
                         NextButton:Click()
                         ReplicatedStorage.Remote.Server.OnGame.Voting.VoteNext:FireServer()
