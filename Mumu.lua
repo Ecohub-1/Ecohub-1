@@ -35,8 +35,7 @@ AutoPlay:OnChanged(function(value)
     end
 end)
 
-Options.AutoPlayToggle:SetValue(true)
-
+Options.AutoPlay:SetValue(true)
 -------------------------
 local AutoUpgradeToggle = Tabs.Game:AddToggle("AutoUpgrade", {
     Title = "Auto Upgrade",
