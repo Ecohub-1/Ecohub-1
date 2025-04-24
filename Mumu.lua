@@ -25,8 +25,16 @@ local Options = SaveManager:SetLibrary(Fluent)
 
 local AutoVote = Tabs.Game:AddToggle("Autovote", { Title = "Auto Vote", Default = false })
 
-local AutoPlay = Tabs.Game:AddToggle("AutoPlay", { Title = "Auto Play", Default = false })
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = game.Players.LocalPlayer
+
+local AutoPlay = Tabs.Game:AddToggle("AutoPlay", {
+    Title = "Auto Play",
+    Default = false
+})
+
 local autoPlayValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("AutoPlay")
+
 local autoPlayLoop = false
 
 AutoPlay:OnChanged(function(value)
