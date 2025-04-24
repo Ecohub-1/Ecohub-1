@@ -46,35 +46,35 @@ end)
 
 Tabs.Game:AddSection("End Game")
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
+local player = game:GetService("Players").LocalPlayer
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local voteNextRemote = replicatedStorage.Remote.Server.OnGame.Voting.VoteNext
 
-local AutoNext = Tabs.Game:AddToggle("AutoVoteNext", {
-    Title = "Auto Next",
-    Default = false
-})
+local AutoNext = Tabs.Game:AddToggle("AutoNext", {Title = "AutoNext", Default = false})
+
+local connection
 
 AutoNext:OnChanged(function()
-    if AutoNext.Value then
-        task.spawn(function()
-            while AutoNext.Value do
-                local RewardsUI = player:FindFirstChild("PlayerGui"):FindFirstChild("RewardsUI")
-                if RewardsUI then
-                    local Main = RewardsUI:FindFirstChild("Main")
-                    local LeftSide = Main and Main:FindFirstChild("LeftSide")
-                    local Button = LeftSide and LeftSide:FindFirstChild("Button")
-                    local NextButton = Button and Button:FindFirstChild("Next")
+    if Options.MyToggle.Value then
+        local nextValue = player:WaitForChild("PlayerGui")
+            :WaitForChild("RewardsUI")
+            .Main.LeftSide.Button:WaitForChild("Next")
 
-                    -- เช็คว่าปุ่ม Next มีอยู่และมองเห็นอยู่
-                    if NextButton and NextButton.Visible then
-                        NextButton:Click()
-                        ReplicatedStorage.Remote.Server.OnGame.Voting.VoteNext:FireServer()
-                        task.wait(1)
-                    end
-                end
-                task.wait(0.5)
+        connection = nextValue:GetPropertyChangedSignal("Value"):Connect(function()
+            if nextValue.Value == true then
+                voteNextRemote:FireServer()
             end
         end)
+
+        if nextValue.Value == true then
+            voteNextRemote:FireServer()
+        end
+    else
+        if connection then
+            connection:Disconnect()
+            connection = nil
+        end
     end
 end)
+
+Options.AutoNext:SetValue(false)
