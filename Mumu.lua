@@ -18,74 +18,28 @@ local Tabs = {
     other = Window:AddTab({ Title = "other", Icon = "chart-column-decreasing" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
-
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local autoPlayRemote = replicatedStorage.Remote.Server.Units.AutoPlay
-
+local autoPlayStatus = replicatedStorage:WaitForChild("Player_Data")
+    :WaitForChild("LocalPlayer")
+    :WaitForChild("Data")
+    :WaitForChild("AutoPlay")
 
 local AutoPlay = Tabs.Game:AddToggle("AutoPlayToggle", {
     Title = "AutoPlay",
-    Default = false
+    Default = autoPlayStatus.Value
 })
 
 AutoPlay:OnChanged(function(value)
-    if value then
+    if value and autoPlayStatus.Value == false then
         autoPlayRemote:FireServer()
-
     end
 end)
 
-Options.AutoPlay:SetValue(true)
--------------------------
-local AutoUpgradeToggle = Tabs.Game:AddToggle("AutoUpgrade", {
-    Title = "Auto Upgrade",
-    Default = false
-})
-
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local player = Players.LocalPlayer
-local unitsFolder = player:WaitForChild("UnitsFolder")
-local upgradeRemote = ReplicatedStorage.Remote.Server.Units.Upgrade
-
-local autoUpgradeRunning = false
-
-AutoUpgradeToggle:OnChanged(function(Value)
-    autoUpgradeRunning = Value
-    if Value then
-        task.spawn(function()
-            while autoUpgradeRunning do
-                for _, unit in pairs(unitsFolder:GetChildren()) do
-                    upgradeRemote:FireServer(unit)
-                end
-                task.wait(1.5) 
-            end
-        end)
-    end
+autoPlayStatus:GetPropertyChangedSignal("Value"):Connect(function()
+    Options.AutoPlayToggle:SetValue(autoPlayStatus.Value)
 end)
 
-local AutoVote = Tabs.Game:AddToggle("MyToggle", {
-    Title = "AutoVote",
-    Default = false
-})
-
-local autoVoteRunning = false
-
-Toggle:OnChanged(function(value)
-    autoVoteRunning = value
-
-    -- ถ้าเปิด Toggle
-    if value then
-        task.spawn(function()
-            while autoVoteRunning do
-                local gui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("VotingGui")
-                if gui and gui.Enabled then
-                    game:GetService("ReplicatedStorage").Remote.Server.OnGame.Voting.VotePlaying:FireServer()
-                    task.wait(1) -- ป้องกัน spam
-                end
-                task.wait(0.5)
-            end
-        end)
-    end
-end)
+if autoPlayStatus.Value == false then
+    autoPlayRemote:FireServer()
+end
