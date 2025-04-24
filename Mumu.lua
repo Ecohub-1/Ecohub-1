@@ -67,6 +67,39 @@ end)
 
 Options.AutoYen:SetValue(false)
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local unitsFolder = player:WaitForChild("UnitsFolder")
+local upgradeRemote = ReplicatedStorage.Remote.Server.Units.Upgrade
+
+local AuU = Tabs.Main:AddToggle("AuU", {
+    Title = "Auto Upgrade",
+    Default = false
+})
+
+local autoUpgradeRunning = false
+
+local function autoUpgrade()
+    while Options.AuU.Value and autoUpgradeRunning do
+        for _, unit in pairs(unitsFolder:GetChildren()) do
+            upgradeRemote:FireServer(unit.Name)
+            task.wait(1.1)
+        end
+        task.wait(2)
+    end
+end
+
+AuU:OnChanged(function(state)
+    if state then
+        autoUpgradeRunning = true
+        task.spawn(autoUpgrade)
+    else
+        autoUpgradeRunning = false
+    end
+end)
+
 Tabs.Game:AddSection("End Game")
 
 local voteNextRemote = ReplicatedStorage.Remote.Server.OnGame.Voting.VoteNext
