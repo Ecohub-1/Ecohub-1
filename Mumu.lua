@@ -67,6 +67,8 @@ end)
 
 Options.AutoYen:SetValue(false)
 
+Options.AutoYen:SetValue(false)
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
