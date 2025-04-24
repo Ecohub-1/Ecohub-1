@@ -44,11 +44,13 @@ task.spawn(function()
      end
 end)
 
+Tabs.Game:AddSection("End Game")
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
-local AutoNext = Tabs.Main:AddToggle("AutoVoteNext", {
+local AutoNext = Tabs.Game:AddToggle("AutoVoteNext", {
     Title = "Auto Vote Next",
     Default = false
 })
