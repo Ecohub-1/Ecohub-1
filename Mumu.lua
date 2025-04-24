@@ -53,3 +53,30 @@ AuV:OnChanged(function(value)
         autoVoteRunning = false
     end
 end)
+
+local player = game:GetService("Players").LocalPlayer
+local unitsFolder = player.UnitsFolder
+
+-- Function to upgrade each unit
+local function upgradeUnit(unit)
+    -- Make sure the unit is a Model and has a valid Upgrade method or part
+    if unit:IsA("Model") then
+        local args = { unit }
+        game:GetService("ReplicatedStorage").Remote.Server.Units.Upgrade:FireServer(unpack(args))
+    end
+end
+
+
+local AutoUpgrade = Tabs.Game:AddToggle("AutoUpgrade", {Title = "Auto Upgrade", Default = false})
+
+AutoUpgrade:OnChanged(function()
+    if AutoUpgrade.Value then
+        -- Iterate over all units and upgrade them if AutoUpgrade is on
+        for _, unit in pairs(unitsFolder:GetChildren()) do
+            upgradeUnit(unit)
+        end
+    end
+end)
+
+
+AutoUpgrade:SetValue(false)
