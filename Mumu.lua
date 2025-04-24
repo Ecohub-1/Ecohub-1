@@ -19,23 +19,6 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
 
-local Autovote = Tabs.Main:AddToggle("Autovote", {Title = "Auto Vote", Default = false })
-local voteFrame = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.VotePlaying.Frame.Vote
-local remote = game:GetService("ReplicatedStorage").Remote.Server.OnGame.Voting.VotePlaying
-
-Autovote:OnChanged(function()
-    if Autovote.Value then
-        while true do
-            if voteFrame and voteFrame.Value == true then
-                remote:FireServer()
-            end
-            wait(1)
-        end
-    end
-end)
-
-Options.Autovote:SetValue(false)
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = game.Players.LocalPlayer
 
