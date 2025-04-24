@@ -25,29 +25,31 @@ local voteRemote = ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying
 local player = Players.LocalPlayer
 
 -- UI Toggle
-local AuV = Tabs.Game:AddToggle("AutoVote", {Title = "Auto Vote", Default = false})
+local AuV = Tabs.Main:AddToggle("AuV", {Title = "Auto Vote", Default = false})
 
 -- Task loop
 local autoVoteRunning = false
 
-AuV:OnChanged(function()
-    local enabled = Options.AutoVote.Value
-    if enabled and not autoVoteRunning then
+AuV:OnChanged(function(value)
+    if value and not autoVoteRunning then
         autoVoteRunning = true
+
         task.spawn(function()
-            while Options.AutoVote.Value do
+            while value do
                 local success, voteButton = pcall(function()
                     return player.PlayerGui.HUD.InGame.VotePlaying.Frame.Vote
                 end)
 
                 if success and voteButton and voteButton.Visible then
-                    voteRemote:FireServer()  
+                    voteRemote:FireServer()
                 end
 
-                task.wait(2)  
+                task.wait(1)
             end
 
             autoVoteRunning = false
         end)
+    elseif not value then
+        autoVoteRunning = false
     end
 end)
