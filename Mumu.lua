@@ -18,9 +18,31 @@ local Tabs = {
     other = Window:AddTab({ Title = "other", Icon = "candy" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
+local Options = SaveManager:SetLibrary(Fluent)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = game.Players.LocalPlayer
+
+local AutoVote = Tabs.Game:AddToggle("AutoVote", {
+    Title = "Auto Vote",
+    Default = false
+})
+
+local voteValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("vote")
+local autoVoteLoop = false
+
+AutoVote:OnChanged(function(value)
+    autoVoteLoop = value
+end)
+
+task.spawn(function()
+    while true do
+        if autoVoteLoop and not voteValue.Value then
+            ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
+        end
+        task.wait(2)
+    end
+end)
 
 local AutoPlay = Tabs.Game:AddToggle("AutoPlay", {
     Title = "Auto Play",
@@ -79,7 +101,7 @@ local AutoNext = Tabs.Game:AddToggle("AutoNext", {Title = "AutoNext", Default = 
 local connection
 
 AutoNext:OnChanged(function()
-    if Options.MyToggle.Value then
+    if Options.AutoNext.Value then
         local nextValue = player:WaitForChild("PlayerGui")
             :WaitForChild("RewardsUI")
             .Main.LeftSide.Button:WaitForChild("Next")
