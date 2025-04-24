@@ -22,7 +22,7 @@ local Tabs = {
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = game.Players.LocalPlayer
 
-local AutoPlay = Tabs.Main:AddToggle("AutoPlay", {
+local AutoPlay = Tabs.Game:AddToggle("AutoPlay", {
     Title = "Auto Play",
     Default = false
 })
