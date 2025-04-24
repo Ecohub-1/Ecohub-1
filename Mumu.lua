@@ -43,3 +43,35 @@ task.spawn(function()
         task.wait(2)
      end
 end)
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
+local AutoNext = Tabs.Main:AddToggle("AutoVoteNext", {
+    Title = "Auto Vote Next",
+    Default = false
+})
+
+AutoNext:OnChanged(function()
+    if Options.AutoVoteNext.Value then
+        task.spawn(function()
+            while Options.AutoVoteNext.Value do
+                local RewardsUI = player:FindFirstChild("PlayerGui"):FindFirstChild("RewardsUI")
+                if RewardsUI then
+                    local NextButton = RewardsUI:FindFirstChild("Main")
+                        and RewardsUI.Main:FindFirstChild("LeftSide")
+                        and RewardsUI.Main.LeftSide:FindFirstChild("Button")
+                        and RewardsUI.Main.LeftSide.Button:FindFirstChild("Next")
+
+                    if NextButton and NextButton.Visible then
+                        NextButton:Click()
+                        ReplicatedStorage.Remote.Server.OnGame.Voting.VoteNext:FireServer()
+                        task.wait(1)
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+end)
