@@ -60,7 +60,7 @@ task.spawn(function()
     end
 end)
 
-local AutoYen = Tabs.Main:AddToggle("AutoYen", { Title = "Auto Yen", Default = false })
+local AutoYen = Tabs.Game:AddToggle("AutoYen", { Title = "Auto Yen", Default = false })
 local running = false
 
 AutoYen:OnChanged(function(value)
