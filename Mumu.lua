@@ -44,6 +44,30 @@ task.spawn(function()
      end
 end)
 
+local AutoYen = Tabs.Main:AddToggle("AutoYen", {
+    Title = "Auto Yen", 
+    Default = false 
+})
+
+local running = false
+
+AutoYen:OnChanged(function(value)
+    running = value
+    print("AutoYen changed:", value)
+
+    if running then
+        task.spawn(function()
+            while running do
+                game.ReplicatedStorage.Remote.Server.Gameplay.StatsManager:FireServer("MaximumYen")
+                task.wait(3)
+            end
+        end)
+    end
+end)
+
+
+Options.AutoYen:SetValue(false)
+
 Tabs.Game:AddSection("End Game")
 
 local player = game:GetService("Players").LocalPlayer
