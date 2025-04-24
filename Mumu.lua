@@ -22,26 +22,8 @@ local Tabs = {
 
 local Options = SaveManager:SetLibrary(Fluent)
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
 
 local AutoVote = Tabs.Game:AddToggle("Autovote", { Title = "Auto Vote", Default = false })
-local voteValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("Vote")
-local autoVoteLoop = false
-
-AutoVote:OnChanged(function(value)
-    autoVoteLoop = value
-end)
-
-task.spawn(function()
-    while true do
-        if autoVoteLoop and not voteValue.Value then
-            ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
-        end
-        task.wait(2)
-    end
-end)
 
 local AutoPlay = Tabs.Game:AddToggle("AutoPlay", { Title = "Auto Play", Default = false })
 local autoPlayValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("AutoPlay")
