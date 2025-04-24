@@ -19,32 +19,35 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
 
-local players = game:GetService("Players")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local localPlayer = players.LocalPlayer
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local voteRemote = ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying
+local player = Players.LocalPlayer
 
-local autoPlayRemote = replicatedStorage.Remote.Server.Units.AutoPlay
+-- UI Toggle
+local AuV = Tabs.Game:AddToggle("AutoVote", {Title = "Auto Vote", Default = false})
 
-local autoPlayStatus = replicatedStorage:WaitForChild("Player_Data")
-    :WaitForChild(tostring(localPlayer.UserId))
-    :WaitForChild("Data")
-    :WaitForChild("AutoPlay")
+-- Task loop
+local autoVoteRunning = false
 
-local AuP = Tabs.Main:AddToggle("AutoPlayToggle", {
-    Title = "AutoPlay",
-    Default = autoPlayStatus.Value
-})
+AuV:OnChanged(function()
+    local enabled = Options.AutoVote.Value
+    if enabled and not autoVoteRunning then
+        autoVoteRunning = true
+        task.spawn(function()
+            while Options.AutoVote.Value do
+                local success, voteButton = pcall(function()
+                    return player.PlayerGui.HUD.InGame.VotePlaying.Frame.Vote
+                end)
 
-Aup:OnChanged(function(value)
-    if value and autoPlayStatus.Value == false then
-        autoPlayRemote:FireServer()
+                if success and voteButton and voteButton.Visible then
+                    voteRemote:FireServer()  
+                end
+
+                task.wait(2)  
+            end
+
+            autoVoteRunning = false
+        end)
     end
 end)
-
-autoPlayStatus:GetPropertyChangedSignal("Value"):Connect(function()
-    Options.AutoPlayToggle:SetValue(autoPlayStatus.Value)
-end)
-
-if autoPlayStatus.Value == false then
-    autoPlayRemote:FireServer()
-end
