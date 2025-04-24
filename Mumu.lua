@@ -13,8 +13,33 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Auto Farm", Icon = "earth" }),
+    Main = Window:AddTab({ Title = "Auto Farm", Icon = "bookmark" }),
     Game = Window:AddTab({ Title = "Game", Icon = "gamepad-2" }),
-    other = Window:AddTab({ Title = "other", Icon = "chart-column-decreasing" }),
+    other = Window:AddTab({ Title = "other", Icon = "candy" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = game.Players.LocalPlayer
+
+local AutoPlay = Tabs.Main:AddToggle("AutoPlay", {
+    Title = "Auto Play",
+    Default = false
+})
+
+local autoPlayValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("AutoPlay")
+
+local autoPlayLoop = false
+
+AutoPlay:OnChanged(function(value)
+    autoPlayLoop = value
+end)
+
+task.spawn(function()
+    while true do
+        if autoPlayLoop and not autoPlayValue.Value then
+            ReplicatedStorage.Remote.Server.Units.AutoPlay:FireServer()
+        end
+        task.wait(2)
+     end
+end)
