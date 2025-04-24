@@ -66,7 +66,7 @@ AutoUpgradeToggle:OnChanged(function(Value)
     end
 end)
 
-local AutoVote = Tabs.Main:AddToggle("MyToggle", {
+local AutoVote = Tabs.Game:AddToggle("MyToggle", {
     Title = "AutoVote",
     Default = false
 })
