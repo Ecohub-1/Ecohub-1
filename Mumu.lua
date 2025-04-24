@@ -27,7 +27,7 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 local AutoVote = Tabs.Game:AddToggle("Autovote", { Title = "Auto Vote", Default = false })
-local voteValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("vote")
+local voteValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("Vote")
 local autoVoteLoop = false
 
 AutoVote:OnChanged(function(value)
