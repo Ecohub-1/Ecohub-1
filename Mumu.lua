@@ -1,4 +1,3 @@
-
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -22,19 +21,29 @@ local Tabs = {
 
 local Options = SaveManager:SetLibrary(Fluent)
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
 local AutoVote = Tabs.Game:AddToggle("Autovote", { Title = "Auto Vote", Default = false })
+local voteValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("vote")
+local autoVoteLoop = false
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = game.Players.LocalPlayer
+AutoVote:OnChanged(function(value)
+    autoVoteLoop = value
+end)
 
-local AutoPlay = Tabs.Game:AddToggle("AutoPlay", {
-    Title = "Auto Play",
-    Default = false
-})
+task.spawn(function()
+    while true do
+        if autoVoteLoop and not voteValue.Value then
+            ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
+        end
+        task.wait(2)
+    end
+end)
 
+local AutoPlay = Tabs.Game:AddToggle("AutoPlay", { Title = "Auto Play", Default = false })
 local autoPlayValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("AutoPlay")
-
 local autoPlayLoop = false
 
 AutoPlay:OnChanged(function(value)
@@ -50,7 +59,7 @@ task.spawn(function()
     end
 end)
 
-local AutoYen = Tabs.Game:AddToggle("AutoYen", { Title = "Auto Yen", Default = false })
+local AutoYen = Tabs.Main:AddToggle("AutoYen", { Title = "Auto Yen", Default = false })
 local running = false
 
 AutoYen:OnChanged(function(value)
@@ -59,46 +68,9 @@ AutoYen:OnChanged(function(value)
         task.spawn(function()
             while running do
                 ReplicatedStorage.Remote.Server.Gameplay.StatsManager:FireServer("MaximumYen")
-                task.wait(3)
+                task.wait(0.7)
             end
         end)
-    end
-end)
-
-Options.AutoYen:SetValue(false)
-
-Options.AutoYen:SetValue(false)
-
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local player = Players.LocalPlayer
-local unitsFolder = player:WaitForChild("UnitsFolder")
-local upgradeRemote = ReplicatedStorage.Remote.Server.Units.Upgrade
-
-local AuU = Tabs.Main:AddToggle("AuU", {
-    Title = "Auto Upgrade",
-    Default = false
-})
-
-local autoUpgradeRunning = false
-
-local function autoUpgrade()
-    while Options.AuU.Value and autoUpgradeRunning do
-        for _, unit in pairs(unitsFolder:GetChildren()) do
-            upgradeRemote:FireServer(unit.Name)
-            task.wait(1.1)
-        end
-        task.wait(2)
-    end
-end
-
-AuU:OnChanged(function(state)
-    if state then
-        autoUpgradeRunning = true
-        task.spawn(autoUpgrade)
-    else
-        autoUpgradeRunning = false
     end
 end)
 
@@ -124,5 +96,3 @@ AutoNext:OnChanged(function(value)
         end
     end
 end)
-
-Options.AutoNext:SetValue(false)
