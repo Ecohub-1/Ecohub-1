@@ -24,7 +24,7 @@ while task.wait(0.2) do
         for _, bird in pairs(targetFolder:GetChildren()) do
             local targetPosition = nil
 
-            -- Debug: Check if bird has CFrame
+            -- Check if the bird has CFrame, and use its Position
             if bird:FindFirstChild("CFrame") then
                 targetPosition = bird.CFrame.Position
                 print("Using CFrame Position:", targetPosition)
