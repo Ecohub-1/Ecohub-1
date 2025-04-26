@@ -17,70 +17,46 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-local Toggle = Tabs.Main:AddToggle("AutoEquipRifle", {Title = "Auto Equip Rifle", Default = false })
+local ATE = Tabs.Main:AddToggle("AutoEquip", {
+    Title = "Auto Equip",
+    Default = false
+})
 
-local AutoEquipRifleEnabled = false
-
-Toggle:OnChanged(function()
-    AutoEquipRifleEnabled = Toggle.Value
-    print("Auto Equip Rifle Toggle changed:", AutoEquipRifleEnabled)
-
-    if AutoEquipRifleEnabled then
-        for _, item in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-            if item.Name:match("Rifle") then
-                game.Players.LocalPlayer.Character.Humanoid:EquipTool(item)
-                print("Equipped:", item.Name)
-                break
-            end
+ATE:OnChanged(function()
+    while true do
+        local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+        if tool and tool.Name:match("Rifle") then
+            game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
         end
+        wait(0.1)
     end
 end)
 
-Options.AutoEquipRifle:SetValue(false)
+local tools = {}
+local player = game.Players.LocalPlayer
 
-local ATF = false
-
-local function AutoFarm()
-    while ATF do
-        if AutoEquipRifleEnabled then
-            local equippedRifle = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-            if equippedRifle and equippedRifle.Name:match("Rifle") then
-                print("Equipped Rifle:", equippedRifle.Name)
-            else
-                for _, item in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-                    if item.Name:match("Rifle") then
-                        game.Players.LocalPlayer.Character.Humanoid:EquipTool(item)
-                        print("Equipped:", item.Name)
-                        break
-                    end
-                end
-            end
-        end
-
-        local equippedRifle = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-        if equippedRifle and equippedRifle.Name:match("Rifle") then
-            local args = {
-                [1] = "BulletFired",
-                [2] = equippedRifle,
-                [3] = Vector3.new(492.4790954589844, 298.8387451171875, 173.68939208984375),
-                [4] = "Dart"
-            }
-
-            game:GetService("ReplicatedStorage").Util.Net:FindFirstChild("RE/GunShootEvent"):FireServer(unpack(args))
-            wait(0.1)
-        end
+for _, item in ipairs(player.Character:GetChildren()) do
+    if item:IsA("Tool") then
+        table.insert(tools, item.Name)
     end
 end
 
-local Options = {
-    AutoFarm = Tabs.AutoFarm:AddToggle("AutoFarmToggle", {
-        Title = "Auto Farm",
-        Default = false,
-        Callback = function(Value)
-            ATF = Value
-            if ATF then
-                AutoFarm()
-            end
-        end
-    })
-}
+local AUF = Tabs.Main:AddToggle("AutoFarm", {
+    Title = "Auto Farm",
+    Default = false
+})
+
+AUF:OnChanged(function(Vo)
+        while Vo do
+            local remote = game:GetService("ReplicatedStorage").Util.Net:FindFirstChild("RE/GunShootEvent")
+
+            remote.OnServerEvent:Connect(function(player, action)
+                if action ~= "BulletFired" then return end
+
+                local gun = item.Name
+                if not gun then return end
+
+                local targetPosition = nil
+
+                local ammoType = gun:GetAttribute("AmmoType") or "DefaultAmmo"
+            end)
