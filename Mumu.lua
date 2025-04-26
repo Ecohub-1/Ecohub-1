@@ -23,18 +23,25 @@ while task.wait(0.2) do
 
     if weapon and targetFolder then
         for _, bird in pairs(targetFolder:GetChildren()) do
-            local targetPart
-            if bird:FindFirstChild("HumanoidRootPart") then
-                targetPart = bird.HumanoidRootPart
+            local targetPosition
+
+            -- Check if the bird has CFrame, and use its Position
+            if bird:FindFirstChild("CFrame") then
+                targetPosition = bird.CFrame.Position
+            elseif bird:FindFirstChild("HumanoidRootPart") then
+                targetPosition = bird.HumanoidRootPart.Position
             elseif bird:FindFirstChild("PrimaryPart") then
-                targetPart = bird.PrimaryPart
+                targetPosition = bird.PrimaryPart.Position
             elseif bird:FindFirstChild("Head") then
-                targetPart = bird.Head
+                targetPosition = bird.Head.Position
+            elseif bird:FindFirstChild("Torso") then
+                targetPosition = bird.Torso.Position
+            else
+                -- If no valid part found, use the model's position (CFrame)
+                targetPosition = bird.Position
             end
 
-            if targetPart then
-                local targetPosition = targetPart.Position
-                
+            if targetPosition then
                 -- Debug: Check the bird being targeted
                 print("Targeting bird:", bird.Name, "at", targetPosition)
 
@@ -47,7 +54,7 @@ while task.wait(0.2) do
                 )
             else
                 -- Debug: If no valid part found
-                print("No valid part found in", bird.Name)
+                print("No valid position found for", bird.Name)
             end
         end
     else
