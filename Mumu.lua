@@ -46,17 +46,19 @@ local AUF = Tabs.Main:AddToggle("AutoFarm", {
     Default = false
 })
 
-AUF:OnChanged(function(Vo)
-        while Vo do
-            local remote = game:GetService("ReplicatedStorage").Util.Net:FindFirstChild("RE/GunShootEvent")
-
-            remote.OnServerEvent:Connect(function(player, action)
-                if action ~= "BulletFired" then return end
-
-                local gun = item.Name
-                if not gun then return end
-
-                local targetPosition = nil
-
-                local ammoType = gun:GetAttribute("AmmoType") or "DefaultAmmo"
-            end)
+AUF:OnChanged(function(Value)
+    while Value do
+        local args = {
+            [1] = "BulletFired",
+            [2] = item.Name,
+            [3] = nil,
+            [4] = "Dart"
+        }
+        
+        local remote = game:GetService("ReplicatedStorage").Util.Net:FindFirstChild("RE/GunShootEvent")
+        if remote then
+            remote:FireServer(unpack(args))
+        end
+        wait(0.1)
+    end
+end)
