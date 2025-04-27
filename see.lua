@@ -21,31 +21,33 @@ Misc = Window:AddTab({ Title = "Settings", Icon = "" }),
 Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-local Searchmon = {
-    mob {}
+local search = {
+    Values = {}
 }
 
- for _, n in pairs(game:GetService("Workspace").mob:GetChildren()) do
-    table.insert(Searchmon.mob, n.Name)
+for _, v in pairs(game:GetService("Workspace").mob:GetChildren()) do
+    table.insert(search.Values, v.Name)
 end
-local Searchmob = Tabs.Maim:AddDropDown({Name = "search",
-  Title = "Search Mob",
-  Values = search.Values,
-  Multi = false,
-  AllowNull = true,
-  Callback = function(n)
-      Searchmon.mob = n
+
+local searchDropdown = Tabs.Main:AddDropdown({
+    Name = "search",
+    Title = "Search Mob",
+    Values = search.Values,
+    Multi = false,
+    AllowNull = true,
+    Callback = function(v)
+        search.Value = v
     end
-  })
+})
 
 local AutoFarm = Tabs.Main:AddToggle({
     Name = "AutoFarm",
     Title = "AutoFarm",
     Default = false
 })
- if AutoFarm.mob then
+ if AutoFarm.Values then
   for _, h in pairs(game:GetService("Workspace").mob:GetChildren()) do
-    if h.Name == Searchmon.mob and h:FindFirstChild("HumanoidRootPart") then
+    if h.Name == Search.mob and h:FindFirstChild("HumanoidRootPart") then
       local humanoid = h:FindFirstChild("Humanoid")
         if humanoid.Helth <= 0 then
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = h.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0)
