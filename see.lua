@@ -25,7 +25,7 @@ local search = {
     Values = {}
 }
 
-for _, v in pairs(game:GetService("Workspace").mob:GetChildren()) do
+for _, v in pairs(game:GetService("Workspace").Mob:GetChildren()) do
     table.insert(search.Values, v.Name)
 end
 
