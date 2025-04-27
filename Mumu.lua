@@ -35,7 +35,7 @@ task.spawn(function()
         if autoEquipEnabled then
             local player = game.Players.LocalPlayer
             local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
-            if tool and tool.Name:match("Rifle") then
+            if tool and tool.Name:match("Rifle") and not player.Character.Humanoid:HasTool(tool) then
                 player.Character.Humanoid:EquipTool(tool)
             end
         end
@@ -109,3 +109,8 @@ local Input = Tabs.Main:AddInput("RangeInput", {
         end
     end
 })
+Fluent:Notify({
+                    Title = "Hello",
+                    Content = "Welcome to EcoHub",
+                    Duration = 3
+                })
