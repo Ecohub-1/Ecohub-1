@@ -122,8 +122,3 @@ local Input = Tabs.Main:AddInput("RangeInput", {
         end
     end
 })
-Fluent:Notify({
-                    Title = "Test",
-                    Content = "Test",
-                    Duration = 3
-    end})
