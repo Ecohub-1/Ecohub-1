@@ -63,21 +63,29 @@ task.spawn(function()
                     if remote then
                         local birdsFolder = workspace:FindFirstChild("Regions") and workspace.Regions:FindFirstChild("Beakwoods") and workspace.Regions.Beakwoods:FindFirstChild("ClientBirds")
                         if birdsFolder then
+                            local closestBird = nil
+                            local closestDistance = shootingRange
+
                             for _, bird in ipairs(birdsFolder:GetChildren()) do
                                 if bird:IsA("Model") and bird:FindFirstChild("HumanoidRootPart") then
                                     local humanoid = bird:FindFirstChildWhichIsA("Humanoid")
                                     if humanoid and humanoid.Health > 0 then
                                         local distance = (character.HumanoidRootPart.Position - bird.HumanoidRootPart.Position).Magnitude
-                                        if distance <= shootingRange then
-                                            remote:FireServer(
-                                                "BulletFired",
-                                                tool.Name,
-                                                bird.HumanoidRootPart.Position,
-                                                "Dart"
-                                            )
+                                        if distance <= shootingRange and distance < closestDistance then
+                                            closestDistance = distance
+                                            closestBird = bird
                                         end
                                     end
                                 end
+                            end
+
+                            if closestBird then
+                                remote:FireServer(
+                                    "BulletFired",
+                                    tool.Name,
+                                    closestBird.HumanoidRootPart.Position,
+                                    "Dart"
+                                )
                             end
                         end
                     end
@@ -109,8 +117,3 @@ local Input = Tabs.Main:AddInput("RangeInput", {
         end
     end
 })
-Fluent:Notify({
-                    Title = "Hello",
-                    Content = "Welcome to EcoHub",
-                    Duration = 3
-                })
