@@ -14,11 +14,11 @@ MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 })
 
 local Tabs = {
-Main = Window:AddTab({ Title = "Main", Icon = "" }),
-Autoboss = Window:AddTab({ Title = "Boss", Icon = "" }),
-Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "" }),
-Misc = Window:AddTab({ Title = "Settings", Icon = "" }),
-Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+Main = Window:AddTab({ Title = "Main", Icon = "bookmark" }),
+Autoboss = Window:AddTab({ Title = "Boss", Icon = "cat" }),
+Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "earth" }),
+Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+Other = Window:AddTab({ Title = "Other", Icon = "banana" })
 }
 
 local search = {
