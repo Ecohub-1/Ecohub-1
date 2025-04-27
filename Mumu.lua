@@ -3,13 +3,13 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub : Beaks" ,
+    Title = "Eco Hub : Beaks",
     SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 local Tabs = {
@@ -17,29 +17,30 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
+local autoEquipEnabled = false
+local autoFarmEnabled = false
+local shootingRange = 100
+
 local ATE = Tabs.Main:AddToggle("AutoEquip", {
     Title = "Auto Equip",
     Default = false
 })
 
-ATE:OnChanged(function()
-    while true do
-        local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-        if tool and tool.Name:match("Rifle") then
-            game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
-        end
-        wait(0.1)
-    end
+ATE:OnChanged(function(Value)
+    autoEquipEnabled = Value
 end)
 
-local tools = {}
-local player = game.Players.LocalPlayer
-
-for _, item in ipairs(player.Character:GetChildren()) do
-    if item:IsA("Tool") then
-        table.insert(tools, item.Name)
+task.spawn(function()
+    while task.wait(0.1) do
+        if autoEquipEnabled then
+            local player = game.Players.LocalPlayer
+            local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+            if tool and tool.Name:match("Rifle") then
+                player.Character.Humanoid:EquipTool(tool)
+            end
+        end
     end
-end
+end)
 
 local AUF = Tabs.Main:AddToggle("AutoFarm", {
     Title = "Auto Farm",
@@ -47,18 +48,64 @@ local AUF = Tabs.Main:AddToggle("AutoFarm", {
 })
 
 AUF:OnChanged(function(Value)
-    while Value do
-        local args = {
-            [1] = "BulletFired",
-            [2] = item.Name,
-            [3] = nil,
-            [4] = "Dart"
-        }
-        
-        local remote = game:GetService("ReplicatedStorage").Util.Net:FindFirstChild("RE/GunShootEvent")
-        if remote then
-            remote:FireServer(unpack(args))
+    autoFarmEnabled = Value
+end)
+
+task.spawn(function()
+    while task.wait(0.1) do
+        if autoFarmEnabled then
+            local player = game.Players.LocalPlayer
+            local character = player.Character
+            if character then
+                local tool = character:FindFirstChildOfClass("Tool")
+                if tool then
+                    local remote = game:GetService("ReplicatedStorage").Util.Net:FindFirstChild("RE/GunShootEvent")
+                    if remote then
+                        local birdsFolder = workspace:FindFirstChild("Regions") and workspace.Regions:FindFirstChild("Beakwoods") and workspace.Regions.Beakwoods:FindFirstChild("ClientBirds")
+                        if birdsFolder then
+                            for _, bird in ipairs(birdsFolder:GetChildren()) do
+                                if bird:IsA("Model") and bird:FindFirstChild("HumanoidRootPart") then
+                                    local humanoid = bird:FindFirstChildWhichIsA("Humanoid")
+                                    if humanoid and humanoid.Health > 0 then
+                                        local distance = (character.HumanoidRootPart.Position - bird.HumanoidRootPart.Position).Magnitude
+                                        if distance <= shootingRange then
+                                            remote:FireServer(
+                                                "BulletFired",
+                                                tool.Name,
+                                                bird.HumanoidRootPart.Position,
+                                                "Dart"
+                                            )
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
         end
-        wait(0.1)
     end
 end)
+
+local Input = Tabs.Main:AddInput("RangeInput", {
+    Title = "Shooting Range",
+    Default = tostring(shootingRange),
+    Placeholder = "Enter range (e.g., 100)",
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value)
+        local num = tonumber(Value)
+        if num then
+            if num > 500 then
+                num = 500
+                Fluent:Notify({
+                    Title = "Warning",
+                    Content = "Maximum range is 500!",
+                    SubContent = "Input capped at 500",
+                    Duration = 3
+                })
+            end
+            shootingRange = num
+        end
+    end
+})
