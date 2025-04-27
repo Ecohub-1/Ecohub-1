@@ -1,4 +1,3 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
@@ -34,9 +33,15 @@ task.spawn(function()
     while task.wait(0.1) do
         if autoEquipEnabled then
             local player = game.Players.LocalPlayer
-            local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
-            if tool and tool.Name:match("Rifle") and not player.Character.Humanoid:HasTool(tool) then
-                player.Character.Humanoid:EquipTool(tool)
+            local character = player.Character
+            if character then
+                local tool = character:FindFirstChildOfClass("Tool")
+                if tool and tool.Name:match("Rifle") then
+                    -- Equip the tool only if not already equipped
+                    if not character.Humanoid:HasTool(tool) then
+                        character.Humanoid:EquipTool(tool)
+                    end
+                end
             end
         end
     end
@@ -59,7 +64,7 @@ task.spawn(function()
             if character then
                 local tool = character:FindFirstChildOfClass("Tool")
                 if tool then
-                    local remote = game:GetService("ReplicatedStorage").Util.Net:FindFirstChild("RE/GunShootEvent")
+                    local remote = game:GetService("ReplicatedStorage"):WaitForChild("Util"):WaitForChild("Net"):FindFirstChild("RE/GunShootEvent")
                     if remote then
                         local birdsFolder = workspace:FindFirstChild("Regions") and workspace.Regions:FindFirstChild("Beakwoods") and workspace.Regions.Beakwoods:FindFirstChild("ClientBirds")
                         if birdsFolder then
@@ -117,3 +122,8 @@ local Input = Tabs.Main:AddInput("RangeInput", {
         end
     end
 })
+Fluent:Notify({
+                    Title = "Test",
+                    Content = "Test",
+                    Duration = 3
+    end})
