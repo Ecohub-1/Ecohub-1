@@ -14,45 +14,39 @@ MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 })
 
 local Tabs = {
-Main = Window:AddTab({ Title = "Main", Icon = "bookmark" }),
-Autoboss = Window:AddTab({ Title = "Boss", Icon = "cat" }),
-Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "earth" }),
-Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-Other = Window:AddTab({ Title = "Other", Icon = "banana" })
+Main = Window:AddTab({ Title = "Main", Icon = "" }),
+Autoboss = Window:AddTab({ Title = "Boss", Icon = "" }),
+Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "" }), Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
 }
 
-local search = {
-    Values = {}
-}
+local loo = "Melee"
+local equipsh = Tabs.Settings:AddDropdown({ 
+    Name = "EquipSearch", 
+    Title = "Equip Search", 
+    Values = {"Melee", "Sword", "DevilFruit", "Special"},
+    Multi = false
+})
 
-for _, v in pairs(game:GetService("Workspace").Mob:GetChildren()) do
-    table.insert(search.Values, v.Name)
-end
+equipsh:OnChanged(function(oi)
+    loo = oi 
+end)
 
-local searchDropdown = Tabs.Main:AddDropdown({
-    Name = "search",
-    Title = "Search Mob",
-    Values = search.Values,
-    Multi = false,
-    AllowNull = true,
-    Callback = function(v)
-        search.Value = v
+local Autoequip = Tabs.Settings:AddToggle("Autoequip", {
+    Title = "Auto Equip",
+    Default = false,
+  Callback = function()
+        local player = game:GetService("Players").LocalPlayer
+        local backpack = player.Backpack
+
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") then
+                local itemType = tool:GetAttribute("Type")
+                if itemType == loo then
+                    tool.Parent = player.Character
+                end
+            end
+        end
     end
 })
 
-local AutoFarm = Tabs.Main:AddToggle({
-    Name = "AutoFarm",
-    Title = "AutoFarm",
-    Default = false
-})
- if AutoFarm.Values then
-  for _, h in pairs(game:GetService("Workspace").mob:GetChildren()) do
-    if h.Name == Search.mob and h:FindFirstChild("HumanoidRootPart") then
-      local humanoid = h:FindFirstChild("Humanoid")
-        if humanoid.Helth <= 0 then
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = h.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0)
-        end
-      end  
-     task.wait(0.05)
-   end
-end
