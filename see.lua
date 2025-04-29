@@ -16,22 +16,23 @@ MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 local Tabs = {
 Main = Window:AddTab({ Title = "Main", Icon = "" }),
 Autoboss = Window:AddTab({ Title = "Boss", Icon = "" }),
-Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "" }), Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "" }), 
+Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
 }
 
 local loo = "Melee"
 local autoEquipEnabled = false
 
-local equipsh = Tabs.Settings:AddDropdown({ 
-    Name = "EquipSearch", 
-    Title = "Equip Search", 
-    Values = {"Melee", "Sword", "DevilFruit", "Special"},
+local equipsh = Tabs.Settings:AddDropdown({
+    Name = "EquipSearch",
+    Title = "Equip Search",
+    Options = {"Melee", "Sword", "DevilFruit", "Special"},
     Multi = false
 })
 
 equipsh:OnChanged(function(oi)
-    loo = oi 
+    loo = oi
 end)
 
 Tabs.Settings:AddToggle("Autoequip", {
@@ -39,22 +40,25 @@ Tabs.Settings:AddToggle("Autoequip", {
     Default = false,
     Callback = function(val)
         autoEquipEnabled = val
-        task.spawn(function()
-            while autoEquipEnabled do
-                local player = game:GetService("Players").LocalPlayer
-                local backpack = player:WaitForChild("Backpack")
+        if val then
+            task.spawn(function()
+                while autoEquipEnabled do
+                    local player = game:GetService("Players").LocalPlayer
+                    local character = player.Character or player.CharacterAdded:Wait()
+                    local backpack = player:WaitForChild("Backpack")
 
-                for _, tool in ipairs(backpack:GetChildren()) do
-                    if tool:IsA("Tool") then
-                        local itemType = tool:GetAttribute("Type")
-                        if itemType == loo then
-                            tool.Parent = player.Character
+                    for _, tool in ipairs(backpack:GetChildren()) do
+                        if tool:IsA("Tool") then
+                            local itemType = tool:GetAttribute("Type")
+                            if itemType == loo and not character:FindFirstChild(tool.Name) then
+                                tool.Parent = character
+                            end
                         end
                     end
-                end
 
-                task.wait(0.5) -- Adjust delay as needed
-            end
-        end)
+                    task.wait(0.5)
+                end
+            end)
+        end
     end
 })
