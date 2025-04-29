@@ -21,6 +21,8 @@ Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
 }
 
 local loo = "Melee"
+local autoEquipEnabled = false
+
 local equipsh = Tabs.Settings:AddDropdown({ 
     Name = "EquipSearch", 
     Title = "Equip Search", 
@@ -32,22 +34,27 @@ equipsh:OnChanged(function(oi)
     loo = oi 
 end)
 
-local Autoequip = Tabs.Settings:AddToggle("Autoequip", {
+Tabs.Settings:AddToggle("Autoequip", {
     Title = "Auto Equip",
     Default = false,
-  Callback = function()
-        local player = game:GetService("Players").LocalPlayer
-        local backpack = player.Backpack
+    Callback = function(val)
+        autoEquipEnabled = val
+        task.spawn(function()
+            while autoEquipEnabled do
+                local player = game:GetService("Players").LocalPlayer
+                local backpack = player:WaitForChild("Backpack")
 
-        for _, tool in ipairs(backpack:GetChildren()) do
-            if tool:IsA("Tool") then
-                local itemType = tool:GetAttribute("Type")
-                if itemType == loo then
-                    tool.Parent = player.Character
+                for _, tool in ipairs(backpack:GetChildren()) do
+                    if tool:IsA("Tool") then
+                        local itemType = tool:GetAttribute("Type")
+                        if itemType == loo then
+                            tool.Parent = player.Character
+                        end
+                    end
                 end
-           task.wait(0.2)
+
+                task.wait(0.5) -- Adjust delay as needed
             end
-        end
+        end)
     end
 })
-
