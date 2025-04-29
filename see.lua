@@ -45,6 +45,7 @@ local Autoequip = Tabs.Settings:AddToggle("Autoequip", {
                 if itemType == loo then
                     tool.Parent = player.Character
                 end
+           task.wait(0.2)
             end
         end
     end
