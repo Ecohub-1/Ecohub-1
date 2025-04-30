@@ -18,8 +18,6 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-Tabs.PVP:AddSection{ Title = "Aimbot" }
-
 -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -121,9 +119,6 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
-
--- ESP Section
-Tabs.PVP:AddSection{ Title = "ESP" }
 
 local function createHighlightESP(character)
     if character:FindFirstChild("ESP_Highlight") then return end
