@@ -125,7 +125,7 @@ Tabs.PVP:AddSection("Setting")
 
 local StaminaRegen = Tabs.PVP:AddInput("StaminaRegen", {
     Title = "StaminaRegen",
-    Default = "Default",
+    Default = "100",
     Placeholder = "Placeholder",
     Numeric = true,
     Finished = false,
