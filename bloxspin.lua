@@ -18,6 +18,7 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 Tabs.PVP:AddSection("Aimbot")
+
 -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -68,7 +69,7 @@ fovCircle.Color = Color3.fromRGB(255, 0, 0)
 fovCircle.Thickness = 2
 fovCircle.Transparency = 1
 fovCircle.Filled = false
-fovCircle.Visible = true
+fovCircle.Visible = false -- วงกลมจะเริ่มต้นไม่แสดง
 
 -- Aimbot Logic
 local function isVisible(targetPart)
@@ -108,7 +109,7 @@ RunService.RenderStepped:Connect(function()
     local view = Camera.ViewportSize
     fovCircle.Position = Vector2.new(view.X / 2, view.Y / 2)
     fovCircle.Radius = fovAngle
-    fovCircle.Visible = true
+    fovCircle.Visible = aimEnabled -- วงกลมจะแสดงเมื่อเปิด Aimbot
 
     if aimEnabled then
         local target = getClosestTarget()
@@ -119,10 +120,10 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
-Tabs.PVP:AddSection("Setting")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 
+Tabs.PVP:AddSection("Setting")
+
+-- SMR (Stamina Regen)
 local SMR = Tabs.PVP:AddInput("SMR", {
     Title = "Stamina Regen",
     Default = "10",
@@ -131,12 +132,11 @@ local SMR = Tabs.PVP:AddInput("SMR", {
     Finished = false
 })
 
-SMR:OnChanged(function()
+SMR:OnChanged(function(val)
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local numberValue = tonumber(Input.Value)
+    local numberValue = tonumber(val)
 
     if numberValue then
         character:SetAttribute("StaminaRegen", numberValue)
     end
 end)
-
