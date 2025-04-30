@@ -40,10 +40,7 @@ local FovInput = Tabs.Main:AddInput("FOV", {
     Finished = true,
     Callback = function(val)
         local v = tonumber(val)
-        if v and v >= 1 and v <= 180 then
-            fovAngle = v
-            fovCircle.Radius = fovAngle  -- ปรับวงกลมตาม FOV
-        end
+        if v and v >= 1 and v <= 180 then fovAngle = v end
     end
 })
 
@@ -115,9 +112,10 @@ end
 
 -- Main loop
 RunService.RenderStepped:Connect(function()
+    -- Update FOV circle
     local view = Camera.ViewportSize
     fovCircle.Position = Vector2.new(view.X / 2, view.Y / 2)
-    fovCircle.Radius = fovAngle  -- อัปเดตวงกลมทุกเฟรม
+    fovCircle.Radius = fovAngle
     fovCircle.Visible = true
 
     if aimEnabled then
@@ -130,3 +128,106 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
+
+-- ESP (Extra Sensory Perception)
+local ToggleESP = Tabs.Main:AddToggle("MyToggle", {Title = "ESP", Default = false})
+
+function createESP(player)
+    if player == LocalPlayer then return end
+
+    local function onCharacterAdded(character)
+        local head = character:WaitForChild("Head")
+
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "ESP"
+        billboard.Adornee = head
+        billboard.Size = UDim2.new(0, 140, 0, 36)
+        billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+        billboard.AlwaysOnTop = true
+        billboard.Parent = head
+
+        local background = Instance.new("Frame")
+        background.Size = UDim2.new(1, 0, 1, 0)
+        background.BackgroundTransparency = 0.3
+        background.BackgroundColor3 = Color3.fromRGB(255, 200, 240)
+        background.BorderSizePixel = 0
+        background.Parent = billboard
+
+        local uiCorner = Instance.new("UICorner")
+        uiCorner.CornerRadius = UDim.new(1, 0)
+        uiCorner.Parent = background
+
+        local uiStroke = Instance.new("UIStroke")
+        uiStroke.Color = Color3.fromRGB(255, 160, 210)
+        uiStroke.Thickness = 1.5
+        uiStroke.Transparency = 0.3
+        uiStroke.Parent = background
+
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Position = UDim2.new(0, 8, 0, 0)
+        textLabel.Size = UDim2.new(1, -16, 1, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        textLabel.TextStrokeTransparency = 0.4
+        textLabel.Font = Enum.Font.FredokaOne
+        textLabel.TextScaled = true
+        textLabel.TextYAlignment = Enum.TextYAlignment.Center
+        textLabel.Parent = background
+
+        local connection
+        connection = RunService.RenderStepped:Connect(function()
+            if not character:IsDescendantOf(game) then
+                connection:Disconnect()
+                return
+            end
+
+            local distance = (LocalPlayer.Character.Head.Position - head.Position).Magnitude
+            textLabel.Text = string.format("%s (%.0f)", player.Name, distance)
+        end)
+    end
+
+    if player.Character then
+        onCharacterAdded(player.Character)
+    end
+
+    player.CharacterAdded:Connect(onCharacterAdded)
+end
+
+function disableESP()
+    for _, player in ipairs(Players:GetPlayers()) do
+        local character = player.Character
+        if character then
+            local billboard = character:FindFirstChild("Head"):FindFirstChild("ESP")
+            if billboard then
+                billboard:Destroy()
+            end
+        end
+    end
+end
+
+ToggleESP:OnChanged(function()
+    if ToggleESP.Value then
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                createESP(player)
+            end
+        end
+        Players.PlayerAdded:Connect(function(player)
+            player.CharacterAdded:Connect(function()
+                if ToggleESP.Value then
+                    createESP(player)
+                end
+            end)
+        end)
+    else
+        disableESP()
+    end
+end)
+
+if ToggleESP.Value then
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            createESP(player)
+        end
+    end
+end
