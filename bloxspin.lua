@@ -3,7 +3,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub" .. Fluent.Version,
+    Title = "Eco Hub " .. Fluent.Version,
     SubTitle = "by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
@@ -17,25 +17,23 @@ local Tabs = {
     AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
-Tabs.PVP:AddSection{
-    Title = Aimbot
-}
+
+Tabs.PVP:AddSection{ Title = "Aimbot" }
+
+-- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- UI Elements
-local fovAngle = 90
-local aimEnabled = false
-local wallCheckEnabled = false
-local aimPart = "Head"
-local smoothness = 3
+-- Variables
+local fovAngle, aimEnabled, wallCheckEnabled, aimPart, smoothness = 90, false, false, "Head", 3
 
-local Toggle = Tabs.PVP:AddToggle("Toggle", { Title = "Aimbot", Default = false })
+-- UI: Aimbot
+local Toggle = Tabs.PVP:AddToggle("AimbotToggle", { Title = "Aimbot", Default = false })
 Toggle:OnChanged(function(val) aimEnabled = val end)
 
-local FovInput = Tabs.PVP:AddInput("FOV", {
+Tabs.PVP:AddInput("FOVInput", {
     Title = "FOV Angle",
     Default = tostring(fovAngle),
     Placeholder = "Enter FOV",
@@ -47,26 +45,26 @@ local FovInput = Tabs.PVP:AddInput("FOV", {
     end
 })
 
-local AimDropdown = PVP.Main:AddDropdown("AimPart", {
+Tabs.PVP:AddDropdown("AimPart", {
     Title = "Aim Part",
     Values = {"Head", "HumanoidRootPart"},
     Multi = false,
     Default = 1,
+    Callback = function(val) aimPart = val end
 })
-AimDropdown:OnChanged(function(val) aimPart = val end)
 
-local SmoothDropdown = PVP.Main:AddDropdown("SmoothLevel", {
+Tabs.PVP:AddDropdown("SmoothLevel", {
     Title = "Smoothness (1-5)",
     Values = {"1","2","3","4","5"},
     Multi = false,
     Default = 3,
+    Callback = function(val) smoothness = tonumber(val) end
 })
-SmoothDropdown:OnChanged(function(val) smoothness = tonumber(val) end)
 
-local WallToggle = Tabs.PVP:AddToggle("WallCheck", { Title = "Check Wall", Default = false })
-WallToggle:OnChanged(function(val) wallCheckEnabled = val end)
+Tabs.PVP:AddToggle("WallCheck", { Title = "Check Wall", Default = false })
+:OnChanged(function(val) wallCheckEnabled = val end)
 
--- FOV Circle Setup
+-- FOV Circle
 local fovCircle = Drawing.new("Circle")
 fovCircle.Color = Color3.fromRGB(255, 0, 0)
 fovCircle.Thickness = 2
@@ -74,16 +72,13 @@ fovCircle.Transparency = 1
 fovCircle.Filled = false
 fovCircle.Visible = true
 
--- Aimbot Functions
+-- Aimbot Logic
 local function isVisible(targetPart)
     if not wallCheckEnabled then return true end
     local origin = Camera.CFrame.Position
     local direction = (targetPart.Position - origin)
     local result = workspace:Raycast(origin, direction, RaycastParams.new())
-
-    -- เช็คว่าถ้าไม่มีการชน หรือ ชนตัว target เองให้ถือว่า "มองเห็น"
-    if not result then return true end
-    return result.Instance:IsDescendantOf(targetPart.Parent)
+    return not result or result.Instance:IsDescendantOf(targetPart.Parent)
 end
 
 local function isInFOV(pos)
@@ -93,29 +88,24 @@ local function isInFOV(pos)
 end
 
 local function getClosestTarget()
-    local closest = nil
-    local shortest = math.huge
-
+    local closest, shortest = nil, math.huge
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
             local humanoid = player.Character.Humanoid
-            if humanoid and humanoid.Health > 0 then
+            if humanoid.Health > 0 then
                 local part = player.Character:FindFirstChild(aimPart)
                 if part and isInFOV(part.Position) and isVisible(part) then
                     local distance = (Camera.CFrame.Position - part.Position).Magnitude
                     if distance < shortest then
-                        shortest = distance
-                        closest = part
+                        shortest, closest = distance, part
                     end
                 end
             end
         end
     end
-
     return closest
 end
 
--- Main Loop
 RunService.RenderStepped:Connect(function()
     local view = Camera.ViewportSize
     fovCircle.Position = Vector2.new(view.X / 2, view.Y / 2)
@@ -127,39 +117,31 @@ RunService.RenderStepped:Connect(function()
         if target then
             local current = Camera.CFrame
             local goal = CFrame.new(current.Position, target.Position)
-            local factor = 1 / smoothness
-            Camera.CFrame = current:Lerp(goal, factor)
+            Camera.CFrame = current:Lerp(goal, 1 / smoothness)
         end
     end
 end)
-Tabs.PVP:AddSection{
-    Title = ESP
-}
--- ESP (Extra Sensory Perception)
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+
+-- ESP Section
+Tabs.PVP:AddSection{ Title = "ESP" }
 
 local function createHighlightESP(character)
     if character:FindFirstChild("ESP_Highlight") then return end
-    local highlight = Instance.new("Highlight")
+    local highlight = Instance.new("Highlight", character)
     highlight.Name = "ESP_Highlight"
     highlight.Adornee = character
     highlight.FillColor = Color3.fromRGB(255, 255, 0)
     highlight.FillTransparency = 0.25
     highlight.OutlineTransparency = 1
-    highlight.Parent = character
 end
 
 local function createESPUI(targetPlayer)
     if targetPlayer == LocalPlayer then return end
-
     local character = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
     local hrp = character:WaitForChild("HumanoidRootPart")
     createHighlightESP(character)
 
-    local screenGui = Instance.new("BillboardGui")
+    local screenGui = Instance.new("BillboardGui", character)
     screenGui.Name = "ESP_GUI"
     screenGui.AlwaysOnTop = true
     screenGui.Size = UDim2.new(0, 150, 0, 70)
@@ -171,17 +153,16 @@ local function createESPUI(targetPlayer)
     bg.BackgroundTransparency = 1
 
     local hpBar = Instance.new("Frame", bg)
-    hpBar.Position = UDim2.new(0, 0, 0, 0)
     hpBar.Size = UDim2.new(0, 8, 1, 0)
     hpBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     hpBar.BorderSizePixel = 0
 
     local hpFill = Instance.new("Frame", hpBar)
-    hpFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    hpFill.BorderSizePixel = 0
     hpFill.AnchorPoint = Vector2.new(0, 1)
     hpFill.Position = UDim2.new(0, 0, 1, 0)
     hpFill.Size = UDim2.new(1, 0, 1, 0)
+    hpFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    hpFill.BorderSizePixel = 0
 
     local nameLabel = Instance.new("TextLabel", bg)
     nameLabel.Size = UDim2.new(0, 130, 0, 18)
@@ -203,8 +184,6 @@ local function createESPUI(targetPlayer)
     inventoryLabel.TextSize = 12
     inventoryLabel.Text = "Inventory:\n(กำลังโหลด...)"
 
-    screenGui.Parent = character
-
     RunService.RenderStepped:Connect(function()
         if character:FindFirstChild("Humanoid") and hrp then
             local distance = (hrp.Position - Camera.CFrame.Position).Magnitude
@@ -216,43 +195,41 @@ local function createESPUI(targetPlayer)
 
     task.spawn(function()
         while character and character.Parent do
+            local items = {}
             if targetPlayer:FindFirstChild("Backpack") then
-                local items = {}
                 for _, item in ipairs(targetPlayer.Backpack:GetChildren()) do
                     table.insert(items, item.Name)
                 end
-                inventoryLabel.Text = "Inventory:\n" .. (#items > 0 and table.concat(items, "\n") or "ไม่มีไอเท็ม")
             end
+            inventoryLabel.Text = "Inventory:\n" .. (#items > 0 and table.concat(items, "\n") or "ไม่มีไอเท็ม")
             task.wait(1)
         end
     end)
 end
 
-local ESP = Tabs.PVP:AddToggle("ESP", {Title = "ESP", Default = false})
-
-ESP:OnChanged(function()
-    if Options.MyToggle.Value then
+Tabs.PVP:AddToggle("ESP_Toggle", { Title = "ESP", Default = false }):OnChanged(function(val)
+    if val then
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer then
-                if player.Character then
-                    createESPUI(player)
-                end
+                createESPUI(player)
                 player.CharacterAdded:Connect(function()
-                    wait(1)
+                    task.wait(1)
                     createESPUI(player)
                 end)
             end
         end
         Players.PlayerAdded:Connect(function(player)
             player.CharacterAdded:Connect(function()
-                wait(1)
+                task.wait(1)
                 createESPUI(player)
             end)
         end)
     else
         for _, player in ipairs(Players:GetPlayers()) do
-            if player.Character and player.Character:FindFirstChild("ESP_GUI") then
-                player.Character.ESP_GUI:Destroy()
+            if player.Character then
+                if player.Character:FindFirstChild("ESP_GUI") then
+                    player.Character.ESP_GUI:Destroy()
+                end
                 if player.Character:FindFirstChild("ESP_Highlight") then
                     player.Character.ESP_Highlight:Destroy()
                 end
@@ -260,5 +237,3 @@ ESP:OnChanged(function()
         end
     end
 end)
-
-Options.MyToggle:SetValue(false)
