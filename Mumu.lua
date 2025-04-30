@@ -3,14 +3,6 @@ local character = player.Character
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local destination = CFrame.new(-235.3751220703125, 256.3490295410156, 340.40240478515625)
 
--- ฟังก์ชันเช็คว่าอุปสรรคสามารถทะลุได้หรือไม่
-local function canPassThrough(object)
-    if object:IsA("BasePart") then
-        return not object.CanCollide or object.Transparency >= 0.5
-    end
-    return false
-end
-
 -- ฟังก์ชันหาทางไปยังตำแหน่งที่ต้องการ
 local function moveToDestination(destinationPosition)
     local pathfindingService = game:GetService("PathfindingService")
@@ -48,31 +40,8 @@ end
 
 -- ฟังก์ชันเพื่อให้ตัวละครไปยังตำแหน่งที่ต้องการ
 local function navigateToPosition()
-    -- ตรวจสอบว่าสามารถไปได้โดยไม่ติดสิ่งกีดขวาง
-    local rayDirection = (destination.Position - humanoidRootPart.Position).unit * 50
-    local ray = workspace:Raycast(humanoidRootPart.Position, rayDirection)
-    
-    if ray then
-        -- ถ้าพบสิ่งกีดขวางและสามารถทะลุได้
-        if canPassThrough(ray.Instance) then
-            -- สามารถทะลุได้ ให้ทำการ tween ผ่านไป
-            local tweenService = game:GetService("TweenService")
-            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-            local tweenGoal = {CFrame = destination}
-            local tween = tweenService:Create(humanoidRootPart, tweenInfo, tweenGoal)
-            tween:Play()
-        else
-            -- ถ้าหากไม่สามารถทะลุได้ ใช้ PathfindingService
-            moveToDestination(destination.Position)
-        end
-    else
-        -- ถ้าไม่มีสิ่งกีดขวาง ให้ทำการ tween ไปที่ตำแหน่งที่ต้องการ
-        local tweenService = game:GetService("TweenService")
-        local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-        local tweenGoal = {CFrame = destination}
-        local tween = tweenService:Create(humanoidRootPart, tweenInfo, tweenGoal)
-        tween:Play()
-    end
+    -- เรียกใช้ PathfindingService เพื่อหาทางไปยังตำแหน่ง
+    moveToDestination(destination.Position)
 end
 
 -- เรียกฟังก์ชันเพื่อให้ตัวละครไปยังตำแหน่งที่ต้องการ
