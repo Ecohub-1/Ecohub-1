@@ -124,19 +124,24 @@ end)
 Tabs.PVP:AddSection("Setting")
 
 -- SMR (Stamina Regen)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local SMR = Tabs.PVP:AddInput("SMR", {
     Title = "Stamina Regen",
     Default = "10",
     Placeholder = "Enter StaminaRegen value",
     Numeric = true,
-    Finished = false
+    Finished = false -- เปลี่ยนทันทีที่พิมพ์
 })
 
 SMR:OnChanged(function(val)
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local numberValue = tonumber(val)
+    if not numberValue then return end
 
-    if numberValue then
-        character:SetAttribute("StaminaRegen", numberValue)
-    end
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    if not character:FindFirstChild("Humanoid") then return end
+
+    character:SetAttribute("StaminaRegen", numberValue)
 end)
