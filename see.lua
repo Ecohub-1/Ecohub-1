@@ -1,4 +1,5 @@
 
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -16,49 +17,47 @@ MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 local Tabs = {
 Main = Window:AddTab({ Title = "Main", Icon = "" }),
 Autoboss = Window:AddTab({ Title = "Boss", Icon = "" }),
-Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "" }), 
-Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "" }), Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
 }
+local selectedeq = "Melee" -- default
 
-local loo = "Melee"
-local autoEquipEnabled = false
-
-local equipsh = Tabs.Settings:AddDropdown({
-    Name = "EquipSearch",
-    Title = "Equip Search",
+local selectedequip = Tabs.Settings:AddDropdown("selectedequip", {
+    Title = "Selected Equip",
     Options = {"Melee", "Sword", "DevilFruit", "Special"},
-    Multi = false
+    Multi = false,
+    Default = "Melee"
 })
 
-equipsh:OnChanged(function(oi)
-    loo = oi
+selectedequip:OnChanged(function(value)
+    selectedeq = value
 end)
 
-Tabs.Settings:AddToggle("Autoequip", {
-    Title = "Auto Equip",
-    Default = false,
-    Callback = function(val)
-        autoEquipEnabled = val
-        if val then
-            task.spawn(function()
-                while autoEquipEnabled do
-                    local player = game:GetService("Players").LocalPlayer
-                    local character = player.Character or player.CharacterAdded:Wait()
-                    local backpack = player:WaitForChild("Backpack")
+local AutoEquip = Tabs.Settings:AddToggle("AutoEquip", {
+    Title = "AutoEquip",
+    Default = false
+})
 
-                    for _, tool in ipairs(backpack:GetChildren()) do
-                        if tool:IsA("Tool") then
-                            local itemType = tool:GetAttribute("Type")
-                            if itemType == loo and not character:FindFirstChild(tool.Name) then
-                                tool.Parent = character
+AutoEquip:OnChanged(function(state)
+    if state then
+        task.spawn(function()
+            while AutoEquip.Value do
+                local backpack = game:GetService("Players").LocalPlayer:WaitForChild("Backpack")
+                local character = game:GetService("Players").LocalPlayer.Character or game:GetService("Players").LocalPlayer.CharacterAdded:Wait()
+
+                for _, tool in pairs(backpack:GetChildren()) do
+                    if tool:IsA("Tool") then
+                        if string.find(tool.Name:lower(), selectedeq:lower()) then
+                            if not character:FindFirstChild(tool.Name) then
+                                character.Humanoid:EquipTool(tool)
                             end
+                            break
                         end
                     end
-
-                    task.wait(0.5)
                 end
-            end)
-        end
+
+                task.wait(0.2)
+            end
+        end)
     end
-})
+end)
