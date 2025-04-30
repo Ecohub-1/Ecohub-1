@@ -107,7 +107,7 @@ for _, m in ipairs(mons) do
     table.insert(monNames, m.Disp)
 end
 
-Tabs.Main:AddDropdown({
+local DD = Tabs.Main:AddDropdown({
     Title = "Select Monster",
     List = monNames,
     Default = "",
@@ -130,7 +130,7 @@ local function To(t)
     end
 end
 
-Tabs.Main:AddToggle({
+local Atk = Tabs.Main:AddToggle({
     Title = "AutoFarm",
     Default = false,
     Callback = function(v)
@@ -205,7 +205,7 @@ Tabs.Main:AddToggle({
     end
 })
 
-Tabs.Main:AddButton({
+local restbt = Tabs.Main:AddButton({
     Title = "Reset Target",
     Callback = function()
         tgt = nil
