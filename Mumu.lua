@@ -1,269 +1,221 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-		local Monsters = {
-			Igris = { Name = "Vermillion", HP = 50000 },
-			SL4 = { Name = "LongIn", HP = 10000 },
-			JBB2 = { Name = "Gosuke", HP = 2000000000000000 },
-			JJ3 = { Name = "Ant Queen", HP = 150000 },
-			JJ2 = { Name = "Royal Red Ant", HP = 135000 },
-			SLB5 = { Name = "Anders", HP = 50000 },
-			OPB2 = { Name = "Eminel", HP = 5000000000 },
-			CH3 = { Name = "Ika", HP = 65000000000000 },
-			CHB2 = { Name = "Zere", HP = 320000000000000 },
-			SLB2 = { Name = "Gonshee", HP = 50000 },
-			JinWoo = { Name = "Monarch", HP = 5000000000 },
-			CHB1 = { Name = "Heaven", HP = 320000000000000 },
-			NRB2 = { Name = "Blossom", HP = 15000000 },
-			BC2 = { Name = "Michille", HP = 5000000000000 },
-			Pucci = { Name = "Gucci", HP = 2000000000000000 },
-			Denji = { Name = "Chainsaw", HP = 320000000000000 },
-			Julius = { Name = "Time King", HP = 50000000000000 },
-			Ulquiorra = { Name = "Murcielago", HP = 6000000000000 },
-			Mihalk = { Name = "Mifalcon", HP = 5000000000 },
-			Pain = { Name = "Dor", HP = 15000000 },
-			JJ4 = { Name = "Ant King", HP = 450000 },
-			JBB3 = { Name = "Golyne", HP = 2000000000000000 },
-			BL3 = { Name = "Genji", HP = 98500000000 },
-			JBB1 = { Name = "Diablo", HP = 2000000000000000 },
-			BLB2 = { Name = "Fyakuya", HP = 600000000000 },
-			SLB4 = { Name = "LongIn", HP = 50000 },
-			BC1 = { Name = "Sortudo", HP = 900000000000 },
-			NRB1 = { Name = "Snake Man", HP = 15000000 },
-			JB1 = { Name = "Diablo", HP = 150000000000000 },
-			NR3 = { Name = "Black Crow", HP = 3000000 },
-			CHB3 = { Name = "Ika", HP = 320000000000000 },
-			BL2 = { Name = "Fyakuya", HP = 38500000000 },
-			NRB3 = { Name = "Black Crow", HP = 15000000 },
-			JJ1 = { Name = "Red Ant", HP = 50000 },
-			SLB6 = { Name = "Largalgan", HP = 50000 },
-			SLB3 = { Name = "Daek", HP = 50000 },
-			NR2 = { Name = "Blossom", HP = 300000 },
-			BCB2 = { Name = "Michille", HP = 35000000000000 },
-			BC3 = { Name = "Wind", HP = 13000000000000 },
-			SL3 = { Name = "Daek", HP = 5000 },
-			OP3 = { Name = "Light Admiral", HP = 1800000000 },
-			OPB1 = { Name = "Shark Man", HP = 5000000000 },
-			SLB1 = { Name = "Soondoo", HP = 50000 },
-			CH1 = { Name = "Heaven", HP = 23000000000000 },
-			SL6 = { Name = "Largalgan", HP = 30000 },
-			JB3 = { Name = "Golyne", HP = 1000000000000000 },
-			SL2 = { Name = "Gonshee", HP = 500 },
-			NR1 = { Name = "Snake Man", HP = 55000 },
-			BLB3 = { Name = "Genji", HP = 600000000000 },
-			OP2 = { Name = "Eminel", HP = 180000000 },
-			BCB1 = { Name = "Sortudo", HP = 35000000000000 },
-			CH2 = { Name = "Zere", HP = 40000000000000 },
-			JB2 = { Name = "Gosuke", HP = 500000000000000 },
-			SL1 = { Name = "Soondoo", HP = 50 },
-			BLB1 = { Name = "Luryu", HP = 600000000000 },
-			SL5 = { Name = "Anders", HP = 15000 },
-			BL1 = { Name = "Luryu", HP = 8500000000 },
-			OPB3 = { Name = "Light Admiral", HP = 5000000000 },
-			OP1 = { Name = "Shark Man", HP = 18000000 },
-			BCB3 = { Name = "Wind", HP = 35000000000000 }
-		}
-		local TS = game:GetService("TweenService")
-		local P = game:GetService("Players")
-		local lp = P.LocalPlayer
-		local hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+local Window = Fluent:CreateWindow({
+    Title = "Eco Hub",
+    SubTitle = " | Arise Crossover",
+    TabWidth = 150,
+    Size = UDim2.fromOffset(580, 400),
+    Acrylic = true, 
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl 
+})
 
-		-- Use getfenv to create a local environment for global variables
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
 
-		env.F = false
+local Monsters = {
+  Igris = { Name = "Vermillion" },
+  SL4 = { Name = "LongIn" },
+  JBB2 = { Name = "Gosuke" },
+  JJ3 = { Name = "Ant Queen" },
+  JJ2 = { Name = "Royal Red Ant" },
+  SLB5 = { Name = "Anders" },
+  OPB2 = { Name = "Eminel" },
+  CH3 = { Name = "Ika" },
+  CHB2 = { Name = "Zere" },
+  SLB2 = { Name = "Gonshee" },
+  JinWoo = { Name = "Monarch" },
+  CHB1 = { Name = "Heaven" },
+  NRB2 = { Name = "Blossom" },
+  BC2 = { Name = "Michille" },
+  Pucci = { Name = "Gucci" },
+  Denji = { Name = "Chainsaw" },
+  Julius = { Name = "Time King" },
+  Ulquiorra = { Name = "Murcielago" },
+  Mihalk = { Name = "Mifalcon" },
+  Pain = { Name = "Dor" },
+  JJ4 = { Name = "Ant King" },
+  JBB3 = { Name = "Golyne" },
+  BL3 = { Name = "Genji" },
+  JBB1 = { Name = "Diablo" },
+  BLB2 = { Name = "Fyakuya" },
+  SLB4 = { Name = "LongIn" },
+  BC1 = { Name = "Sortudo" },
+  NRB1 = { Name = "Snake Man" },
+  JB1 = { Name = "Diablo" },
+  NR3 = { Name = "Black Crow" },
+  CHB3 = { Name = "Ika" },
+  BL2 = { Name = "Fyakuya" },
+  NRB3 = { Name = "Black Crow" },
+  JJ1 = { Name = "Red Ant" },
+  SLB6 = { Name = "Largalgan" },
+  SLB3 = { Name = "Daek" },
+  NR2 = { Name = "Blossom" },
+  BCB2 = { Name = "Michille" },
+  BC3 = { Name = "Wind" },
+  SL3 = { Name = "Daek" },
+  OP3 = { Name = "Light Admiral" },
+  OPB1 = { Name = "Shark Man" },
+  SLB1 = { Name = "Soondoo" },
+  CH1 = { Name = "Heaven" },
+  SL6 = { Name = "Largalgan" },
+  JB3 = { Name = "Golyne" },
+  SL2 = { Name = "Gonshee" },
+  NR1 = { Name = "Snake Man" },
+  BLB3 = { Name = "Genji" },
+  OP2 = { Name = "Eminel" },
+  BCB1 = { Name = "Sortudo" },
+  CH2 = { Name = "Zere" },
+  JB2 = { Name = "Gosuke" },
+  SL1 = { Name = "Soondoo" },
+  BLB1 = { Name = "Luryu" },
+  SL5 = { Name = "Anders" },
+  BL1 = { Name = "Luryu" },
+  OPB3 = { Name = "Light Admiral" },
+  OP1 = { Name = "Shark Man" },
+  BCB3 = { Name = "Wind" }
+}
+local TS = game:GetService("TweenService")
+local P = game:GetService("Players")
+local lp = P.LocalPlayer
+local hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
 
-		local suff = {
-			[1e3] = "K",
-			[1e6] = "M",
-			[1e9] = "B",
-			[1e12] = "T",
-			[1e15] = "Qa",
-			[1e18] = "Qi",
-			[1e21] = "Sx",
-			[1e24] = "Sp",
-			[1e27] = "Oc",
-			[1e30] = "No",
-			[1e33] = "Dc"
-		}
+local mons = {}
+local monNames = {}
 
-		local suffList = {}
-		for k, v in pairs(suff) do
-			table.insert(suffList, {val = k, suf = v})
-		end
-		table.sort(suffList, function(a, b)
-			return a.val > b.val
-		end)
+for i,v in pairs(Monsters) do
+  table.insert(Monsters, v.Name)
+  table.insert(mons, { ID = id, Name = m.Name, Disp = disp })
+  end
 
-		local function fmt(n)
-			for _, s in pairs(suffList) do
-				if n >= s.val then
-					return string.format("%.2f%s +", n / s.val, s.suf)
-				end
-			end
-			return tostring(n)
-		end
+  table.sort(mons, function(a, b)
+    return a.Name < b.Name
+  end)
 
-		local mons = {}
-		local monNames = {}
+  for _, m in ipairs(mons) do
+    table.insert(monNames, m.Disp)
+  end
+ local DD = Tabs.Main:Dropdown("DD" Title = "Select Monster" List = monNames,
+    Value = '',
+    Callback = function(v)
+      selMon = v
+    end,
+  })
 
-		for id, m in pairs(Monsters) do
-			local fHP = fmt(m.HP)
-			local disp = m.Name .. " [ HP " .. fHP .. " ]"
-			table.insert(mons, { ID = id, Name = m.Name, Disp = disp })
-		end
+  local function isDead(e)
+    local hpBar = e:FindFirstChild("HealthBar")
+    if hpBar and hpBar:FindFirstChild("Main") and hpBar.Main:FindFirstChild("Bar") then
+      local amt = hpBar.Main.Bar:FindFirstChild("Amount")
+      if amt and amt:IsA("TextLabel") and amt.ContentText == "0 HP" then
+        return true
+      end
+    end
+    return false
+  end
+  local h = false
 
-		table.sort(mons, function(a, b)
-			return a.Name < b.Name
-		end)
+  local function To(t)
+    if not h then
+      h = true
+      local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Linear)
+      local tween = TS:Create(hrp, tweenInfo, {CFrame = t.CFrame * CFrame.new(0, 5, 5)})
+      tween:Play()
+    end
+  end
+local Atk = Tabs.Main:Toggle("Atk" Title = "AutoFarm", Value = false,Callback = function(v)
+    env.A = v
+    spawn(function()
+      while env.A do
+        if selMon then
+          if tgt and tgt:GetAttribute("HP") and tgt:GetAttribute("HP") > 0 then
+            To(tgt)
+          else
+            h = false
+            local found = false
+            for _, m in ipairs(mons) do
+              if m.Disp == selMon then
+                local tgtID = m.ID
+                local serverFolder = workspace.__Main.__Enemies.Server
+                local clientFolder = workspace.__Main.__Enemies.Client
 
-		for _, m in ipairs(mons) do
-			table.insert(monNames, m.Disp)
-		end
+                for _, folder in pairs(serverFolder:GetChildren()) do
+                  if found then break end
+                  for _, e in ipairs(folder:GetChildren()) do
+                    if e:GetAttribute("Id") == tgtID and e:GetAttribute("HP") and e:GetAttribute("HP") > 0 then
+                      tgt = e
+                      updTgt(tgt)
+                      To(e)
 
-		Tabs.Window:Section({Title = 'Enemies Farm'})
+                      if env.Arise1 or env.Destroy then
+                        repeat task.wait(0.2)
+                        until e:GetAttribute("HP") and e:GetAttribute("HP") <= 0
 
-		local tgtInfo = Tabs.Window:Label({
-			Title = 'Target Info',
-			Desc = 'No target',
-			Image = '123402184765006'
-		})
+                        env.Attck = false
+                        task.wait(1.50)
 
-		local selMon = nil
-		local tgt = nil
+                        local clientTarget = nil
+                        for _, cf in ipairs(clientFolder:GetChildren()) do
+                          for _, ce in ipairs(cf:GetChildren()) do
+                            if ce:GetAttribute("Id") == tgtID then
+                              clientTarget = ce
+                              break
+                            end
+                          end
+                          if clientTarget then break end
+                        end
 
-		local function updTgt(t)
-			if t then
-				local maxHP = t:GetAttribute("MaxHP") or "N/A"
-				local lvl = t:GetAttribute("Level") or "N/A"
-				local name = selMon or "Unknown"
-				name = string.match(name, "^(.-)%s*%[") or name
-				local titleText = string.format("Target: %s", name)
-				local contentText = string.format("Level: %s\nMaxHP: %s", lvl, maxHP)
-				tgtInfo:SetTitle(titleText)
-				tgtInfo:SetDesc(contentText)
-			else
-				tgtInfo:SetTitle("Target Info")
-				tgtInfo:SetDesc("")
-			end
-		end
+                        if clientTarget then
+                          local root = clientTarget:FindFirstChild("HumanoidRootPart")
+                          local ap = root and root:FindFirstChild("ArisePrompt")
 
+                          if ap then
+                            task.wait(1.50)
+                            print("Arise Prompt found!")
+                            repeat
+                              task.wait(0.2)
+                              ap = root and root:FindFirstChild("ArisePrompt")
+                            until not ap
+                          end
+                        end
 
-		local DD = Tabs.Window:Dropdown({
-			Title = 'Select Enemies',
-			Image = '97909023934615',
-			List = monNames,
-			Value = '',
-			Callback = function(v)
-				selMon = v
-			end,
-		})
+                        env.Attck = true
+                      end
 
-		local function isDead(e)
-			local hpBar = e:FindFirstChild("HealthBar")
-			if hpBar and hpBar:FindFirstChild("Main") and hpBar.Main:FindFirstChild("Bar") then
-				local amt = hpBar.Main.Bar:FindFirstChild("Amount")
-				if amt and amt:IsA("TextLabel") and amt.ContentText == "0 HP" then
-					return true
-				end
-			end
-			return false
-		end
-		local h = false
-
-		local function To(t)
-			if not h then
-				h = true
-				local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Linear)
-				local tween = TS:Create(hrp, tweenInfo, {CFrame = t.CFrame * CFrame.new(0, 5, 5)})
-				tween:Play()
-			end
-		end
-
-		local atk = Tabs.Window:Toggle({
-			Title = 'Auto Farm',
-			Desc = '',
-			Image = '104772968322853',
-			Value = false,
-			Callback = function(v)
-				env.A = v
-				spawn(function()
-					while env.A do
-						if selMon then
-							if tgt and tgt:GetAttribute("HP") and tgt:GetAttribute("HP") > 0 then
-								To(tgt)
-							else
-								h = false
-								local found = false
-								for _, m in ipairs(mons) do
-									if m.Disp == selMon then
-										local tgtID = m.ID
-										local serverFolder = workspace.__Main.__Enemies.Server
-										local clientFolder = workspace.__Main.__Enemies.Client
-
-										for _, folder in pairs(serverFolder:GetChildren()) do
-											if found then break end
-											for _, e in ipairs(folder:GetChildren()) do
-												if e:GetAttribute("Id") == tgtID and e:GetAttribute("HP") and e:GetAttribute("HP") > 0 then
-													tgt = e
-													updTgt(tgt)
-													To(e)
-
-													if env.Arise1 or env.Destroy then
-														repeat task.wait(0.2)
-														until e:GetAttribute("HP") and e:GetAttribute("HP") <= 0
-
-														env.Attck = false
-														task.wait(1.50)
-
-														local clientTarget = nil
-														for _, cf in ipairs(clientFolder:GetChildren()) do
-															for _, ce in ipairs(cf:GetChildren()) do
-																if ce:GetAttribute("Id") == tgtID then
-																	clientTarget = ce
-																	break
-																end
-															end
-															if clientTarget then break end
-														end
-
-														if clientTarget then
-															local root = clientTarget:FindFirstChild("HumanoidRootPart")
-															local ap = root and root:FindFirstChild("ArisePrompt")
-
-															if ap then
-																task.wait(1.50)
-																print("Arise Prompt found!")
-																repeat
-																	task.wait(0.2)
-																	ap = root and root:FindFirstChild("ArisePrompt")
-																until not ap
-															end
-														end
-
-														env.Attck = true
-													end
-
-													found = true
-													break
-												end
-											end
-										end
-									end
-								end
-							end
-						end
-						task.wait(0.5)
-					end
-				end)
-			end,
-		})
-
-
-
-
-		local resetBtn = Tabs.Window:Button({
-			Title = 'Reset Target',
-			Callback = function(v)
-				tgt = nil
-				updTgt(nil)
-				env.F = false
-			end,
-		})
+                      found = true
+                      break
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+        task.wait(0.5)
+      end
+    end)
+  end,
+})
+local resetBtn = Tabs.Main:AddButton("Reset" Tilte = "ResetTaget",
+  Callback = function(v)
+   tgt = nil
+   updTgt(nil)
+   env.F = false
+end,
+)
+Fluent:Notify({
+    Title = "Notify",
+    Content = "Loading",
+    SubContent = "wait for Loading",
+    Duration = 4
+}) 
+wait(4)
+Fluent:Notify({
+    Title = "Notify",
+    Content = "succeed",
+    SubContent = "Thx for play",
+    Duration = 4
+}) 
