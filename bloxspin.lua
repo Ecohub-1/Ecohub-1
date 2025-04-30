@@ -120,3 +120,23 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 Tabs.PVP:AddSection("Setting")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local SMR = Tabs.PVP:AddInput("SMR", {
+    Title = "Stamina Regen",
+    Default = "10",
+    Placeholder = "Enter StaminaRegen value",
+    Numeric = true,
+    Finished = false
+})
+
+SMR:OnChanged(function()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local numberValue = tonumber(Input.Value)
+
+    if numberValue then
+        character:SetAttribute("StaminaRegen", numberValue)
+    end
+end)
+
