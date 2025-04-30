@@ -1,4 +1,3 @@
-
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -17,6 +16,7 @@ local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
@@ -40,7 +40,10 @@ local FovInput = Tabs.Main:AddInput("FOV", {
     Finished = true,
     Callback = function(val)
         local v = tonumber(val)
-        if v and v >= 1 and v <= 180 then fovAngle = v end
+        if v and v >= 1 and v <= 180 then
+            fovAngle = v
+            fovCircle.Radius = fovAngle  -- ปรับวงกลมตาม FOV
+        end
     end
 })
 
@@ -112,10 +115,9 @@ end
 
 -- Main loop
 RunService.RenderStepped:Connect(function()
-    -- Update FOV circle
     local view = Camera.ViewportSize
     fovCircle.Position = Vector2.new(view.X / 2, view.Y / 2)
-    fovCircle.Radius = fovAngle
+    fovCircle.Radius = fovAngle  -- อัปเดตวงกลมทุกเฟรม
     fovCircle.Visible = true
 
     if aimEnabled then
