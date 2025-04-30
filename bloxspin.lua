@@ -17,7 +17,7 @@ local Tabs = {
     AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
-
+Tabs.PVP:AddSection("Aimbot")
 -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -119,7 +119,7 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
-
+Tabs.Main:AddSection("ESP")
 local function createHighlightESP(character)
     if character:FindFirstChild("ESP_Highlight") then return end
     local highlight = Instance.new("Highlight", character)
