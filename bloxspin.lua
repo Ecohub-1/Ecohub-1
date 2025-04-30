@@ -17,7 +17,9 @@ local Tabs = {
     AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
-
+Tabs.PVP:AddSection{
+    Title = Aimbot
+}
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
@@ -30,10 +32,10 @@ local wallCheckEnabled = false
 local aimPart = "Head"
 local smoothness = 3
 
-local Toggle = Tabs.Main:AddToggle("Toggle", { Title = "Aimbot", Default = false })
+local Toggle = Tabs.PVP:AddToggle("Toggle", { Title = "Aimbot", Default = false })
 Toggle:OnChanged(function(val) aimEnabled = val end)
 
-local FovInput = Tabs.Main:AddInput("FOV", {
+local FovInput = Tabs.PVP:AddInput("FOV", {
     Title = "FOV Angle",
     Default = tostring(fovAngle),
     Placeholder = "Enter FOV",
@@ -45,7 +47,7 @@ local FovInput = Tabs.Main:AddInput("FOV", {
     end
 })
 
-local AimDropdown = Tabs.Main:AddDropdown("AimPart", {
+local AimDropdown = PVP.Main:AddDropdown("AimPart", {
     Title = "Aim Part",
     Values = {"Head", "HumanoidRootPart"},
     Multi = false,
@@ -53,7 +55,7 @@ local AimDropdown = Tabs.Main:AddDropdown("AimPart", {
 })
 AimDropdown:OnChanged(function(val) aimPart = val end)
 
-local SmoothDropdown = Tabs.Main:AddDropdown("SmoothLevel", {
+local SmoothDropdown = PVP.Main:AddDropdown("SmoothLevel", {
     Title = "Smoothness (1-5)",
     Values = {"1","2","3","4","5"},
     Multi = false,
@@ -61,7 +63,7 @@ local SmoothDropdown = Tabs.Main:AddDropdown("SmoothLevel", {
 })
 SmoothDropdown:OnChanged(function(val) smoothness = tonumber(val) end)
 
-local WallToggle = Tabs.Main:AddToggle("WallCheck", { Title = "Check Wall", Default = false })
+local WallToggle = Tabs.PVP:AddToggle("WallCheck", { Title = "Check Wall", Default = false })
 WallToggle:OnChanged(function(val) wallCheckEnabled = val end)
 
 -- FOV Circle Setup
@@ -130,7 +132,9 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
-
+Tabs.PVP:AddSection{
+    Title = ESP
+}
 -- ESP (Extra Sensory Perception)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -224,7 +228,7 @@ local function createESPUI(targetPlayer)
     end)
 end
 
-local ESP = Tabs.Main:AddToggle("ESP", {Title = "ESP", Default = false})
+local ESP = Tabs.PVP:AddToggle("ESP", {Title = "ESP", Default = false})
 
 ESP:OnChanged(function()
     if Options.MyToggle.Value then
