@@ -6,10 +6,10 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local backpack = player:WaitForChild("Backpack")
 local gunRemote = ReplicatedStorage:WaitForChild("Util"):WaitForChild("Net"):FindFirstChild("RE/GunSE")
+local RegionsFolder = workspace:WaitForChild("Regions")
 
+-- หาอาวุธประเภทปืน
 local weapon
-
--- หาอาวุธประเภทปืน (ชื่อขึ้นต้นด้วย "Rifle")
 for _, item in ipairs(backpack:GetChildren()) do
     if item:IsA("Tool") and item.Name:match("^Rifle") then
         weapon = item
@@ -17,17 +17,53 @@ for _, item in ipairs(backpack:GetChildren()) do
     end
 end
 
--- ถ้ามีอาวุธ เริ่ม Kill Aura
-if weapon then
-    local range = 50 -- ระยะตรวจจับ
-    RunService.RenderStepped:Connect(function()
-        for _, enemy in pairs(workspace:GetDescendants()) do
-            if enemy:IsA("Model") and enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") then
-                local hrp = enemy.HumanoidRootPart
-                local distance = (hrp.Position - character.HumanoidRootPart.Position).Magnitude
+-- Toggle เปิด/ปิด Kill Aura
+local Toggle = Tabs.Main:AddToggle("MyToggle", {
+    Title = "Kill Aura",
+    Default = false,
+})
 
-                if distance <= range and enemy ~= character then
-                    -- ยิงศัตรู
+Toggle:OnChanged(function()
+    print("Kill Aura toggle changed:", Options.MyToggle.Value)
+end)
+
+-- Dropdown รายชื่อโซน
+local regionNames = {}
+for _, child in ipairs(RegionsFolder:GetChildren()) do
+    table.insert(regionNames, child.Name)
+end
+
+local Dropdown = Tabs.Main:AddDropdown("RegionDropdown", {
+    Title = "Select Region",
+    Values = regionNames,
+    Multi = false,
+    Default = regionNames[1] or "",
+})
+
+local currentBirdFolder = nil
+
+-- เมื่อเลือกโซน
+Dropdown:OnChanged(function(Value)
+    local selectedRegion = RegionsFolder:FindFirstChild(Value)
+    if selectedRegion and selectedRegion:FindFirstChild("ClientBirds") then
+        currentBirdFolder = selectedRegion.ClientBirds
+        print("Selected region:", Value)
+    else
+        currentBirdFolder = nil
+        warn("Selected region has no ClientBirds folder")
+    end
+end)
+
+-- Kill Aura ทำงานเมื่อ Toggle ถูกเปิด
+local range = 100
+
+RunService.RenderStepped:Connect(function()
+    if Options.MyToggle.Value and weapon and currentBirdFolder and character and character:FindFirstChild("HumanoidRootPart") then
+        for _, bird in ipairs(currentBirdFolder:GetChildren()) do
+            if bird:IsA("Model") and bird:FindFirstChild("HumanoidRootPart") then
+                local hrp = bird.HumanoidRootPart
+                local distance = (hrp.Position - character.HumanoidRootPart.Position).Magnitude
+                if distance <= range then
                     local args = {
                         [1] = "BulletFired",
                         [2] = weapon,
@@ -38,7 +74,5 @@ if weapon then
                 end
             end
         end
-    end)
-else
-    warn("ไม่พบอาวุธประเภทปืนใน Backpack")
-end
+    end
+end)
