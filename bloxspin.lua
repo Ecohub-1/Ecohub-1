@@ -123,25 +123,34 @@ end)
 
 Tabs.PVP:AddSection("Setting")
 
-local SMR = Tabs.PVP:AddInput("SMR", {
-    Title = "Stamina Regen",
-    Default = "10",
-    Placeholder = "Enter StaminaRegen value",
+local StaminaRegen = Tabs.PVP:AddInput("StaminaRegen", {
+    Title = "StaminaRegen",
+    Default = "Default",
+    Placeholder = "Placeholder",
     Numeric = true,
-    Finished = false
+    Finished = false,
+    Callback = function(Value)
+        local newValue = tonumber(Value)
+        if newValue then
+            local player = game.Players.LocalPlayer
+            local attributes = player:WaitForChild("Attributes")
+            attributes.StaminaRegen.Value = newValue
+        end
+    end
 })
+
+StaminaRegen:OnChanged(function()
+end)
 
 Tabs.PVP:AddButton({
     Title = "Set StaminaRegen",
-    Description = "Sets the StaminaRegen value from the input",
+    Description = "Set StaminaRegen value directly",
     Callback = function()
-        local numberValue = tonumber(SMR:GetText())
-        if numberValue then
-            local character = game:GetService("Players").LocalPlayer.Character or game:GetService("Players").LocalPlayer.CharacterAdded:Wait()
-            character:SetAttribute("StaminaRegen", numberValue)
-            print("StaminaRegen set to: " .. numberValue)
-        else
-            print("Invalid value for StaminaRegen")
+        local player = game.Players.LocalPlayer
+        local attributes = player:WaitForChild("Attributes")
+        local newValue = tonumber(StaminaRegen.Value)
+        if newValue then
+            attributes.StaminaRegen.Value = newValue
         end
     end
 })
