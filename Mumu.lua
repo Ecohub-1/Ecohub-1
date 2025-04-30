@@ -109,7 +109,7 @@ end
 
 local DD = Tabs.Main:AddDropdown({
     Title = "Select Monster",
-    Value = monNames,
+    Options = monNames,
     Default = "",
     Callback = function(v)
         selMon = v
