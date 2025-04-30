@@ -13,7 +13,8 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    PVP = Window:AddTab({ Title = "PVP", Icon = "" }),
+    AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
@@ -27,7 +28,7 @@ local fovAngle = 90
 local aimEnabled = false
 local wallCheckEnabled = false
 local aimPart = "Head"
-local smoothness = 10
+local smoothness = 3
 
 local Toggle = Tabs.Main:AddToggle("Toggle", { Title = "Aimbot", Default = false })
 Toggle:OnChanged(function(val) aimEnabled = val end)
@@ -53,10 +54,10 @@ local AimDropdown = Tabs.Main:AddDropdown("AimPart", {
 AimDropdown:OnChanged(function(val) aimPart = val end)
 
 local SmoothDropdown = Tabs.Main:AddDropdown("SmoothLevel", {
-    Title = "Smoothness (1-10)",
-    Values = {"1","2","3","4","5","6","7","8","9","10"},
+    Title = "Smoothness (1-5)",
+    Values = {"1","2","3","4","5"},
     Multi = false,
-    Default = 10,
+    Default = 3,
 })
 SmoothDropdown:OnChanged(function(val) smoothness = tonumber(val) end)
 
@@ -66,19 +67,21 @@ WallToggle:OnChanged(function(val) wallCheckEnabled = val end)
 -- FOV Circle Setup
 local fovCircle = Drawing.new("Circle")
 fovCircle.Color = Color3.fromRGB(255, 0, 0)
-fovCircle.Radius = fovAngle
 fovCircle.Thickness = 2
 fovCircle.Transparency = 1
 fovCircle.Filled = false
 fovCircle.Visible = true
 
--- Aimbot functions
-local function isVisible(pos)
+-- Aimbot Functions
+local function isVisible(targetPart)
     if not wallCheckEnabled then return true end
     local origin = Camera.CFrame.Position
-    local direction = (pos - origin).Unit * 500
-    local result = workspace:Raycast(origin, direction, {LocalPlayer.Character})
-    return result == nil or (result and result.Instance:IsDescendantOf(workspace:FindFirstChildWhichIsA("Model")))
+    local direction = (targetPart.Position - origin)
+    local result = workspace:Raycast(origin, direction, RaycastParams.new())
+
+    -- เช็คว่าถ้าไม่มีการชน หรือ ชนตัว target เองให้ถือว่า "มองเห็น"
+    if not result then return true end
+    return result.Instance:IsDescendantOf(targetPart.Parent)
 end
 
 local function isInFOV(pos)
@@ -93,10 +96,10 @@ local function getClosestTarget()
 
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
-            local humanoid = player.Character:FindFirstChild("Humanoid")
+            local humanoid = player.Character.Humanoid
             if humanoid and humanoid.Health > 0 then
                 local part = player.Character:FindFirstChild(aimPart)
-                if part and isInFOV(part.Position) and isVisible(part.Position) then
+                if part and isInFOV(part.Position) and isVisible(part) then
                     local distance = (Camera.CFrame.Position - part.Position).Magnitude
                     if distance < shortest then
                         shortest = distance
@@ -110,9 +113,8 @@ local function getClosestTarget()
     return closest
 end
 
--- Main loop
+-- Main Loop
 RunService.RenderStepped:Connect(function()
-    -- Update FOV circle
     local view = Camera.ViewportSize
     fovCircle.Position = Vector2.new(view.X / 2, view.Y / 2)
     fovCircle.Radius = fovAngle
@@ -123,7 +125,7 @@ RunService.RenderStepped:Connect(function()
         if target then
             local current = Camera.CFrame
             local goal = CFrame.new(current.Position, target.Position)
-            local factor = (11 - smoothness) / 10
+            local factor = 1 / smoothness
             Camera.CFrame = current:Lerp(goal, factor)
         end
     end
