@@ -130,104 +130,129 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ESP (Extra Sensory Perception)
-local ToggleESP = Tabs.Main:AddToggle("MyToggle", {Title = "ESP", Default = false})
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
-function createESP(player)
-    if player == LocalPlayer then return end
-
-    local function onCharacterAdded(character)
-        local head = character:WaitForChild("Head")
-
-        local billboard = Instance.new("BillboardGui")
-        billboard.Name = "ESP"
-        billboard.Adornee = head
-        billboard.Size = UDim2.new(0, 140, 0, 36)
-        billboard.StudsOffset = Vector3.new(0, 2.5, 0)
-        billboard.AlwaysOnTop = true
-        billboard.Parent = head
-
-        local background = Instance.new("Frame")
-        background.Size = UDim2.new(1, 0, 1, 0)
-        background.BackgroundTransparency = 0.3
-        background.BackgroundColor3 = Color3.fromRGB(255, 200, 240)
-        background.BorderSizePixel = 0
-        background.Parent = billboard
-
-        local uiCorner = Instance.new("UICorner")
-        uiCorner.CornerRadius = UDim.new(1, 0)
-        uiCorner.Parent = background
-
-        local uiStroke = Instance.new("UIStroke")
-        uiStroke.Color = Color3.fromRGB(255, 160, 210)
-        uiStroke.Thickness = 1.5
-        uiStroke.Transparency = 0.3
-        uiStroke.Parent = background
-
-        local textLabel = Instance.new("TextLabel")
-        textLabel.Position = UDim2.new(0, 8, 0, 0)
-        textLabel.Size = UDim2.new(1, -16, 1, 0)
-        textLabel.BackgroundTransparency = 1
-        textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        textLabel.TextStrokeTransparency = 0.4
-        textLabel.Font = Enum.Font.FredokaOne
-        textLabel.TextScaled = true
-        textLabel.TextYAlignment = Enum.TextYAlignment.Center
-        textLabel.Parent = background
-
-        local connection
-        connection = RunService.RenderStepped:Connect(function()
-            if not character:IsDescendantOf(game) then
-                connection:Disconnect()
-                return
-            end
-
-            local distance = (LocalPlayer.Character.Head.Position - head.Position).Magnitude
-            textLabel.Text = string.format("%s (%.0f)", player.Name, distance)
-        end)
-    end
-
-    if player.Character then
-        onCharacterAdded(player.Character)
-    end
-
-    player.CharacterAdded:Connect(onCharacterAdded)
+local function createHighlightESP(character)
+    if character:FindFirstChild("ESP_Highlight") then return end
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "ESP_Highlight"
+    highlight.Adornee = character
+    highlight.FillColor = Color3.fromRGB(255, 255, 0)
+    highlight.FillTransparency = 0.25
+    highlight.OutlineTransparency = 1
+    highlight.Parent = character
 end
 
-function disableESP()
-    for _, player in ipairs(Players:GetPlayers()) do
-        local character = player.Character
-        if character then
-            local billboard = character:FindFirstChild("Head"):FindFirstChild("ESP")
-            if billboard then
-                billboard:Destroy()
-            end
+local function createESPUI(targetPlayer)
+    if targetPlayer == LocalPlayer then return end
+
+    local character = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    createHighlightESP(character)
+
+    local screenGui = Instance.new("BillboardGui")
+    screenGui.Name = "ESP_GUI"
+    screenGui.AlwaysOnTop = true
+    screenGui.Size = UDim2.new(0, 150, 0, 70)
+    screenGui.StudsOffset = Vector3.new(0, 3.5, 0)
+    screenGui.Adornee = hrp
+
+    local bg = Instance.new("Frame", screenGui)
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundTransparency = 1
+
+    local hpBar = Instance.new("Frame", bg)
+    hpBar.Position = UDim2.new(0, 0, 0, 0)
+    hpBar.Size = UDim2.new(0, 8, 1, 0)
+    hpBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    hpBar.BorderSizePixel = 0
+
+    local hpFill = Instance.new("Frame", hpBar)
+    hpFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    hpFill.BorderSizePixel = 0
+    hpFill.AnchorPoint = Vector2.new(0, 1)
+    hpFill.Position = UDim2.new(0, 0, 1, 0)
+    hpFill.Size = UDim2.new(1, 0, 1, 0)
+
+    local nameLabel = Instance.new("TextLabel", bg)
+    nameLabel.Size = UDim2.new(0, 130, 0, 18)
+    nameLabel.Position = UDim2.new(0, 12, 0, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+    nameLabel.TextStrokeTransparency = 0.5
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.TextSize = 14
+
+    local inventoryLabel = Instance.new("TextLabel", bg)
+    inventoryLabel.Size = UDim2.new(0, 130, 0, 40)
+    inventoryLabel.Position = UDim2.new(0, 12, 0, 20)
+    inventoryLabel.BackgroundTransparency = 1
+    inventoryLabel.TextColor3 = Color3.fromRGB(255, 0, 255)
+    inventoryLabel.TextXAlignment = Enum.TextXAlignment.Left
+    inventoryLabel.TextYAlignment = Enum.TextYAlignment.Top
+    inventoryLabel.TextWrapped = true
+    inventoryLabel.TextSize = 12
+    inventoryLabel.Text = "Inventory:\n(กำลังโหลด...)"
+
+    screenGui.Parent = character
+
+    RunService.RenderStepped:Connect(function()
+        if character:FindFirstChild("Humanoid") and hrp then
+            local distance = (hrp.Position - Camera.CFrame.Position).Magnitude
+            nameLabel.Text = targetPlayer.Name .. " | ระยะ: " .. math.floor(distance) .. "m"
+            local hp = character.Humanoid.Health / character.Humanoid.MaxHealth
+            hpFill.Size = UDim2.new(1, 0, math.clamp(hp, 0, 1), 0)
         end
-    end
+    end)
+
+    task.spawn(function()
+        while character and character.Parent do
+            if targetPlayer:FindFirstChild("Backpack") then
+                local items = {}
+                for _, item in ipairs(targetPlayer.Backpack:GetChildren()) do
+                    table.insert(items, item.Name)
+                end
+                inventoryLabel.Text = "Inventory:\n" .. (#items > 0 and table.concat(items, "\n") or "ไม่มีไอเท็ม")
+            end
+            task.wait(1)
+        end
+    end)
 end
 
-ToggleESP:OnChanged(function()
-    if ToggleESP.Value then
+local ESP = Tabs.Main:AddToggle("ESP", {Title = "ESP", Default = false})
+
+ESP:OnChanged(function()
+    if Options.MyToggle.Value then
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer then
-                createESP(player)
+                if player.Character then
+                    createESPUI(player)
+                end
+                player.CharacterAdded:Connect(function()
+                    wait(1)
+                    createESPUI(player)
+                end)
             end
         end
         Players.PlayerAdded:Connect(function(player)
             player.CharacterAdded:Connect(function()
-                if ToggleESP.Value then
-                    createESP(player)
-                end
+                wait(1)
+                createESPUI(player)
             end)
         end)
     else
-        disableESP()
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("ESP_GUI") then
+                player.Character.ESP_GUI:Destroy()
+                if player.Character:FindFirstChild("ESP_Highlight") then
+                    player.Character.ESP_Highlight:Destroy()
+                end
+            end
+        end
     end
 end)
 
-if ToggleESP.Value then
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            createESP(player)
-        end
-    end
-end
+Options.MyToggle:SetValue(false)
