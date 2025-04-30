@@ -128,6 +128,12 @@ Tabs.PVP:AddSection("Setting")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+local function getCharacter()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    repeat task.wait() until character:FindFirstChild("Humanoid")
+    return character
+end
+
 local SMR = Tabs.PVP:AddInput("SMR", {
     Title = "Stamina Regen",
     Default = "10",
@@ -136,20 +142,16 @@ local SMR = Tabs.PVP:AddInput("SMR", {
     Finished = false
 })
 
-local function getCharacter()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    repeat task.wait() until character:FindFirstChild("Humanoid")
-    return character
-end
-
 SMR:OnChanged(function(val)
     local numberValue = tonumber(val)
     if not numberValue then return end
 
     local character = getCharacter()
+    local staminaRegenAttribute = "StaminaRegen"
 
-    -- ตรวจสอบว่ามี Attribute ชื่อ "StaminaRegen"
-    if character:GetAttribute("StaminaRegen") ~= nil then
-        character:SetAttribute("StaminaRegen", numberValue)
+    if character:GetAttribute(staminaRegenAttribute) ~= nil then
+        character:SetAttribute(staminaRegenAttribute, numberValue)
+    else
+        character:SetAttribute(staminaRegenAttribute, numberValue)
     end
 end)
