@@ -133,15 +133,23 @@ local SMR = Tabs.PVP:AddInput("SMR", {
     Default = "10",
     Placeholder = "Enter StaminaRegen value",
     Numeric = true,
-    Finished = false -- เปลี่ยนทันทีที่พิมพ์
+    Finished = false
 })
+
+local function getCharacter()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    repeat task.wait() until character:FindFirstChild("Humanoid")
+    return character
+end
 
 SMR:OnChanged(function(val)
     local numberValue = tonumber(val)
     if not numberValue then return end
 
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    if not character:FindFirstChild("Humanoid") then return end
+    local character = getCharacter()
 
-    character:SetAttribute("StaminaRegen", numberValue)
+    -- ตรวจสอบว่ามี Attribute ชื่อ "StaminaRegen"
+    if character:GetAttribute("StaminaRegen") ~= nil then
+        character:SetAttribute("StaminaRegen", numberValue)
+    end
 end)
