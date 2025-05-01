@@ -3,8 +3,8 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub " .. Fluent.Version,
-    SubTitle = "by zer09Xz",
+    Title = "Eco Hub" .. Fluent.Version,
+    SubTitle = " | Bloxspin",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
     Acrylic = true,
@@ -14,25 +14,22 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
-Tabs.Main:AddSection("Aimbot")
 
-local player = game.Players.LocalPlayer
-local mouse = player:GetMouse()
-local camera = game.Workspace.CurrentCamera
-local fov = 60
 local aimbotEnabled = false
-
-local Aimbot = Tabs.Main:AddToggle("Aimbot", {Title = "Aimbot", Default = false})
+local Aimbot = Tabs.Main:AddToggle("Aimbot", {
+    Title = "Aimbot",
+    Default = false
+})
 
 Aimbot:OnChanged(function()
     aimbotEnabled = Aimbot.Value
 end)
 
-local Fov = Tabs.Main:AddInput("Fov", {
-    Title = "Adjust FOV",
+local fov = 60
+local Fov = Tabs.Main:AddInput("FOV", {
+    Title = "FOV",
     Default = tostring(fov),
     Placeholder = "Enter FOV value",
     Numeric = true,
@@ -43,22 +40,19 @@ local Fov = Tabs.Main:AddInput("Fov", {
 })
 
 Fov:OnChanged(function()
-    fov = tonumber(Input.Value) or fov
+    fov = tonumber(Fov.Value) or fov
 end)
 
 local function drawFOVCircle()
-    local screenCenter = camera:WorldToScreenPoint(camera.CFrame.Position)
-    local fovCircle = Instance.new("Part")
-    fovCircle.Shape = Enum.PartType.Ball
-    fovCircle.Size = Vector3.new(fov, fov, fov)
-    fovCircle.Position = camera.CFrame.Position
-    fovCircle.Color = Color3.fromRGB(255, 0, 0)
-    fovCircle.Anchored = true
-    fovCircle.CanCollide = false
-    fovCircle.Transparency = 0.5
-    fovCircle.Parent = workspace
+    local screenCenter = game.Workspace.CurrentCamera:WorldToScreenPoint(game.Workspace.CurrentCamera.CFrame.Position)
+    local fovCircle = Instance.new("ImageLabel")
+    fovCircle.Size = UDim2.new(0, fov * 2, 0, fov * 2)
+    fovCircle.Position = UDim2.new(0.5, -fov, 0.5, -fov)
+    fovCircle.BackgroundTransparency = 1
+    fovCircle.Image = "rbxassetid://12345678"
+    fovCircle.Parent = game.CoreGui
 
-    game:GetService("Debris"):AddItem(fovCircle, 0.5)
+    game:GetService("Debris"):AddItem(fovCircle, 0.1)
 end
 
 local function getClosestTarget()
@@ -69,8 +63,8 @@ local function getClosestTarget()
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj.Humanoid.Health > 0 then
             local head = obj:FindFirstChild("Head")
             if head then
-                local distance = (camera.CFrame.Position - head.Position).magnitude
-                local screenPos, onScreen = camera:WorldToScreenPoint(head.Position)
+                local distance = (game.Workspace.CurrentCamera.CFrame.Position - head.Position).magnitude
+                local screenPos, onScreen = game.Workspace.CurrentCamera:WorldToScreenPoint(head.Position)
 
                 if onScreen then
                     if distance < shortestDistance and distance < fov then
@@ -91,9 +85,8 @@ local function aimbot()
 
             if target then
                 local targetPosition = target.Position
-                local direction = (targetPosition - camera.CFrame.Position).unit
-                local newCFrame = CFrame.lookAt(camera.CFrame.Position, targetPosition)
-                camera.CFrame = newCFrame
+                local newCFrame = CFrame.lookAt(game.Workspace.CurrentCamera.CFrame.Position, targetPosition)
+                game.Workspace.CurrentCamera.CFrame = newCFrame
             end
         end
         wait(0.1)
