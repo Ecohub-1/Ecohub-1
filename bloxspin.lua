@@ -1,146 +1,109 @@
+-- โหลด Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-
--- Window
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub" .. Fluent.Version,
-    SubTitle = " | Bloxspin",
+    SubTitle = " | Aimbot",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
     Acrylic = true,
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
-
--- Tabs
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Main = Window:AddTab({ Title = "Main", Icon = "" })
 }
 
--- Aimbot Toggle
+-- ตั้งค่าเริ่มต้น
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local fov = 100
+local smoothness = 0.1
 local aimbotEnabled = false
-local Aimbot = Tabs.Main:AddToggle("Aimbot", {
-    Title = "Aimbot",
-    Default = false
-})
-Aimbot:OnChanged(function()
-    aimbotEnabled = Aimbot.Value
+local circleEnabled = false
+
+-- UI: Aimbot Toggle
+local Aimbot = Tabs.Main:AddToggle("Aimbot", { Title = "Aimbot", Default = false })
+Aimbot:OnChanged(function(Value)
+    aimbotEnabled = Value
 end)
 
--- FOV Input
-local fov = 60
-local Fov = Tabs.Main:AddInput("FOV", {
+-- UI: FOV Input
+local FovInput = Tabs.Main:AddInput("FOV", {
     Title = "FOV",
     Default = tostring(fov),
-    Placeholder = "Enter FOV value",
+    Placeholder = "Enter FOV",
     Numeric = true,
     Finished = false,
     Callback = function(Value)
         fov = tonumber(Value) or fov
     end
 })
-Fov:OnChanged(function()
-    fov = tonumber(Fov.Value) or fov
-end)
 
--- Smooth Dropdown
-local smoothLevel = 0.1
+-- UI: Smoothness Dropdown (1-5)
 local SmoothDropdown = Tabs.Main:AddDropdown("SmoothLevel", {
     Title = "Smooth Level",
     Values = {"1", "2", "3", "4", "5"},
-    Multi = true,
-    Default = {"3"}
+    Multi = false,
+    Default = "2"
 })
 SmoothDropdown:OnChanged(function(Value)
-    local levels = {}
-    for k, v in pairs(Value) do
-        if v then table.insert(levels, tonumber(k)) end
-    end
-    if #levels > 0 then
-        local max = math.max(unpack(levels))
-        smoothLevel = 0.05 * max
-    end
+    smoothness = 0.05 * tonumber(Value)
 end)
 
--- FOV Circle Toggle
-local fovCircleEnabled = false
-local FovCircleToggle = Tabs.Main:AddToggle("FOVCircle", {
-    Title = "Show FOV Circle",
-    Default = false
-})
-FovCircleToggle:OnChanged(function()
-    fovCircleEnabled = FovCircleToggle.Value
-    if not fovCircleEnabled then
-        fovCircle.Visible = false
-    end
+-- UI: FOV Circle Toggle
+local FovCircleToggle = Tabs.Main:AddToggle("ShowCircle", { Title = "Show FOV Circle", Default = false })
+FovCircleToggle:OnChanged(function(Value)
+    circleEnabled = Value
 end)
 
 -- Drawing Circle
-local fovCircle = Drawing.new("Circle")
-fovCircle.Color = Color3.fromRGB(0, 255, 0)
-fovCircle.Thickness = 2
-fovCircle.Transparency = 1
-fovCircle.Filled = false
-fovCircle.Visible = false
+local circle = Drawing.new("Circle")
+circle.Radius = fov
+circle.Thickness = 2
+circle.Filled = false
+circle.Color = Color3.fromRGB(0, 255, 0)
+circle.Visible = false
 
--- Update Circle Every Frame
+-- Update circle position
 RunService.RenderStepped:Connect(function()
-    if fovCircleEnabled then
-        local cam = workspace.CurrentCamera
-        local center = Vector2.new(cam.ViewportSize.X / 2, cam.ViewportSize.Y / 2)
-        fovCircle.Position = center
-        fovCircle.Radius = fov
-        fovCircle.Visible = true
+    if circleEnabled then
+        circle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+        circle.Radius = fov
+        circle.Visible = true
     else
-        fovCircle.Visible = false
+        circle.Visible = false
     end
 end)
 
--- Get Closest Target
+-- ค้นหาเป้าหมายที่ใกล้ที่สุดใน FOV
 local function getClosestTarget()
-    local lp = game.Players.LocalPlayer
-    local char = lp.Character
-    if not char or not char:FindFirstChild("Head") then return nil end
-
-    local closest = nil
-    local shortest = math.huge
-    for _, obj in pairs(workspace:GetChildren()) do
-        if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj.Humanoid.Health > 0 and obj ~= char then
-            local head = obj:FindFirstChild("Head")
-            if head then
-                local distance = (workspace.CurrentCamera.CFrame.Position - head.Position).Magnitude
-                local screenPos, onScreen = workspace.CurrentCamera:WorldToScreenPoint(head.Position)
-                if onScreen and distance < shortest and distance <= fov then
-                    closest = head
-                    shortest = distance
-                end
+    local closest, shortest = nil, math.huge
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local head = player.Character.Head
+            local pos, onScreen = Camera:WorldToViewportPoint(head.Position)
+            local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+            if onScreen and dist < fov and dist < shortest then
+                closest = head
+                shortest = dist
             end
         end
     end
     return closest
 end
 
--- Smooth Aimbot
-local function smoothAimbot(target)
-    local cam = workspace.CurrentCamera
-    local goal = CFrame.lookAt(cam.CFrame.Position, target.Position)
-    local tweenInfo = TweenInfo.new(smoothLevel, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-    local tween = TweenService:Create(cam, tweenInfo, {CFrame = goal})
-    tween:Play()
-end
-
--- Run Aimbot
-task.spawn(function()
-    while task.wait(0.1) do
-        if aimbotEnabled then
-            local target = getClosestTarget()
-            if target then
-                smoothAimbot(target)
-            end
+-- Aimbot update
+RunService.RenderStepped:Connect(function()
+    if aimbotEnabled then
+        local target = getClosestTarget()
+        if target then
+            local camCF = Camera.CFrame
+            local direction = (target.Position - camCF.Position).Unit
+            local newCF = CFrame.new(camCF.Position, camCF.Position + direction)
+            Camera.CFrame = camCF:Lerp(newCF, smoothness)
         end
     end
 end)
