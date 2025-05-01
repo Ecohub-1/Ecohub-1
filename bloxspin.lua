@@ -1,5 +1,7 @@
--- โหลด Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub" .. Fluent.Version,
     SubTitle = " | Aimbot",
@@ -9,29 +11,38 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
+
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" })
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
--- ตั้งค่าเริ่มต้น
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Window)
+
+SaveManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetFolder("EcoHub/Aimbot")
+SaveManager:BuildConfigSection(Window)
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
 
+local aimbotEnabled = false
 local fov = 100
 local smoothness = 0.1
-local aimbotEnabled = false
-local circleEnabled = false
+local showFovCircle = false
 
--- UI: Aimbot Toggle
-local Aimbot = Tabs.Main:AddToggle("Aimbot", { Title = "Aimbot", Default = false })
-Aimbot:OnChanged(function(Value)
+Tabs.Main:AddToggle("Aimbot", {
+    Title = "Aimbot",
+    Default = false
+}):OnChanged(function(Value)
     aimbotEnabled = Value
 end)
 
--- UI: FOV Input
-local FovInput = Tabs.Main:AddInput("FOV", {
+Tabs.Main:AddInput("FOV", {
     Title = "FOV",
     Default = tostring(fov),
     Placeholder = "Enter FOV",
@@ -42,34 +53,31 @@ local FovInput = Tabs.Main:AddInput("FOV", {
     end
 })
 
--- UI: Smoothness Dropdown (1-5)
-local SmoothDropdown = Tabs.Main:AddDropdown("SmoothLevel", {
+Tabs.Main:AddDropdown("SmoothLevel", {
     Title = "Smooth Level",
     Values = {"1", "2", "3", "4", "5"},
     Multi = false,
     Default = "2"
-})
-SmoothDropdown:OnChanged(function(Value)
+}):OnChanged(function(Value)
     smoothness = 0.05 * tonumber(Value)
 end)
 
--- UI: FOV Circle Toggle
-local FovCircleToggle = Tabs.Main:AddToggle("ShowCircle", { Title = "Show FOV Circle", Default = false })
-FovCircleToggle:OnChanged(function(Value)
-    circleEnabled = Value
+Tabs.Main:AddToggle("FOVCircle", {
+    Title = "Show FOV Circle",
+    Default = false
+}):OnChanged(function(Value)
+    showFovCircle = Value
 end)
 
--- Drawing Circle
 local circle = Drawing.new("Circle")
-circle.Radius = fov
 circle.Thickness = 2
 circle.Filled = false
 circle.Color = Color3.fromRGB(0, 255, 0)
+circle.Transparency = 1
 circle.Visible = false
 
--- Update circle position
 RunService.RenderStepped:Connect(function()
-    if circleEnabled then
+    if showFovCircle then
         circle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
         circle.Radius = fov
         circle.Visible = true
@@ -78,24 +86,27 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ค้นหาเป้าหมายที่ใกล้ที่สุดใน FOV
 local function getClosestTarget()
-    local closest, shortest = nil, math.huge
+    local closestTarget = nil
+    local shortestDistance = math.huge
+
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
             local head = player.Character.Head
             local pos, onScreen = Camera:WorldToViewportPoint(head.Position)
-            local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-            if onScreen and dist < fov and dist < shortest then
-                closest = head
-                shortest = dist
+            if onScreen then
+                local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
+                if distance < fov and distance < shortestDistance then
+                    shortestDistance = distance
+                    closestTarget = head
+                end
             end
         end
     end
-    return closest
+
+    return closestTarget
 end
 
--- Aimbot update
 RunService.RenderStepped:Connect(function()
     if aimbotEnabled then
         local target = getClosestTarget()
@@ -106,4 +117,8 @@ RunService.RenderStepped:Connect(function()
             Camera.CFrame = camCF:Lerp(newCF, smoothness)
         end
     end
+end)
+
+task.delay(1, function()
+    SaveManager:LoadAutoloadConfig()
 end)
