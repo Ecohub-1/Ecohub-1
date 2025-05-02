@@ -15,7 +15,6 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
     Aimbot = Window:AddTab({ Title = "Aimbot", Icon = "" }),
     Weapon = Window:AddTab({ Title = "Weapon", Icon = "" }),
     ESP = Window:AddTab({ Title = "ESP", Icon = "" }),
@@ -52,17 +51,22 @@ end)
 
 -- ฟังก์ชันสร้างวงกลม FOV
 local function createFovCircle(radius)
+    -- สร้าง ScreenGui
     local screenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
-    local circle = Instance.new("Frame", screenGui)
-    circle.AnchorPoint = Vector2.new(0.5, 0.5)
-    circle.Position = UDim2.new(0.5, 0, 0.5, 0)
-    circle.Size = UDim2.new(0, radius * 2, 0, radius * 2)
-    circle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    circle.BackgroundTransparency = 0.5
-    circle.BorderSizePixel = 0
-    circle.Shape = Enum.UICornerRadius.ZERO
+    screenGui.Name = "FovCircleGui"  -- ตั้งชื่อให้กับ ScreenGui
 
-    return circle
+    -- สร้างวงกลม
+    local circle = Instance.new("Frame", screenGui)
+    circle.AnchorPoint = Vector2.new(0.5, 0.5)  -- ตั้งค่ากึ่งกลางของวงกลม
+    circle.Position = UDim2.new(0.5, 0, 0.5, 0)  -- ตั้งตำแหน่งของวงกลมที่กึ่งกลางหน้าจอ
+    circle.Size = UDim2.new(0, radius * 2, 0, radius * 2)  -- ขนาดวงกลมตามค่ารัศมีที่กำหนด
+    circle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- กำหนดสีของวงกลม
+    circle.BackgroundTransparency = 0.5  -- ความโปร่งใส
+    circle.BorderSizePixel = 0  -- ไม่แสดงกรอบ
+    circle.Shape = Enum.UICornerRadius.ZERO  -- ทำให้ขอบวงกลมเป็นมุมโค้ง
+
+    -- แสดงวงกลม
+    screenGui.Parent = game.Players.LocalPlayer.PlayerGui
 end
 
 -- ฟังก์ชันวาดเส้นกลาง FOV
@@ -172,7 +176,6 @@ local function findItem(name)
             if item:IsA("Tool") and item.Name == name then
                 return item
             end
-        end
     end
     return nil
 end
