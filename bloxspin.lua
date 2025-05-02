@@ -1,7 +1,9 @@
+-- โหลด Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
+-- สร้างหน้าต่าง
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub" .. Fluent.Version,
     SubTitle = " | Bloxspin",
@@ -23,50 +25,103 @@ local Tabs = {
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local SelectedItemName = nil
+local lockMode = "Mouse"  -- เริ่มต้นเลือกเป็น Mouse Lock (PC)
 
-local function getToolNames()
-    local names = {}
-    local seen = {}
-
-    local function scan(container)
-        for _, item in ipairs(container:GetChildren()) do
-            if item:IsA("Tool") and not seen[item.Name] then
-                seen[item.Name] = true
-                table.insert(names, item.Name)
-            end
-        end
-    end
-
-    if LocalPlayer:FindFirstChild("Backpack") then
-        scan(LocalPlayer.Backpack)
-    end
-    if LocalPlayer.Character then
-        scan(LocalPlayer.Character)
-    end
-
-    return names
-end
-
-local SelectWeaponDropdown = Tabs.Weapon:AddDropdown("SelectWeaponDropdown", {
-    Title = "Select Weapon",
-    Values = {},
+-- สร้าง Dropdown สำหรับเลือก Lock
+local LockOptionDropdown = Tabs.Aimbot:AddDropdown("LockOptionDropdown", {
+    Title = "Select Lock Option",
+    Values = {"Mouse Lock (PC)", "Center Lock (Mobile)", "Lock to Head", "Lock to Body"},
     Multi = false,
-    Default = nil,
+    Default = 1,
 })
 
-task.delay(1, function()
-    local toolNames = getToolNames()
-    if #toolNames > 0 then
-        SelectWeaponDropdown:SetValues(toolNames)
-    else
-        SelectWeaponDropdown:SetValues({"No tools found"})
+LockOptionDropdown:SetValue("Mouse Lock (PC)")  -- ตั้งค่าเริ่มต้นให้เลือก "Mouse Lock (PC)"
+
+LockOptionDropdown:OnChanged(function(Value)
+    print("Lock option changed:", Value)
+    if Value == "Mouse Lock (PC)" then
+        lockMode = "Mouse"
+    elseif Value == "Center Lock (Mobile)" then
+        lockMode = "Center"
+    elseif Value == "Lock to Head" then
+        lockMode = "Head"
+    elseif Value == "Lock to Body" then
+        lockMode = "Body"
     end
 end)
 
-SelectWeaponDropdown:OnChanged(function(Value)
-    SelectedItemName = Value
+-- ฟังก์ชันสร้างวงกลม FOV
+local function createFovCircle(radius)
+    local screenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
+    local circle = Instance.new("Frame", screenGui)
+    circle.AnchorPoint = Vector2.new(0.5, 0.5)
+    circle.Position = UDim2.new(0.5, 0, 0.5, 0)
+    circle.Size = UDim2.new(0, radius * 2, 0, radius * 2)
+    circle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    circle.BackgroundTransparency = 0.5
+    circle.BorderSizePixel = 0
+    circle.Shape = Enum.UICornerRadius.ZERO
+
+    return circle
+end
+
+-- ฟังก์ชันวาดเส้นกลาง FOV
+local function drawFovLine(targetPosition)
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local camera = workspace.CurrentCamera
+
+    local startPosition = camera.WorldToScreenPoint(humanoidRootPart.Position)
+    local endPosition = camera.WorldToScreenPoint(targetPosition)
+    
+    local line = Instance.new("Line", game:GetService("CoreGui"))
+    line.StartPosition = startPosition
+    line.EndPosition = endPosition
+    line.Thickness = 2
+    line.Color = Color3.fromRGB(255, 0, 0)
+end
+
+-- ฟังก์ชัน Silent Aim
+local function silentAim()
+    local character = game.Players.LocalPlayer.Character
+    if not character then return end
+    local mouse = game.Players.LocalPlayer:GetMouse()
+    
+    local fovRadius = 200
+    createFovCircle(fovRadius)  -- สร้างวงกลม FOV
+    
+    local targetPosition
+    if lockMode == "Mouse" then
+        targetPosition = mouse.Hit.p
+    elseif lockMode == "Center" then
+        targetPosition = workspace.CurrentCamera.CFrame.p
+    elseif lockMode == "Head" then
+        targetPosition = character:WaitForChild("Head").Position
+    elseif lockMode == "Body" then
+        targetPosition = character:WaitForChild("HumanoidRootPart").Position
+    end
+    
+    drawFovLine(targetPosition)  -- วาดเส้นกลาง FOV
+    
+    -- ใช้ Raycast เพื่อยิงไปยังตำแหน่งที่เลือก
+    local rayOrigin = character.HumanoidRootPart.Position
+    local direction = (targetPosition - rayOrigin).unit * 1000
+    local raycastResult = workspace:Raycast(rayOrigin, direction)
+    
+    if raycastResult then
+        print("ยิงไปที่: " .. raycastResult.Position)
+    end
+end
+
+-- ตั้งค่าการยิงเมื่อคลิก
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and not gameProcessedEvent then
+        silentAim()
+    end
 end)
 
+-- กำหนดค่าต่างๆ ของอาวุธ
 local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
     Title = "Range Value",
     Default = "",
@@ -82,22 +137,6 @@ local SpeedWeapon = Tabs.Weapon:AddInput("SpeedWeapon", {
     Numeric = true,
     Finished = true,
 })
-
-local function findItem(name)
-    for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
-        if item:IsA("Tool") and item.Name == name then
-            return item
-        end
-    end
-    if LocalPlayer.Character then
-        for _, item in ipairs(LocalPlayer.Character:GetChildren()) do
-            if item:IsA("Tool") and item.Name == name then
-                return item
-            end
-        end
-    end
-    return nil
-end
 
 RangeInput:OnChanged(function()
     local val = tonumber(RangeInput.Value)
@@ -120,3 +159,20 @@ SpeedWeapon:OnChanged(function()
         end
     end
 end)
+
+-- ฟังก์ชันค้นหาอาวุธ
+local function findItem(name)
+    for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if item:IsA("Tool") and item.Name == name then
+            return item
+        end
+    end
+    if LocalPlayer.Character then
+        for _, item in ipairs(LocalPlayer.Character:GetChildren()) do
+            if item:IsA("Tool") and item.Name == name then
+                return item
+            end
+        end
+    end
+    return nil
+end
