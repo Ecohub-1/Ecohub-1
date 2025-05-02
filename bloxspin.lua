@@ -19,99 +19,121 @@ local Tabs = {
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- สร้าง Paragraph แสดงข้อมูลของรถ
-local InfoParagraph = Tabs.Main:AddParagraph({
-	Title = "Vehicle Info",
-	Content = "Not in a vehicle"
+local SelectedItemName = nil
+
+-- Dropdown สำหรับเลือกไอเท็มที่ไม่ใช่ Range หรือ Speed
+local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+    Title = "Select Item (No Range/Speed)",
+    Values = {},
+    Multi = false,
+    Default = nil,
 })
 
--- ฟังก์ชันหารถที่ผู้เล่นนั่ง โดยตรวจสอบชื่อใน Attributes
-local function getCurrentVehicle()
-	for _, vehicle in pairs(workspace.Vehicles:GetChildren()) do
-		local seat = vehicle:FindFirstChild("DriverSeat")
-		if seat and seat:IsA("VehicleSeat") and seat.Occupant then
-			local humanoid = seat.Occupant
-			if humanoid.Parent == LocalPlayer.Character then
-				-- เช็คว่าใน Attribute ของรถมีชื่อของผู้เล่นอยู่
-				if vehicle.Name == LocalPlayer.Name then
-					return vehicle
-				end
-			end
-		end
-	end
-	return nil
-end
+-- Input สำหรับเซ็ตค่า Attribute ปกติ
+local Input = Tabs.Main:AddInput("Input", {
+    Title = "Set Custom Attribute",
+    Default = "",
+    Placeholder = "Enter number",
+    Numeric = true,
+    Finished = true,
+})
 
--- ฟังก์ชันอัปเดต Paragraph ที่แสดงข้อมูลของรถ
-local function updateVehicleInfo()
-	local vehicle = getCurrentVehicle()
-	if not vehicle then
-		InfoParagraph:SetContent("Not in a vehicle")
-		return
-	end
+-- Input สำหรับ Range
+local RangeInput = Tabs.Main:AddInput("Range", {
+    Title = "Set Range",
+    Default = "",
+    Placeholder = "Enter range value",
+    Numeric = true,
+    Finished = true,
+})
 
-	local motors = vehicle:FindFirstChild("Motors")
-	if not motors then
-		InfoParagraph:SetContent(vehicle.Name .. "\n(No Motors found)")
-		return
-	end
+-- Input สำหรับ Speed
+local SpeedInput = Tabs.Main:AddInput("Speed", {
+    Title = "Set Speed",
+    Default = "",
+    Placeholder = "Enter speed value",
+    Numeric = true,
+    Finished = true,
+})
 
-	local content = "Vehicle: " .. vehicle.Name .. "\n\n"
-	-- แสดงชื่อและค่าใน Attributes ของ Motors
-	for _, attrName in pairs(motors:GetAttributes()) do
-		local value = motors:GetAttribute(attrName)
-		content = content .. attrName .. ": " .. tostring(value) .. "\n"
-	end
-	InfoParagraph:SetContent(content)
-end
+-- ปุ่มค้นหาไอเท็มที่ไม่ใช่ Range/Speed
+Tabs.Main:AddButton("Find Valid Items", function()
+    local validItems = {}
 
--- ฟังก์ชันสร้าง Input และปรับค่าทันที
-local function createAutoInput(id, title)
-	return Tabs.Main:AddInput(id, {
-		Title = title,
-		Default = "0",
-		Placeholder = "Enter " .. title,
-		Numeric = true,
-		Callback = function(value)
-			local number = tonumber(value)
-			if not number then return end
+    local function scan(container)
+        for _, item in ipairs(container:GetChildren()) do
+            if item:IsA("Tool") then
+                local name = item.Name:lower()
+                if not name:find("range") and not name:find("speed") then
+                    table.insert(validItems, item.Name)
+                end
+            end
+        end
+    end
 
-			local vehicle = getCurrentVehicle()
-			if not vehicle then return end
+    scan(LocalPlayer.Backpack)
+    if LocalPlayer.Character then
+        scan(LocalPlayer.Character)
+    end
 
-			local motors = vehicle:FindFirstChild("Motors")
-			if not motors then return end
-
-			if motors:GetAttribute(title) ~= nil then
-				-- ปรับค่าที่อยู่ใน Attribute ของรถ
-				motors:SetAttribute(title, number)
-				print("Set", title, "to", number)
-			end
-		end
-	})
-end
-
--- เริ่มการอัปเดตข้อมูลของรถทุก 1 วินาที
-task.spawn(function()
-	while true do
-		updateVehicleInfo()
-		task.wait(1) -- อัปเดตทุกๆ 1 วินาที
-	end
+    Dropdown:SetValues(validItems)
 end)
 
--- สร้าง Inputs สำหรับปรับค่า 9 ค่า
-createAutoInput("BrakingInput", "Braking")
-createAutoInput("DecelerationInput", "Deceleration")
-createAutoInput("ForwardMaxSpeedInput", "ForwardMaxSpeed")
-createAutoInput("MaxSpeedTorqueInput", "MaxSpeedTorque")
-createAutoInput("HandBrakeTorqueInput", "HandBrakeTorque")
-createAutoInput("MinSpeedTorqueInput", "MinSpeedTorque")
-createAutoInput("ReverseMaxSpeedInput", "ReverseMaxSpeed")
-createAutoInput("NitroTorqueInput", "NitroTorque")
-createAutoInput("NitroTimeInput", "NitroTime")
+-- เมื่อเลือกไอเท็มจาก Dropdown
+Dropdown:OnChanged(function(Value)
+    SelectedItemName = Value
+    print("Selected item:", Value)
+end)
 
-Fluent:Notify({
-    Title = "Success",
-    Content = "Action completed",
-    Duration = 5
-})
+-- ฟังก์ชันช่วยหาไอเท็มตามชื่อ
+local function findItem(name)
+    for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if item:IsA("Tool") and item.Name == name then
+            return item
+        end
+    end
+    if LocalPlayer.Character then
+        for _, item in ipairs(LocalPlayer.Character:GetChildren()) do
+            if item:IsA("Tool") and item.Name == name then
+                return item
+            end
+        end
+    end
+    return nil
+end
+
+-- เมื่อกรอกค่า Input ปกติ
+Input:OnChanged(function()
+    local val = tonumber(Input.Value)
+    if SelectedItemName and val then
+        local item = findItem(SelectedItemName)
+        if item then
+            item:SetAttribute("CustomValue", val)
+            print("Set CustomValue for", item.Name, "to", val)
+        end
+    end
+end)
+
+-- เมื่อกรอกค่า Range
+RangeInput:OnChanged(function()
+    local val = tonumber(RangeInput.Value)
+    if SelectedItemName and val then
+        local item = findItem(SelectedItemName)
+        if item then
+            item:SetAttribute("Range", val)
+            print("Set Range for", item.Name, "to", val)
+        end
+    end
+end)
+
+-- เมื่อกรอกค่า Speed
+SpeedInput:OnChanged(function()
+    local val = tonumber(SpeedInput.Value)
+    if SelectedItemName and val then
+        local item = findItem(SelectedItemName)
+        if item then
+            item:SetAttribute("Speed", val)
+            print("Set Speed for", item.Name, "to", val)
+        end
+    end
+end)
