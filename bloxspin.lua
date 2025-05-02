@@ -17,30 +17,32 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- ฟังก์ชันหารถที่ผู้เล่นนั่ง
+-- สร้าง Paragraph แสดงข้อมูลของรถ
+local InfoParagraph = Tabs.Main:AddParagraph({
+	Title = "Vehicle Info",
+	Content = "Not in a vehicle"
+})
+
+-- ฟังก์ชันหารถที่ผู้เล่นนั่ง โดยตรวจสอบชื่อใน Attributes
 local function getCurrentVehicle()
 	for _, vehicle in pairs(workspace.Vehicles:GetChildren()) do
 		local seat = vehicle:FindFirstChild("DriverSeat")
 		if seat and seat:IsA("VehicleSeat") and seat.Occupant then
 			local humanoid = seat.Occupant
 			if humanoid.Parent == LocalPlayer.Character then
-				return vehicle
+				-- เช็คว่าใน Attribute ของรถมีชื่อของผู้เล่นอยู่
+				if vehicle.Name == LocalPlayer.Name then
+					return vehicle
+				end
 			end
 		end
 	end
 	return nil
 end
 
--- Paragraph แสดงชื่อรถและค่า Attributes
-local InfoParagraph = Tabs.Main:AddParagraph({
-	Title = "Vehicle Info",
-	Content = "Not in a vehicle"
-})
-
--- ฟังก์ชันอัปเดต Paragraph
+-- ฟังก์ชันอัปเดต Paragraph ที่แสดงข้อมูลของรถ
 local function updateVehicleInfo()
 	local vehicle = getCurrentVehicle()
 	if not vehicle then
@@ -55,21 +57,15 @@ local function updateVehicleInfo()
 	end
 
 	local content = "Vehicle: " .. vehicle.Name .. "\n\n"
-	for attrName, value in pairs(motors:GetAttributes()) do
+	-- แสดงชื่อและค่าใน Attributes ของ Motors
+	for _, attrName in pairs(motors:GetAttributes()) do
+		local value = motors:GetAttribute(attrName)
 		content = content .. attrName .. ": " .. tostring(value) .. "\n"
 	end
 	InfoParagraph:SetContent(content)
 end
 
--- เริ่มอัปเดต Paragraph ทุก 1 วินาที
-task.spawn(function()
-	while true do
-		updateVehicleInfo()
-		task.wait(1)
-	end
-end)
-
--- ฟังก์ชันสร้าง Input อัตโนมัติและเซ็ต Attribute ทันที
+-- ฟังก์ชันสร้าง Input และปรับค่าทันที
 local function createAutoInput(id, title)
 	return Tabs.Main:AddInput(id, {
 		Title = title,
@@ -87,6 +83,7 @@ local function createAutoInput(id, title)
 			if not motors then return end
 
 			if motors:GetAttribute(title) ~= nil then
+				-- ปรับค่าที่อยู่ใน Attribute ของรถ
 				motors:SetAttribute(title, number)
 				print("Set", title, "to", number)
 			end
@@ -94,7 +91,15 @@ local function createAutoInput(id, title)
 	})
 end
 
--- สร้าง Inputs ทั้ง 9 ค่า
+-- เริ่มการอัปเดตข้อมูลของรถทุก 1 วินาที
+task.spawn(function()
+	while true do
+		updateVehicleInfo()
+		task.wait(1) -- อัปเดตทุกๆ 1 วินาที
+	end
+end)
+
+-- สร้าง Inputs สำหรับปรับค่า 9 ค่า
 createAutoInput("BrakingInput", "Braking")
 createAutoInput("DecelerationInput", "Deceleration")
 createAutoInput("ForwardMaxSpeedInput", "ForwardMaxSpeed")
