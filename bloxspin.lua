@@ -109,3 +109,9 @@ createAutoInput("MinSpeedTorqueInput", "MinSpeedTorque")
 createAutoInput("ReverseMaxSpeedInput", "ReverseMaxSpeed")
 createAutoInput("NitroTorqueInput", "NitroTorque")
 createAutoInput("NitroTimeInput", "NitroTime")
+
+Fluent:Notify({
+    Title = "Success",
+    Content = "Action completed",
+    Duration = 5
+})
