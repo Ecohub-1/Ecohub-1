@@ -7,9 +7,9 @@ local Window = Fluent:CreateWindow({
     SubTitle = " | Bloxspin",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 local Tabs = {
@@ -19,24 +19,16 @@ local Tabs = {
     ESP = Window:AddTab({ Title = "ESP", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-
 local SelectedItemName = nil
 
-local Selectwepon = Tabs.Weapon:AddDropdown("Selectwepon", {
-    Title = "Select weapon",
+local SelectWeaponDropdown = Tabs.Weapon:AddDropdown("SelectWeaponDropdown", {
+    Title = "Select Weapon",
     Values = {},
     Multi = false,
     Default = nil,
-})
-
-local SetA = Tabs.Weapon:AddInput("SetA", {
-    Title = "Set Attribute",
-    Default = "",
-    Placeholder = "Enter number",
-    Numeric = true,
-    Finished = true,
 })
 
 local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
@@ -74,10 +66,10 @@ Tabs.Weapon:AddButton("Find Valid Items", function()
         scan(LocalPlayer.Character)
     end
 
-    Selectwepon:SetValues(validItems)
+    SelectWeaponDropdown:SetValues(validItems)
 end)
 
-Selectwepon:OnChanged(function(Value)
+SelectWeaponDropdown:OnChanged(function(Value)
     SelectedItemName = Value
 end)
 
@@ -97,16 +89,6 @@ local function findItem(name)
     return nil
 end
 
-SetA:OnChanged(function()
-    local val = tonumber(Input.Value)
-    if SelectedItemName and val then
-        local item = findItem(SelectedItemName)
-        if item then
-            item:SetAttribute("CustomValue", val)
-        end
-    end
-end)
-
 Tabs.Weapon:AddButton("Set Range", function()
     local val = tonumber(RangeInput.Value)
     if SelectedItemName and val then
@@ -118,7 +100,7 @@ Tabs.Weapon:AddButton("Set Range", function()
 end)
 
 Tabs.Weapon:AddButton("Set Speed", function()
-    local val = tonumber(SpeedInput.Value)
+    local val = tonumber(SpeedWeapon.Value)
     if SelectedItemName and val then
         local item = findItem(SelectedItemName)
         if item then
