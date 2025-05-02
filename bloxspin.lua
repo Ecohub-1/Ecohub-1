@@ -19,64 +19,17 @@ local Tabs = {
   Player = Window:AddTab({ Title = "Player", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
-
 local player = game.Players.LocalPlayer
 local backpack = player.Backpack
 
 local maxRange = 50
 local maxSpeed = 10
 
-local function showNotification(message)
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Notification",
-        Text = message,
-        Duration = 3
-    })
-end
-
 local Dropdown = Tabs.Weapon:AddDropdown("ItemDropdown", {
     Title = "Select Item",
     Values = {},
     Multi = false,
     Default = 1,
-})
-
-local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
-    Title = "Range",
-    Default = "10",
-    Placeholder = "Enter Range",
-    Numeric = true,
-    Finished = false,
-    Callback = function(Value)
-        local newRange = tonumber(Value)
-        if newRange > maxRange then
-            showNotification("Maximum Range is " .. maxRange)
-        else
-            local selectedItem = backpack:FindFirstChild(Dropdown.Value)
-            if selectedItem and Toggle.Value then
-                selectedItem:SetAttribute("Range", newRange)
-            end
-        end
-    end
-})
-
-local SpeedInput = Tabs.Weapon:AddInput("SpeedInput", {
-    Title = "Speed",
-    Default = "5",
-    Placeholder = "Enter Speed",
-    Numeric = true,
-    Finished = false,
-    Callback = function(Value)
-        local newSpeed = tonumber(Value)
-        if newSpeed > maxSpeed then
-            showNotification("Maximum Speed is " .. maxSpeed)
-        else
-            local selectedItem = backpack:FindFirstChild(Dropdown.Value)
-            if selectedItem and Toggle.Value then
-                selectedItem:SetAttribute("Speed", newSpeed)
-            end
-        end
-    end
 })
 
 local Toggle = Tabs.Weapon:AddToggle("MyToggle", {
@@ -95,22 +48,61 @@ local function refreshItemNames()
     end
 end
 
+Tabs.Weapon:AddButton({
+    Title = "Refresh Items",
+    Callback = refreshItemNames,
+})
+
 refreshItemNames()
 
-Dropdown:OnChanged(function(Value)
-    local selectedItem = backpack:FindFirstChild(Value)
-    if selectedItem then
-        local range = selectedItem:GetAttribute("Range")
-        local speed = selectedItem:GetAttribute("Speed")
+local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
+    Title = "Range",
+    Default = "10",
+    Placeholder = "Enter Range",
+    Numeric = true,
+    Finished = false,
+    Callback = function(Value)
+        local newRange = tonumber(Value)
+        if not newRange then return end
+        if newRange > maxRange then return end
+        if Toggle.Value then
+            local item = backpack:FindFirstChild(Dropdown.Value)
+            if item and item:GetAttribute("Range") ~= nil then
+                item:SetAttribute("Range", newRange)
+            end
+        end
     end
-end)
+})
+
+local SpeedInput = Tabs.Weapon:AddInput("SpeedInput", {
+    Title = "Speed",
+    Default = "5",
+    Placeholder = "Enter Speed",
+    Numeric = true,
+    Finished = false,
+    Callback = function(Value)
+        local newSpeed = tonumber(Value)
+        if not newSpeed then return end
+        if newSpeed > maxSpeed then return end
+        if Toggle.Value then
+            local item = backpack:FindFirstChild(Dropdown.Value)
+            if item and item:GetAttribute("Speed") ~= nil then
+                item:SetAttribute("Speed", newSpeed)
+            end
+        end
+    end
+})
 
 Toggle:OnChanged(function()
-    local selectedItem = backpack:FindFirstChild(Dropdown.Value)
-    if selectedItem then
-        if not Toggle.Value then
-            selectedItem:SetAttribute("Range", 10)
-            selectedItem:SetAttribute("Speed", 5)
+    if not Toggle.Value then
+        local item = backpack:FindFirstChild(Dropdown.Value)
+        if item then
+            if item:GetAttribute("Range") ~= nil then
+                item:SetAttribute("Range", 10)
+            end
+            if item:GetAttribute("Speed") ~= nil then
+                item:SetAttribute("Speed", 5)
+            end
         end
     end
 end)
