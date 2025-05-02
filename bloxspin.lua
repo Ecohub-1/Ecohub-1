@@ -53,6 +53,7 @@ mt.__namecall = newcclosure(function(self, ...)
     if SilentAim and tostring(method) == "FindPartOnRayWithIgnoreList" then
         local target = GetClosestInFOV()
         if target and target.Character and target.Character:FindFirstChild("Head") then
+            -- ตรวจสอบให้แน่ใจว่ากล้องไม่ได้ถูกล็อค
             local origin = Camera.CFrame.Position
             local direction = (target.Character.Head.Position - origin).Unit * 1000
             args[1] = Ray.new(origin, direction)
@@ -62,4 +63,5 @@ mt.__namecall = newcclosure(function(self, ...)
 
     return old(self, ...)
 end)
+
 setreadonly(mt, true)
