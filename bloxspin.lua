@@ -17,123 +17,46 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local backpack = Players.LocalPlayer:WaitForChild("Backpack")
 
-local SelectedItemName = nil
-
--- Dropdown สำหรับเลือกไอเท็มที่ไม่ใช่ Range หรือ Speed
-local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
-    Title = "Select Item (No Range/Speed)",
-    Values = {},
-    Multi = false,
-    Default = nil,
-})
-
--- Input สำหรับเซ็ตค่า Attribute ปกติ
-local Input = Tabs.Main:AddInput("Input", {
-    Title = "Set Custom Attribute",
-    Default = "",
-    Placeholder = "Enter number",
-    Numeric = true,
-    Finished = true,
-})
-
--- Input สำหรับ Range
-local RangeInput = Tabs.Main:AddInput("Range", {
-    Title = "Set Range",
-    Default = "",
-    Placeholder = "Enter range value",
-    Numeric = true,
-    Finished = true,
-})
-
--- Input สำหรับ Speed
-local SpeedInput = Tabs.Main:AddInput("Speed", {
-    Title = "Set Speed",
-    Default = "",
-    Placeholder = "Enter speed value",
-    Numeric = true,
-    Finished = true,
-})
-
--- ปุ่มค้นหาไอเท็มที่ไม่ใช่ Range/Speed
-Tabs.Main:AddButton("Find Valid Items", function()
-    local validItems = {}
-
-    local function scan(container)
-        for _, item in ipairs(container:GetChildren()) do
-            if item:IsA("Tool") then
-                local name = item.Name:lower()
-                if not name:find("range") and not name:find("speed") then
-                    table.insert(validItems, item.Name)
-                end
-            end
-        end
+-- ฟังก์ชันดึงชื่อไอเทม
+local function GetBackpackItemNames()
+    local names = {}
+    for _, item in ipairs(backpack:GetChildren()) do
+        table.insert(names, item.Name)
     end
-
-    scan(LocalPlayer.Backpack)
-    if LocalPlayer.Character then
-        scan(LocalPlayer.Character)
-    end
-
-    Dropdown:SetValues(validItems)
-end)
-
--- เมื่อเลือกไอเท็มจาก Dropdown
-Dropdown:OnChanged(function(Value)
-    SelectedItemName = Value
-    print("Selected item:", Value)
-end)
-
--- ฟังก์ชันช่วยหาไอเท็มตามชื่อ
-local function findItem(name)
-    for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
-        if item:IsA("Tool") and item.Name == name then
-            return item
-        end
-    end
-    if LocalPlayer.Character then
-        for _, item in ipairs(LocalPlayer.Character:GetChildren()) do
-            if item:IsA("Tool") and item.Name == name then
-                return item
-            end
-        end
-    end
-    return nil
+    return names
 end
 
--- เมื่อกรอกค่า Input ปกติ
-Input:OnChanged(function()
-    local val = tonumber(Input.Value)
-    if SelectedItemName and val then
-        local item = findItem(SelectedItemName)
-        if item then
-            item:SetAttribute("CustomValue", val)
-            print("Set CustomValue for", item.Name, "to", val)
-        end
-    end
+-- สร้าง Dropdown
+local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+    Title = "เลือกไอเทมใน Backpack",
+    Values = GetBackpackItemNames(),
+    Multi = false,
+    Default = 1,
+})
+
+local selectedItemName = Dropdown.Value
+
+Dropdown:OnChanged(function(Value)
+    selectedItemName = Value
 end)
 
--- เมื่อกรอกค่า Range
-RangeInput:OnChanged(function()
-    local val = tonumber(RangeInput.Value)
-    if SelectedItemName and val then
-        local item = findItem(SelectedItemName)
-        if item then
-            item:SetAttribute("Range", val)
-            print("Set Range for", item.Name, "to", val)
-        end
-    end
-end)
+-- Input สำหรับกำหนดค่า
+local Input = Tabs.Main:AddInput("Input", {
+    Title = "ปรับค่า Range/Speed",
+    Default = "",
+    Placeholder = "ใส่ตัวเลข",
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value)
+        local num = tonumber(Value)
+        if not num then return end
 
--- เมื่อกรอกค่า Speed
-SpeedInput:OnChanged(function()
-    local val = tonumber(SpeedInput.Value)
-    if SelectedItemName and val then
-        local item = findItem(SelectedItemName)
+        local item = backpack:FindFirstChild(selectedItemName)
         if item then
-            item:SetAttribute("Speed", val)
-            print("Set Speed for", item.Name, "to", val)
+            item:SetAttribute("Range", num)
+            item:SetAttribute("Speed", num)
         end
     end
-end)
+})
