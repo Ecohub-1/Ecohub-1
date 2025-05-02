@@ -99,7 +99,7 @@ local function findItem(name)
     return nil
 end
 
-Tabs.Weapon:AddButton("Set Range", function()
+RangeInput:OnChanged(function()
     local val = tonumber(RangeInput.Value)
     if SelectedItemName and val then
         val = math.min(val, 50)
@@ -110,7 +110,7 @@ Tabs.Weapon:AddButton("Set Range", function()
     end
 end)
 
-Tabs.Weapon:AddButton("Set Speed", function()
+SpeedWeapon:OnChanged(function()
     local val = tonumber(SpeedWeapon.Value)
     if SelectedItemName and val then
         val = math.min(val, 10)
