@@ -114,3 +114,30 @@ Toggle:OnChanged(function()
         end
     end
 end)
+
+local RunService = game:GetService("RunService")
+
+local NoRecoilToggle = Tabs.Weapon:AddToggle("NoRecoilToggle", {
+    Title = "No Recoil",
+    Default = false,
+})
+
+local NoReloadToggle = Tabs.Weapon:AddToggle("NoReloadToggle", {
+    Title = "No Reload Time",
+    Default = false,
+})
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        local selectedItem = backpack:FindFirstChild(Dropdown.Value)
+        if selectedItem then
+            if Options.NoRecoilToggle.Value then
+                selectedItem:SetAttribute("Recoil", 0)
+            end
+            if Options.NoReloadToggle.Value then
+                selectedItem:SetAttribute("ReloadTime", 0)
+            end
+        end
+    end
+end)
