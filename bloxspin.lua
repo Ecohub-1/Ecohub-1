@@ -1,181 +1,150 @@
--- โหลด Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- สร้างหน้าต่าง
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub" .. Fluent.Version,
-    SubTitle = " | Bloxspin",
+    SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true,
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 })
 
 local Tabs = {
-    Aimbot = Window:AddTab({ Title = "Aimbot", Icon = "" }),
-    Weapon = Window:AddTab({ Title = "Weapon", Icon = "" }),
-    ESP = Window:AddTab({ Title = "ESP", Icon = "" }),
+   Aimbot = Window:AddTab({ Title = "Aimbot", Icon = "" }),
+   Weapon = Window:AddTab({ Title = "Weapon", Icon = "" }),
+   ESP = Window:AddTab({ Title = "ESP", Icon = "" }),
+  Player = Window:AddTab({ Title = "Player", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local SelectedItemName = nil
-local lockMode = "Mouse"  -- เริ่มต้นเลือกเป็น Mouse Lock (PC)
+-- สมมติว่าเรามี Dropdown, Input และ Toggle
+local player = game.Players.LocalPlayer
+local backpack = player.Backpack
 
--- สร้าง Dropdown สำหรับเลือก Lock
-local LockOptionDropdown = Tabs.Aimbot:AddDropdown("LockOptionDropdown", {
-    Title = "Select Lock Option",
-    Values = {"Mouse Lock (PC)", "Center Lock (Mobile)", "Lock to Head", "Lock to Body"},
+-- ขีดจำกัดสูงสุดของ Range และ Speed
+local maxRange = 50
+local maxSpeed = 10
+
+-- ฟังก์ชันสำหรับแสดงการแจ้งเตือน
+local function showNotification(message)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Notification",
+        Text = message,
+        Duration = 3
+    })
+end
+
+-- สร้าง Dropdown สำหรับเลือกไอเทม
+local Dropdown = Tabs.Weapon:AddDropdown("ItemDropdown", {
+    Title = "Select Item",
+    Values = {},  -- จะใส่ชื่อไอเทมจากกระเป๋า
     Multi = false,
     Default = 1,
 })
 
-LockOptionDropdown:SetValue("Mouse Lock (PC)")  -- ตั้งค่าเริ่มต้นให้เลือก "Mouse Lock (PC)"
-
-LockOptionDropdown:OnChanged(function(Value)
-    print("Lock option changed:", Value)
-    if Value == "Mouse Lock (PC)" then
-        lockMode = "Mouse"
-    elseif Value == "Center Lock (Mobile)" then
-        lockMode = "Center"
-    elseif Value == "Lock to Head" then
-        lockMode = "Head"
-    elseif Value == "Lock to Body" then
-        lockMode = "Body"
-    end
-end)
-
--- ฟังก์ชันสร้างวงกลม FOV
-local function createFovCircle(radius)
-    -- สร้าง ScreenGui
-    local screenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
-    screenGui.Name = "FovCircleGui"  -- ตั้งชื่อให้กับ ScreenGui
-
-    -- สร้างวงกลม
-    local circle = Instance.new("Frame", screenGui)
-    circle.AnchorPoint = Vector2.new(0.5, 0.5)  -- ตั้งค่ากึ่งกลางของวงกลม
-    circle.Position = UDim2.new(0.5, 0, 0.5, 0)  -- ตั้งตำแหน่งของวงกลมที่กึ่งกลางหน้าจอ
-    circle.Size = UDim2.new(0, radius * 2, 0, radius * 2)  -- ขนาดวงกลมตามค่ารัศมีที่กำหนด
-    circle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- กำหนดสีของวงกลม
-    circle.BackgroundTransparency = 0.5  -- ความโปร่งใส
-    circle.BorderSizePixel = 0  -- ไม่แสดงกรอบ
-    circle.Shape = Enum.UICornerRadius.ZERO  -- ทำให้ขอบวงกลมเป็นมุมโค้ง
-
-    -- แสดงวงกลม
-    screenGui.Parent = game.Players.LocalPlayer.PlayerGui
-end
-
--- ฟังก์ชันวาดเส้นกลาง FOV
-local function drawFovLine(targetPosition)
-    local player = game.Players.LocalPlayer
-    local character = player.Character
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local camera = workspace.CurrentCamera
-
-    local startPosition = camera.WorldToScreenPoint(humanoidRootPart.Position)
-    local endPosition = camera.WorldToScreenPoint(targetPosition)
-    
-    local line = Instance.new("Line", game:GetService("CoreGui"))
-    line.StartPosition = startPosition
-    line.EndPosition = endPosition
-    line.Thickness = 2
-    line.Color = Color3.fromRGB(255, 0, 0)
-end
-
--- ฟังก์ชัน Silent Aim
-local function silentAim()
-    local character = game.Players.LocalPlayer.Character
-    if not character then return end
-    local mouse = game.Players.LocalPlayer:GetMouse()
-    
-    local fovRadius = 200
-    createFovCircle(fovRadius)  -- สร้างวงกลม FOV
-    
-    local targetPosition
-    if lockMode == "Mouse" then
-        targetPosition = mouse.Hit.p
-    elseif lockMode == "Center" then
-        targetPosition = workspace.CurrentCamera.CFrame.p
-    elseif lockMode == "Head" then
-        targetPosition = character:WaitForChild("Head").Position
-    elseif lockMode == "Body" then
-        targetPosition = character:WaitForChild("HumanoidRootPart").Position
-    end
-    
-    drawFovLine(targetPosition)  -- วาดเส้นกลาง FOV
-    
-    -- ใช้ Raycast เพื่อยิงไปยังตำแหน่งที่เลือก
-    local rayOrigin = character.HumanoidRootPart.Position
-    local direction = (targetPosition - rayOrigin).unit * 1000
-    local raycastResult = workspace:Raycast(rayOrigin, direction)
-    
-    if raycastResult then
-        print("ยิงไปที่: " .. raycastResult.Position)
-    end
-end
-
--- ตั้งค่าการยิงเมื่อคลิก
-game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 and not gameProcessedEvent then
-        silentAim()
-    end
-end)
-
--- กำหนดค่าต่างๆ ของอาวุธ
+-- สร้าง Input สำหรับรับค่าที่ผู้เล่นป้อน (Range)
 local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
-    Title = "Range Value",
-    Default = "",
-    Placeholder = "Enter range",
-    Numeric = true,
-    Finished = true,
-})
-
-local SpeedWeapon = Tabs.Weapon:AddInput("SpeedWeapon", {
-    Title = "Speed Weapon",
+    Title = "Range",
     Default = "10",
-    Placeholder = "Enter speed",
+    Placeholder = "Enter Range",
     Numeric = true,
-    Finished = true,
+    Finished = false,
+    Callback = function(Value)
+        print("Range changed:", Value)
+        
+        local newRange = tonumber(Value)
+        
+        -- ตรวจสอบว่า Range ไม่เกินขีดจำกัด
+        if newRange > maxRange then
+            showNotification("Maximum Range is " .. maxRange)
+        else
+            -- ปรับค่า Range ให้กับไอเทมที่เลือก
+            local selectedItem = backpack:FindFirstChild(Dropdown.Value)
+            if selectedItem and Toggle.Value then
+                selectedItem:SetAttribute("Range", newRange)
+                print("Updated Range for item:", selectedItem.Name)
+            end
+        end
+    end
 })
 
-RangeInput:OnChanged(function()
-    local val = tonumber(RangeInput.Value)
-    if SelectedItemName and val then
-        val = math.min(val, 50)
-        local item = findItem(SelectedItemName)
-        if item then
-            item:SetAttribute("Range", val)
-        end
-    end
-end)
-
-SpeedWeapon:OnChanged(function()
-    local val = tonumber(SpeedWeapon.Value)
-    if SelectedItemName and val then
-        val = math.min(val, 10)
-        local item = findItem(SelectedItemName)
-        if item then
-            item:SetAttribute("Speed", val)
-        end
-    end
-end)
-
--- ฟังก์ชันค้นหาอาวุธ
-local function findItem(name)
-    for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
-        if item:IsA("Tool") and item.Name == name then
-            return item
-        end
-    end
-    if LocalPlayer.Character then
-        for _, item in ipairs(LocalPlayer.Character:GetChildren()) do
-            if item:IsA("Tool") and item.Name == name then
-                return item
+-- สร้าง Input สำหรับรับค่าที่ผู้เล่นป้อน (Speed)
+local SpeedInput = Tabs.Weapon:AddInput("SpeedInput", {
+    Title = "Speed",
+    Default = "5",
+    Placeholder = "Enter Speed",
+    Numeric = true,
+    Finished = false,
+    Callback = function(Value)
+        print("Speed changed:", Value)
+        
+        local newSpeed = tonumber(Value)
+        
+        -- ตรวจสอบว่า Speed ไม่เกินขีดจำกัด
+        if newSpeed > maxSpeed then
+            showNotification("Maximum Speed is " .. maxSpeed)
+        else
+            -- ปรับค่า Speed ให้กับไอเทมที่เลือก
+            local selectedItem = backpack:FindFirstChild(Dropdown.Value)
+            if selectedItem and Toggle.Value then
+                selectedItem:SetAttribute("Speed", newSpeed)
+                print("Updated Speed for item:", selectedItem.Name)
             end
+        end
     end
-    return nil
+})
+
+-- สร้าง Toggle สำหรับเปิด/ปิดการปรับค่า
+local Toggle = Tabs.Weapon:AddToggle("MyToggle", {
+    Title = "Enable Adjustments",
+    Default = false,
+})
+
+-- ฟังก์ชันสำหรับรีเฟรชชื่อไอเทมในกระเป๋า
+local function refreshItemNames()
+    local itemNames = {}
+    for _, item in ipairs(backpack:GetChildren()) do
+        table.insert(itemNames, item.Name)
+    end
+    -- อัปเดตรายการใน Dropdown
+    Dropdown:SetValues(itemNames)
+    -- เซ็ตค่าเริ่มต้นเป็นไอเทมแรก
+    if #itemNames > 0 then
+        Dropdown:SetValue(itemNames[1])
+    end
 end
+
+-- รีเฟรชชื่อไอเทมครั้งแรก
+refreshItemNames()
+
+-- เมื่อเลือกไอเทมจาก Dropdown
+Dropdown:OnChanged(function(Value)
+    print("Item selected:", Value)
+    -- แสดงค่า Range และ Speed ของไอเทมที่เลือก
+    local selectedItem = backpack:FindFirstChild(Value)
+    if selectedItem then
+        local range = selectedItem:GetAttribute("Range")
+        local speed = selectedItem:GetAttribute("Speed")
+        print("Current Range:", range or "Not set")
+        print("Current Speed:", speed or "Not set")
+    end
+end)
+
+-- เมื่อ Toggle เปลี่ยนสถานะ
+Toggle:OnChanged(function()
+    print("Toggle changed:", Toggle.Value)
+
+    local selectedItem = backpack:FindFirstChild(Dropdown.Value)
+
+    if selectedItem then
+        if not Toggle.Value then
+            -- ถ้า Toggle ปิด รีเซ็ตค่า Range และ Speed
+            selectedItem:SetAttribute("Range", 10)  -- ค่าเริ่มต้นของ Range
+            selectedItem:SetAttribute("Speed", 5)   -- ค่าเริ่มต้นของ Speed
+            print("Reset Range and Speed for item:", selectedItem.Name)
+        end
+    end
+end)
