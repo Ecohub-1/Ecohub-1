@@ -24,7 +24,6 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local SelectedItemName = nil
 
--- ฟังก์ชันดึงชื่อ Tool ทั้งหมดจาก Backpack และ Character
 local function getToolNames()
     local names = {}
     local seen = {}
@@ -48,20 +47,26 @@ local function getToolNames()
     return names
 end
 
--- Dropdown: แสดงอาวุธ (โหลดตอนเปิดเท่านั้น)
 local SelectWeaponDropdown = Tabs.Weapon:AddDropdown("SelectWeaponDropdown", {
     Title = "Select Weapon",
-    Values = getToolNames(),
+    Values = {},
     Multi = false,
     Default = nil,
 })
 
-SelectWeaponDropdown:OnChanged(function(Value)
-    SelectedItemName = Value
-    print("Selected Weapon:", Value)
+task.delay(1, function()
+    local toolNames = getToolNames()
+    if #toolNames > 0 then
+        SelectWeaponDropdown:SetValues(toolNames)
+    else
+        SelectWeaponDropdown:SetValues({"No tools found"})
+    end
 end)
 
--- Input: Range
+SelectWeaponDropdown:OnChanged(function(Value)
+    SelectedItemName = Value
+end)
+
 local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
     Title = "Range Value",
     Default = "",
@@ -70,7 +75,6 @@ local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
     Finished = true,
 })
 
--- Input: Speed
 local SpeedWeapon = Tabs.Weapon:AddInput("SpeedWeapon", {
     Title = "Speed Weapon",
     Default = "10",
@@ -79,7 +83,6 @@ local SpeedWeapon = Tabs.Weapon:AddInput("SpeedWeapon", {
     Finished = true,
 })
 
--- ฟังก์ชันค้นหา Tool จากชื่อ
 local function findItem(name)
     for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
         if item:IsA("Tool") and item.Name == name then
@@ -96,10 +99,10 @@ local function findItem(name)
     return nil
 end
 
--- ปุ่ม: Set Range
 Tabs.Weapon:AddButton("Set Range", function()
     local val = tonumber(RangeInput.Value)
     if SelectedItemName and val then
+        val = math.min(val, 50)
         local item = findItem(SelectedItemName)
         if item then
             item:SetAttribute("Range", val)
@@ -107,10 +110,10 @@ Tabs.Weapon:AddButton("Set Range", function()
     end
 end)
 
--- ปุ่ม: Set Speed
 Tabs.Weapon:AddButton("Set Speed", function()
     local val = tonumber(SpeedWeapon.Value)
     if SelectedItemName and val then
+        val = math.min(val, 10)
         local item = findItem(SelectedItemName)
         if item then
             item:SetAttribute("Speed", val)
