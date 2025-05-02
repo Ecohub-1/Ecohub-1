@@ -24,22 +24,22 @@ local LocalPlayer = Players.LocalPlayer
 
 local SelectedItemName = nil
 
-local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
-    Title = "Select Item",
+local Selectwepon = Tabs.Weapon:AddDropdown("Selectwepon", {
+    Title = "Select weapon",
     Values = {},
     Multi = false,
     Default = nil,
 })
 
-local Input = Tabs.Main:AddInput("Input", {
-    Title = "Set Custom Attribute",
+local SetA = Tabs.Weapon:AddInput("SetA", {
+    Title = "Set Attribute",
     Default = "",
     Placeholder = "Enter number",
     Numeric = true,
     Finished = true,
 })
 
-local RangeInput = Tabs.Main:AddInput("RangeInput", {
+local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
     Title = "Range Value",
     Default = "",
     Placeholder = "Enter range",
@@ -47,15 +47,15 @@ local RangeInput = Tabs.Main:AddInput("RangeInput", {
     Finished = true,
 })
 
-local SpeedInput = Tabs.Main:AddInput("SpeedInput", {
-    Title = "Speed Value",
-    Default = "",
+local SpeedWeapon = Tabs.Weapon:AddInput("SpeedWeapon", {
+    Title = "Speed Weapon",
+    Default = "10",
     Placeholder = "Enter speed",
     Numeric = true,
     Finished = true,
 })
 
-Tabs.Main:AddButton("Find Valid Items", function()
+Tabs.Weapon:AddButton("Find Valid Items", function()
     local validItems = {}
 
     local function scan(container)
@@ -74,10 +74,10 @@ Tabs.Main:AddButton("Find Valid Items", function()
         scan(LocalPlayer.Character)
     end
 
-    Dropdown:SetValues(validItems)
+    Selectwepon:SetValues(validItems)
 end)
 
-Dropdown:OnChanged(function(Value)
+Selectwepon:OnChanged(function(Value)
     SelectedItemName = Value
 end)
 
@@ -97,7 +97,7 @@ local function findItem(name)
     return nil
 end
 
-Input:OnChanged(function()
+SetA:OnChanged(function()
     local val = tonumber(Input.Value)
     if SelectedItemName and val then
         local item = findItem(SelectedItemName)
@@ -107,7 +107,7 @@ Input:OnChanged(function()
     end
 end)
 
-Tabs.Main:AddButton("Set Range", function()
+Tabs.Weapon:AddButton("Set Range", function()
     local val = tonumber(RangeInput.Value)
     if SelectedItemName and val then
         local item = findItem(SelectedItemName)
@@ -117,7 +117,7 @@ Tabs.Main:AddButton("Set Range", function()
     end
 end)
 
-Tabs.Main:AddButton("Set Speed", function()
+Tabs.Weapon:AddButton("Set Speed", function()
     local val = tonumber(SpeedInput.Value)
     if SelectedItemName and val then
         local item = findItem(SelectedItemName)
