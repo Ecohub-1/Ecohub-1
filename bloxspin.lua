@@ -1,4 +1,3 @@
--- Silent Aim + FOV (สำหรับ Exploit เท่านั้น)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
