@@ -24,6 +24,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local SelectedItemName = nil
 
+-- Dropdown สำหรับเลือกอาวุธ
 local SelectWeaponDropdown = Tabs.Weapon:AddDropdown("SelectWeaponDropdown", {
     Title = "Select Weapon",
     Values = {},
@@ -31,6 +32,7 @@ local SelectWeaponDropdown = Tabs.Weapon:AddDropdown("SelectWeaponDropdown", {
     Default = nil,
 })
 
+-- Input: กำหนดค่า Range
 local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
     Title = "Range Value",
     Default = "",
@@ -39,6 +41,7 @@ local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
     Finished = true,
 })
 
+-- Input: กำหนดค่า Speed
 local SpeedWeapon = Tabs.Weapon:AddInput("SpeedWeapon", {
     Title = "Speed Weapon",
     Default = "10",
@@ -47,32 +50,41 @@ local SpeedWeapon = Tabs.Weapon:AddInput("SpeedWeapon", {
     Finished = true,
 })
 
+-- ปุ่ม: ค้นหาอาวุธทั้งหมด (รวมจาก Backpack และ Character, ไม่มีซ้ำ)
 Tabs.Weapon:AddButton("Find Valid Items", function()
-    local validItems = {}
+    local itemNames = {}
+    local nameSet = {}
 
     local function scan(container)
         for _, item in ipairs(container:GetChildren()) do
-            if item:IsA("Tool") then
-                local name = item.Name:lower()
-                if not name:find("range") and not name:find("speed") then
-                    table.insert(validItems, item.Name)
-                end
+            if item:IsA("Tool") and not nameSet[item.Name] then
+                nameSet[item.Name] = true
+                table.insert(itemNames, item.Name)
             end
         end
     end
 
-    scan(LocalPlayer.Backpack)
+    if LocalPlayer:FindFirstChild("Backpack") then
+        scan(LocalPlayer.Backpack)
+    end
     if LocalPlayer.Character then
         scan(LocalPlayer.Character)
     end
 
-    SelectWeaponDropdown:SetValues(validItems)
+    if #itemNames > 0 then
+        SelectWeaponDropdown:SetValues(itemNames)
+    else
+        SelectWeaponDropdown:SetValues({"No tools found"})
+    end
 end)
 
+-- เมื่อเลือกอาวุธจาก Dropdown
 SelectWeaponDropdown:OnChanged(function(Value)
     SelectedItemName = Value
+    print("Selected Weapon:", Value)
 end)
 
+-- ฟังก์ชันหาวัตถุตามชื่อ
 local function findItem(name)
     for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
         if item:IsA("Tool") and item.Name == name then
@@ -89,6 +101,7 @@ local function findItem(name)
     return nil
 end
 
+-- ปุ่ม: กำหนด Range
 Tabs.Weapon:AddButton("Set Range", function()
     local val = tonumber(RangeInput.Value)
     if SelectedItemName and val then
@@ -99,6 +112,7 @@ Tabs.Weapon:AddButton("Set Range", function()
     end
 end)
 
+-- ปุ่ม: กำหนด Speed
 Tabs.Weapon:AddButton("Set Speed", function()
     local val = tonumber(SpeedWeapon.Value)
     if SelectedItemName and val then
