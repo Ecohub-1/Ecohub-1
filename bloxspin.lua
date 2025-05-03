@@ -93,14 +93,16 @@ local SpeedInput = Tabs.Weapon:AddInput("SpeedInput", {
 task.spawn(function()
     while true do
         task.wait(0.5)
+
         if EnableAdjustmentToggle.Value then
             local selectedItem = backpack:FindFirstChild(Dropdown.Value)
+            
             if selectedItem then
                 local currentRange = selectedItem:GetAttribute("Range") or 10
                 if currentRange < maxRange then
                     selectedItem:SetAttribute("Range", currentRange + 1)
                 end
-
+                
                 local currentSpeed = selectedItem:GetAttribute("Speed") or 5
                 if currentSpeed < maxSpeed then
                     selectedItem:SetAttribute("Speed", currentSpeed + 1)
@@ -130,69 +132,12 @@ task.spawn(function()
                     selectedItem:SetAttribute("Recoil", 0)
                 end
             end
-
+            
             if NoReloadToggle.Value then
                 if selectedItem:GetAttribute("ReloadTime") ~= nil then
                     selectedItem:SetAttribute("ReloadTime", 0)
                 end
             end
         end
-    end
-end)
-
-local PlayerDropdown = Tabs.Player:AddDropdown("PlayerDropdown", {
-    Title = "Select Player",
-    Values = {},
-    Multi = false,
-    Default = 1,
-})
-
-local function refreshPlayerNames()
-    local playerNames = {}
-    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            table.insert(playerNames, otherPlayer.Name)
-        end
-    end
-    PlayerDropdown:SetValues(playerNames)
-    if #playerNames > 0 then
-        PlayerDropdown:SetValue(playerNames[1])
-    end
-end
-
-Tabs.Player:AddButton({
-    Title = "Refresh Players",
-    Callback = refreshPlayerNames,
-})
-
-refreshPlayerNames()
-
--- เปลี่ยนจาก Label เป็น Paragraph แสดง Backpack และ Character ของผู้เล่น
-local InfoParagraph = Tabs.Player:AddParagraph({
-    Title = "Player Info",
-    Content = "Select a player to see their inventory."
-})
-
-PlayerDropdown:OnChanged(function(playerName)
-    local selectedPlayer = game.Players:FindFirstChild(playerName)
-    if selectedPlayer then
-        local items = {}
-
-        -- ของจาก Backpack
-        for _, item in ipairs(selectedPlayer.Backpack:GetChildren()) do
-            table.insert(items, "[Backpack] " .. item.Name)
-        end
-
-        -- ของจาก Character
-        if selectedPlayer.Character then
-            for _, item in ipairs(selectedPlayer.Character:GetChildren()) do
-                if item:IsA("Tool") or item:IsA("Accessory") then
-                    table.insert(items, "[Character] " .. item.Name)
-                end
-            end
-        end
-
-        local content = "Items for " .. playerName .. ":\n" .. (#items > 0 and table.concat(items, "\n") or "No items found.")
-        InfoParagraph:SetContent(content)
     end
 end)
