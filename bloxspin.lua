@@ -141,3 +141,79 @@ task.spawn(function()
         end
     end
 end)
+
+
+local fovRadius = 120
+local targetPart = "Head"
+
+local FovDropdown = Tabs.Aimbot:AddDropdown("FovDropdown", {
+    Title = "FOV Mode",
+    Values = {"Screen Center", "Mouse-based"},
+    Multi = false,
+    Default = 1,
+})
+
+local TargetDropdown = Tabs.Aimbot:AddDropdown("TargetDropdown", {
+    Title = "Target Part",
+    Values = {"Head", "Body"},
+    Multi = false,
+    Default = 1,
+})
+
+FovDropdown:SetValue("Screen Center")
+TargetDropdown:SetValue("Head")
+
+FovDropdown:OnChanged(function(Value)
+    -- ไม่มีการพิมพ์แสดงผล
+end)
+
+TargetDropdown:OnChanged(function(Value)
+    targetPart = Value
+end)
+
+local function drawFovCircle()
+    if fovCircle then
+        fovCircle:Remove()
+    end
+
+    local position = Vector2.new(mouse.X, mouse.Y)
+    if FovDropdown.Value == "Screen Center" then
+        position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    end
+
+    fovCircle = Instance.new("Frame")
+    fovCircle.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
+    fovCircle.Position = UDim2.new(0, position.X - fovRadius, 0, position.Y - fovRadius)
+    fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+    fovCircle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    fovCircle.BackgroundTransparency = 0.5
+    fovCircle.BorderSizePixel = 0
+    fovCircle.Parent = game.CoreGui
+end
+
+local function shootAtTarget(target)
+    local partToShoot = targetPart == "Head" and target.Character:FindFirstChild("Head") or target.Character:FindFirstChild("HumanoidRootPart")
+    if partToShoot then
+        local shootFrom = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if shootFrom then
+            local args = {31, "shoot_gun", game.Players.LocalPlayer.Character.Uzi, CFrame.new(shootFrom.Position, partToShoot.Position)}
+            game:GetService("ReplicatedStorage").Remotes.Send:FireServer(unpack(args))
+        end
+    end
+end
+
+local function findAndShootEnemy()
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer and player.Character then
+            local target = player.Character
+            if target and target:FindFirstChild("Humanoid") and target.Humanoid.Health > 0 then
+                shootAtTarget(player)
+            end
+        end
+    end
+end
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    drawFovCircle()
+    findAndShootEnemy()
+end)
