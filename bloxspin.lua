@@ -146,6 +146,7 @@ local player = game.Players.LocalPlayer
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "PlayerUI"
 gui.ResetOnSpawn = false
+gui.Enabled = false  -- ปิด UI เริ่มต้น
 
 local function makeRound(instance, radius)
     local corner = Instance.new("UICorner")
@@ -153,6 +154,7 @@ local function makeRound(instance, radius)
     corner.Parent = instance
 end
 
+-- UI Colors
 local bgColor = Color3.fromRGB(245, 250, 255)
 local darkColor = Color3.fromRGB(45, 45, 55)
 
@@ -164,6 +166,7 @@ listFrame.BackgroundColor3 = bgColor
 listFrame.BorderSizePixel = 0
 makeRound(listFrame, 12)
 
+-- Header
 local listHeader = Instance.new("TextLabel", listFrame)
 listHeader.Size = UDim2.new(1, -20, 0, 35)
 listHeader.Position = UDim2.new(0, 10, 0, 10)
@@ -175,6 +178,7 @@ listHeader.TextSize = 18
 listHeader.BorderSizePixel = 0
 makeRound(listHeader, 8)
 
+-- Scrollable Player List
 local scroll = Instance.new("ScrollingFrame", listFrame)
 scroll.Size = UDim2.new(1, -20, 1, -60)
 scroll.Position = UDim2.new(0, 10, 0, 50)
@@ -197,6 +201,7 @@ detailFrame.Active = true
 detailFrame.Draggable = true
 makeRound(detailFrame, 12)
 
+-- Close Button
 local closeButton = Instance.new("TextButton", detailFrame)
 closeButton.Size = UDim2.new(0, 28, 0, 28)
 closeButton.Position = UDim2.new(1, -36, 0, 8)
@@ -211,6 +216,7 @@ closeButton.MouseButton1Click:Connect(function()
     detailFrame.Visible = false
 end)
 
+-- Name Label
 local nameLabel = Instance.new("TextLabel", detailFrame)
 nameLabel.Size = UDim2.new(1, -80, 0, 28)
 nameLabel.Position = UDim2.new(0, 16, 0, 8)
@@ -221,6 +227,7 @@ nameLabel.TextColor3 = darkColor
 nameLabel.TextSize = 18
 nameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
+-- Item Display Frame
 local itemFrame = Instance.new("Frame", detailFrame)
 itemFrame.Size = UDim2.new(1, -32, 0, 160)
 itemFrame.Position = UDim2.new(0, 16, 0, 50)
@@ -231,8 +238,9 @@ local grid = Instance.new("UIGridLayout", itemFrame)
 grid.CellSize = UDim2.new(0, 60, 0, 60)
 grid.CellPadding = UDim2.new(0, 8, 0, 8)
 
--- Show multiple items from Backpack
+-- Show multiple items from Backpack (All items)
 local function showItemFromBackpack(targetPlayer)
+    -- Clear existing items
     for _, child in ipairs(itemFrame:GetChildren()) do
         if not child:IsA("UIGridLayout") then
             child:Destroy()
@@ -247,12 +255,16 @@ local function showItemFromBackpack(targetPlayer)
                 image.Size = UDim2.new(0, 60, 0, 60)
                 image.BackgroundTransparency = 1
                 makeRound(image, 6)
+
+                -- Check if the item has a valid TextureId
                 local textureId = item.TextureId
                 if textureId and textureId ~= "" then
+                    -- Try to extract the numeric ID from the TextureId string
                     local id = textureId:match("%d+")
                     if id then
                         image.Image = "rbxassetid://" .. id
                     else
+                        -- Show "bug" message if the TextureId is invalid
                         local bugMessage = Instance.new("TextLabel", itemFrame)
                         bugMessage.Size = UDim2.new(1, 0, 1, 0)
                         bugMessage.BackgroundTransparency = 1
@@ -264,6 +276,7 @@ local function showItemFromBackpack(targetPlayer)
                         makeRound(bugMessage, 6)
                     end
                 else
+                    -- Show "bug" message if there is no TextureId
                     local bugMessage = Instance.new("TextLabel", itemFrame)
                     bugMessage.Size = UDim2.new(1, 0, 1, 0)
                     bugMessage.BackgroundTransparency = 1
@@ -279,6 +292,7 @@ local function showItemFromBackpack(targetPlayer)
     end
 end
 
+-- Show Player Detail
 local currentTarget = nil
 local function showPlayerDetail(targetPlayer)
     if currentTarget == targetPlayer then
@@ -307,6 +321,7 @@ makeRound(refreshButton, 8)
 local function updatePlayerList()
     scroll:ClearAllChildren()
     local yPos = 0
+
     for _, plr in ipairs(game.Players:GetPlayers()) do
         if plr ~= player then
             local btn = Instance.new("TextButton", scroll)
@@ -327,7 +342,28 @@ local function updatePlayerList()
             yPos += 45
         end
     end
+
     scroll.CanvasSize = UDim2.new(0, 0, 0, yPos)
 end
 
 refreshButton.MouseButton1Click:Connect(updatePlayerList)
+
+-- Toggle UI
+local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Toggle", Default = false })
+
+-- เพิ่มการควบคุม Toggle
+Toggle:OnChanged(function()
+    if Toggle.Value then
+        gui.Enabled = true  -- เปิด UI เมื่อ Toggle ถูกคลิก
+    else
+        gui.Enabled = false  -- ปิด UI เมื่อ Toggle ถูกคลิก
+    end
+end)
+
+-- ตั้งค่าเริ่มต้นของ Toggle ให้เป็น false (ปิด UI)
+Toggle:SetValue(false)
+
+-- Hook Player Events
+updatePlayerList()
+game.Players.PlayerAdded:Connect(updatePlayerList)
+game.Players.PlayerRemoving:Connect(updatePlayerList)
