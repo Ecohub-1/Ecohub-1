@@ -1,8 +1,6 @@
-local player = game.Players.LocalPlayer
-local backpack = player.Backpack
-
-local maxRange = 50
-local maxSpeed = 10
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub" .. Fluent.Version,
@@ -22,6 +20,12 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
+local player = game.Players.LocalPlayer
+local backpack = player.Backpack
+
+local maxRange = 50
+local maxSpeed = 10
+
 local Dropdown = Tabs.Weapon:AddDropdown("ItemDropdown", {
     Title = "Select Item",
     Values = {},
@@ -29,18 +33,8 @@ local Dropdown = Tabs.Weapon:AddDropdown("ItemDropdown", {
     Default = 1,
 })
 
-local Toggle = Tabs.Weapon:AddToggle("MyToggle", {
+local EnableAdjustmentToggle = Tabs.Weapon:AddToggle("EnableAdjustmentToggle", {
     Title = "Enable Adjustments",
-    Default = false,
-})
-
-local NoRecoilToggle = Tabs.Weapon:AddToggle("NoRecoilToggle", {
-    Title = "No Recoil",
-    Default = false,
-})
-
-local NoReloadToggle = Tabs.Weapon:AddToggle("NoReloadToggle", {
-    Title = "No Reload Time",
     Default = false,
 })
 
@@ -70,11 +64,9 @@ local RangeInput = Tabs.Weapon:AddInput("RangeInput", {
     Finished = false,
     Callback = function(Value)
         local newRange = tonumber(Value)
-        if not newRange then return end
-        if newRange > maxRange then return end
-        if Toggle.Value then
+        if newRange and newRange <= maxRange then
             local item = backpack:FindFirstChild(Dropdown.Value)
-            if item then
+            if item and EnableAdjustmentToggle.Value then
                 item:SetAttribute("Range", newRange)
             end
         end
@@ -89,26 +81,46 @@ local SpeedInput = Tabs.Weapon:AddInput("SpeedInput", {
     Finished = false,
     Callback = function(Value)
         local newSpeed = tonumber(Value)
-        if not newSpeed then return end
-        if newSpeed > maxSpeed then return end
-        if Toggle.Value then
+        if newSpeed and newSpeed <= maxSpeed then
             local item = backpack:FindFirstChild(Dropdown.Value)
-            if item then
+            if item and EnableAdjustmentToggle.Value then
                 item:SetAttribute("Speed", newSpeed)
             end
         end
     end
 })
 
-Toggle:OnChanged(function()
-    local item = backpack:FindFirstChild(Dropdown.Value)
-    if item then
-        if not Toggle.Value then
-            item:SetAttribute("Range", 10)
-            item:SetAttribute("Speed", 5)
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+
+        if EnableAdjustmentToggle.Value then
+            local selectedItem = backpack:FindFirstChild(Dropdown.Value)
+            
+            if selectedItem then
+                local currentRange = selectedItem:GetAttribute("Range") or 10
+                if currentRange < maxRange then
+                    selectedItem:SetAttribute("Range", currentRange + 1)
+                end
+                
+                local currentSpeed = selectedItem:GetAttribute("Speed") or 5
+                if currentSpeed < maxSpeed then
+                    selectedItem:SetAttribute("Speed", currentSpeed + 1)
+                end
+            end
         end
     end
 end)
+
+local NoRecoilToggle = Tabs.Weapon:AddToggle("NoRecoilToggle", {
+    Title = "No Recoil",
+    Default = false,
+})
+
+local NoReloadToggle = Tabs.Weapon:AddToggle("NoReloadToggle", {
+    Title = "No Reload Time",
+    Default = false,
+})
 
 task.spawn(function()
     while true do
@@ -116,10 +128,15 @@ task.spawn(function()
         local selectedItem = backpack:FindFirstChild(Dropdown.Value)
         if selectedItem then
             if NoRecoilToggle.Value then
-                selectedItem:SetAttribute("Recoil", 0)
+                if selectedItem:GetAttribute("Recoil") ~= nil then
+                    selectedItem:SetAttribute("Recoil", 0)
+                end
             end
+            
             if NoReloadToggle.Value then
-                selectedItem:SetAttribute("ReloadTime", 0)
+                if selectedItem:GetAttribute("ReloadTime") ~= nil then
+                    selectedItem:SetAttribute("ReloadTime", 0)
+                end
             end
         end
     end
