@@ -141,3 +141,46 @@ task.spawn(function()
         end
     end
 end)
+
+local PlayerDropdown = Tabs.Player:AddDropdown("PlayerDropdown", {
+    Title = "Select Player",
+    Values = {},
+    Multi = false,
+    Default = 1,
+})
+
+local function refreshPlayerNames()
+    local playerNames = {}
+    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            table.insert(playerNames, otherPlayer.Name)
+        end
+    end
+    PlayerDropdown:SetValues(playerNames)
+    if #playerNames > 0 then
+        PlayerDropdown:SetValue(playerNames[1])
+    end
+end
+
+Tabs.Player:AddButton({
+    Title = "Refresh Players",
+    Callback = refreshPlayerNames,
+})
+
+refreshPlayerNames()
+
+local InfoParagraph = Tabs.Player:AddParagraph({
+    Title = "Player Inventory",
+    Content = "Select a player to see their inventory.",
+})
+
+PlayerDropdown:OnChanged(function(playerName)
+    local selectedPlayer = game.Players:FindFirstChild(playerName)
+    if selectedPlayer then
+        local itemNames = {}
+        for _, item in ipairs(selectedPlayer.Backpack:GetChildren()) do
+            table.insert(itemNames, item.Name)
+        end
+        InfoParagraph:SetContent("Items in " .. playerName .. "'s backpack:\n" .. table.concat(itemNames, "\n"))
+    end
+end)
