@@ -17,7 +17,6 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-local Drill = game:GetService("ReplicatedStorage").Packages.Knit.Services.OreService.RE.RequestRandomOre:FireServer()
 
 local dilt = Tabs.Main:AddToggle({ Title = "Auto drill", Default = false })
 
@@ -25,9 +24,9 @@ dilt:OnChanged(function(drill)
     if drill then
         spawn(function()
          while dilt.Value do
-                remote:FireServer()
-                wait(0.01)
-            end
-        end)
-    end
-end)
+  game:GetService("ReplicatedStorage").Packages.Knit.Services.OreService.RE.RequestRandomOre:FireServer()
+                        wait(0.01)
+                        end
+                    end)
+                 end
+             end)
