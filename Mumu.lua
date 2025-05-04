@@ -17,8 +17,8 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-local Ps = game:GetService("Players")
-local Pr = Players.LocalPlayer
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
 local BP = Player:WaitForChild("Backpack")
 local CR = Player.Character or Player.CharacterAdded:Wait()
 
@@ -28,8 +28,8 @@ local AE = Tabs.Main:AddToggle("AE", {
     })
 local function AutoEquip()
     for _, e in pairs(BP:GetChildren()) do
-        if e:IsA("Tool") and sting.find(e.Name, "Drill") then
-            if CR:FindFirstChilldOfClass("Tool") then ~= e then
+        if e:IsA("Tool") and string.find(e.Name, "Drill") then
+            if not CR:FindFirstChildOfClass("Tool") or CR:FindFirstChildOfClass("Tool") ~= e then
                 e.Parent = CR
             end
         break
@@ -47,7 +47,7 @@ AE:OnChanged(function(E)
                 end)
          end
     end)
-                
+
 
 
 
