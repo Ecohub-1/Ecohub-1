@@ -42,7 +42,7 @@ end
 AE:OnChanged(function(E)
         if E then
             task.spawn(function()
-                    while AutoEquip do
+                    while AE do
                         pcall(AutoEquip)
                         task.wait(0.1)
                     end
