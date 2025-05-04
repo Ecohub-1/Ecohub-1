@@ -25,7 +25,7 @@ local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
--- ค่าตั้งต้น
+-- ตั้งค่าเริ่มต้น
 local SilentAimEnabled = false
 local SilentAimPart = "Head"
 local FOVAngle = 90
@@ -33,7 +33,24 @@ local ShowFOV = true
 local SelectedTarget = nil
 local SelectingTarget = false
 
--- UI Toggle: เปิด/ปิด Silent Aim
+-- วงกลม FOV
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Color = Color3.fromRGB(0, 255, 0)
+FOVCircle.Thickness = 1
+FOVCircle.Radius = FOVAngle
+FOVCircle.Filled = false
+FOVCircle.Transparency = 1
+FOVCircle.Visible = ShowFOV
+FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+
+-- เส้นโยงเป้าหมาย
+local AimLine = Drawing.new("Line")
+AimLine.Color = Color3.fromRGB(255, 0, 0)
+AimLine.Thickness = 1
+AimLine.Transparency = 1
+AimLine.Visible = false
+
+-- UI
 local Toggle = Tabs.Main:AddToggle("SilentAimToggle", {
     Title = "Enable Silent Aim",
     Default = false
@@ -42,7 +59,6 @@ Toggle:OnChanged(function()
     SilentAimEnabled = Toggle.Value
 end)
 
--- Dropdown: เลือก Head หรือ Body
 local Dropdown = Tabs.Main:AddDropdown("SilentAimPartDropdown", {
     Title = "Select Aim Part",
     Values = {"Head", "Body"},
@@ -53,7 +69,6 @@ Dropdown:OnChanged(function(Value)
     SilentAimPart = Value
 end)
 
--- Input: ปรับค่า FOV
 local Input = Tabs.Main:AddInput("FOVInput", {
     Title = "FOV",
     Default = "90",
@@ -64,19 +79,10 @@ local Input = Tabs.Main:AddInput("FOVInput", {
         local val = tonumber(Value)
         if val then
             FOVAngle = val
-            Camera.FieldOfView = val
         end
     end
 })
-Input:OnChanged(function()
-    local val = tonumber(Input.Value)
-    if val then
-        FOVAngle = val
-        Camera.FieldOfView = val
-    end
-end)
 
--- Toggle: เปิด/ปิดวงกลม FOV
 local ShowFOVToggle = Tabs.Main:AddToggle("ShowFOVToggle", {
     Title = "Show FOV Circle",
     Default = true
@@ -86,7 +92,6 @@ ShowFOVToggle:OnChanged(function()
     FOVCircle.Visible = ShowFOV
 end)
 
--- ปุ่ม: เลือกเป้าด้วยเมาส์หรือสัมผัส
 local SelectTargetButton = Tabs.Main:AddButton("SelectTargetButton", {
     Title = "Select Target (Click/Touch)",
     Description = "Click or touch a player to select as Silent Aim target.",
@@ -95,7 +100,6 @@ local SelectTargetButton = Tabs.Main:AddButton("SelectTargetButton", {
     end
 })
 
--- ตรวจจับการคลิกเลือกเป้าหมาย
 UserInputService.InputBegan:Connect(function(input)
     if SelectingTarget and input.UserInputType == Enum.UserInputType.MouseButton1 then
         local mouse = LocalPlayer:GetMouse()
@@ -110,13 +114,11 @@ UserInputService.InputBegan:Connect(function(input)
     end
 end)
 
--- การตรวจสอบว่าเป้าหมายยังคงมีชีวิตหรือไม่
 local function IsTargetAlive(target)
     local humanoid = target:FindFirstChild("Humanoid")
     return humanoid and humanoid.Health > 0
 end
 
--- ฟังก์ชันตรวจสอบการอยู่ใน FOV
 local function IsInFOV(target)
     local screenCenter = Camera.ViewportSize / 2
     local screenPos, onScreen = Camera:WorldToViewportPoint(target.Position)
@@ -124,34 +126,6 @@ local function IsInFOV(target)
     return onScreen and distanceFromCenter <= FOVAngle
 end
 
--- ฟังก์ชันหาเป้าหมายใหม่
-local function GetNewTarget()
-    local target = GetTarget() -- ฟังก์ชันเดิมที่เลือกเป้าหมาย
-    -- ถ้าเป้าหมายตายหรือนอก FOV ให้หาคนใหม่
-    if not target or not IsTargetAlive(target) or not IsInFOV(target) then
-        return GetClosestEnemy() -- หาเป้าหมายใหม่อัตโนมัติ
-    end
-    return target
-end
-
--- Drawing: วงกลม FOV
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Color = Color3.fromRGB(0, 255, 0)
-FOVCircle.Thickness = 1
-FOVCircle.Radius = FOVAngle
-FOVCircle.Filled = false
-FOVCircle.Transparency = 1
-FOVCircle.Visible = ShowFOV
-FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-
--- Drawing: เส้นโยงเป้า
-local AimLine = Drawing.new("Line")
-AimLine.Color = Color3.fromRGB(255, 0, 0)
-AimLine.Thickness = 1
-AimLine.Transparency = 1
-AimLine.Visible = false
-
--- หาเป้าหมายใกล้สุดใน FOV
 local function GetClosestEnemy()
     local closest = nil
     local closestDist = math.huge
@@ -175,16 +149,14 @@ local function GetClosestEnemy()
     return closest
 end
 
--- ดึงเป้าหมายที่ใช้ยิง
 local function GetTarget()
-    if SelectedTarget and SelectedTarget:FindFirstChild(SilentAimPart) then
+    if SelectedTarget and IsTargetAlive(SelectedTarget) and SelectedTarget:FindFirstChild(SilentAimPart) and IsInFOV(SelectedTarget[SilentAimPart]) then
         return SelectedTarget[SilentAimPart]
-    else
-        return GetClosestEnemy()
     end
+    return GetClosestEnemy()
 end
 
--- อัปเดตวงกลมและเส้นโยง
+-- อัปเดตวง FOV และเส้นเป้า
 RunService.RenderStepped:Connect(function()
     local center = Camera.ViewportSize / 2
     FOVCircle.Position = center
@@ -192,7 +164,7 @@ RunService.RenderStepped:Connect(function()
     FOVCircle.Visible = ShowFOV
 
     if SilentAimEnabled then
-        local target = GetNewTarget()
+        local target = GetTarget()
         if target then
             local pos, onScreen = Camera:WorldToViewportPoint(target.Position)
             if onScreen then
@@ -203,17 +175,18 @@ RunService.RenderStepped:Connect(function()
             end
         end
     end
+
     AimLine.Visible = false
 end)
 
--- Hook ยิง: แก้ทิศทางกระสุนไปยังเป้า
+-- Hook กระสุนให้ยิงไปยังเป้าหมาย
 local __namecall
 __namecall = hookmetamethod(game, "__namecall", function(self, ...)
-    local args = {...}
+    local args = { ... }
     local method = getnamecallmethod()
     if not checkcaller() and SilentAimEnabled then
         if method == "FireServer" and args[2] == "shoot_gun" then
-            local target = GetNewTarget()  -- ใช้ GetNewTarget() ที่ตรวจสอบแล้ว
+            local target = GetTarget()
             if target then
                 args[4] = CFrame.new(target.Position)
                 return __namecall(self, unpack(args))
