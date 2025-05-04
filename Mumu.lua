@@ -17,16 +17,57 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
+local Ps = game:GetService("Players")
+local Pr = Players.LocalPlayer
+local BP = Player:WaitForChild("Backpack")
+local CR = Player.Character or Player.CharacterAdded:Wait()
 
-local dilt = Tabs.Main:AddToggle({ Title = "Auto drill", Default = false })
+local AE = Tabs.Main:AddToggle("AE", {
+ Title = "Auto Equip",
+ Default = false
+    })
+local function AutoEquip()
+    for _, e in pairs(BP:GetChildren()) do
+        if e:IsA("Tool") and sting.find(e.Name, "Drill") then
+            if CR:FindFirstChilldOfClass("Tool") then ~= e then
+                e.Parent = CR
+            end
+        break
+        end
+    end
+end
 
-dilt:OnChanged(function(drill)
-    if drill then
-        spawn(function()
-         while dilt.Value do
-  game:GetService("ReplicatedStorage").Packages.Knit.Services.OreService.RE.RequestRandomOre:FireServer()
-                        wait(0.01)
-                        end
+AE:OnChanged(function(E)
+        if E then
+            task.spawn(function()
+                    while Options.AE.Value do
+                        pcall(AutoEquip)
+                        task.wait(0.1)
+                    end
+                end)
+         end
+    end)
+                
+
+
+
+-- ขุดควย
+local autoDrill = false
+
+Tabs.Main:AddToggle("AD", {
+    Title = "Auto Drill",
+    Default = false,
+    Callback = function(C)
+        autoDrill = C
+        if C then
+            task.spawn(function()
+                while autoDrill do
+                    pcall(function()
+                        game:GetService("ReplicatedStorage").Packages.Knit.Services.OreService.RE.RequestRandomOre:FireServer()
                     end)
-                 end
-             end)
+                    task.wait(0.001)
+                end
+            end)
+        end
+    end
+})
