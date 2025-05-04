@@ -13,24 +13,26 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local BP = Player:WaitForChild("Backpack")
-local CR = Player.Character or Player.CharacterAdded:Wait()
+local character = Player.Character or Player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
 
-local AE = Tabs.Main:AddToggle("AE", {
+--มีไมไม่รู้
+local AE = Tabs.AutoFarm:AddToggle("AE", {
  Title = "Auto Equip",
  Default = false
     })
 local function AutoEquip()
     for _, e in pairs(BP:GetChildren()) do
         if e:IsA("Tool") and string.find(e.Name, "Drill") then
-            if not CR:FindFirstChildOfClass("Tool") or CR:FindFirstChildOfClass("Tool") ~= e then
-                e.Parent = CR
+            if not character:FindFirstChildOfClass("Tool") or character:FindFirstChildOfClass("Tool") ~= e then
+                e.Parent = character
             end
         break
         end
@@ -40,7 +42,7 @@ end
 AE:OnChanged(function(E)
         if E then
             task.spawn(function()
-                    while Options.AE.Value do
+                    while AutoEquip do
                         pcall(AutoEquip)
                         task.wait(0.1)
                     end
@@ -54,7 +56,7 @@ AE:OnChanged(function(E)
 -- ขุดควย
 local autoDrill = false
 
-Tabs.Main:AddToggle("AD", {
+Tabs.AutoFarm:AddToggle("AD", {
     Title = "Auto Drill",
     Default = false,
     Callback = function(C)
@@ -71,3 +73,26 @@ Tabs.Main:AddToggle("AD", {
         end
     end
 })
+
+local AS = Tabs.AutoFarm:AddToggle("AS", {
+ Title = "Auto Sell",
+ Default = false
+    })
+
+AS:OnChanged(function()
+    if AS.Value then
+       task.spawn(function()
+         while AS.Value do
+local OCF = hrp.CFrame
+                        
+local SC = CFrame.new(-385, 93, 282)
+            hrp.CFrame = SC
+            task.wait(0.5)
+            game:GetService("ReplicatedStorage").Packages.Knit.Services.OreService.RE.SellAll:FireServer()
+            task.wait(0.3)
+            hrp.CFrame = OCF
+            task.wait(0.3)
+        end
+    end)
+        end
+    end)
