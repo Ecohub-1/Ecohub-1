@@ -22,7 +22,6 @@ local Player = Players.LocalPlayer
 local BP = Player:WaitForChild("Backpack")
 local character = Player.Character or Player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
-local plotService = ReplicatedStorage.Packages.Knit.Services.PlotService.RE
 
 --มีไมไม่รู้
 local AE = Tabs.AutoFarm:AddToggle("AE", {
@@ -104,19 +103,22 @@ local autocollect = Tabs.AutoFarm:AddToggle("AC",{
     Title = "Auto Collect",
     Default = false,
     })
-autocollect:OnChanged(function()
-    collect = Options.MyToggle.Value
+
+AC:OnChanged(function()
+    local collect = Options.MyToggle.Value
 
     if collect then
         task.spawn(function()
-            while collect do
+            while Options.MyToggle.Value do
                 for _, p in ipairs(workspace.Plots:GetChildren()) do
                     if p:FindFirstChild("Owner") and p.Owner.Value == player then
                         local drillsFolder = p:FindFirstChild("Drills")
                         if drillsFolder then
                             for _, d in ipairs(drillsFolder:GetChildren()) do
                                 if d:IsA("Model") then
-                                    plotService.CollectDrill:FireServer(d)
+                                    game:GetService("ReplicatedStorage")
+                                        .Packages.Knit.Services.PlotService.RE
+                                        .CollectDrill:FireServer(d)
                                     task.wait(0.2)
                                 end
                             end
