@@ -105,7 +105,7 @@ local autocollect = Tabs.AutoFarm:AddToggle("AC",{
     })
 
 AC:OnChanged(function()
-    local collect = Options.MyToggle.Value
+    local collect = AC.Value
 
     if collect then
         task.spawn(function()
