@@ -104,23 +104,30 @@ Tabs.AutoFarm:AddToggle("AC", {
     end
 })
 
+local Stor = false
 
-Tabs.AutoFarm:AddSection("Auto lock")
+Tabs.AutoFarm:AddToggle("AS", {
+    Title = "Auto Collect",
+    Default = false,
+    Callback = function(S)
+        Stor = S
+        if Stor then
+            task.spawn(function()
+                while Stor do
+                    for _, p in ipairs(workspace:WaitForChild("Plots"):GetChildren()) do
+                        local owner = p:FindFirstChild("Owner")
+                        local drillsFolder = p:FindFirstChild("Storage")
 
-local lk = {}
-for _, Ores in pairs(ReplicatedStorage.Ores:GetChildren()) do
-    if Ores:IsA("Model") then
-       table.insert(lk, Ores.Name)
-   end
-end
-
-Tabs.AutoFarm:AddMultiDropdown("lock", {
-    Title = "Auto lock",
-    Values = lk,
-    Multi = true
-    })
-
--- local autol = {}
--- for _, O in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
--- if  
--- end
+                        if owner and owner:IsA("ObjectValue") and owner.Value == Player and drillsFolder then
+                                    for _, S in ipairs(Storage:GetChildren()) do
+                                                                    if S:IsA("Model") then                                                                              plotService:WaitForChild("CollectDrill"):FireServer(S)
+                                                                    end
+                                                                end
+                                                            end
+                                                        end
+                                                        task.wait(0.1)
+                                                    end
+                                                end)
+                                            end
+                                        end
+                                    })
