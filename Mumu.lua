@@ -23,8 +23,11 @@ local Backpack = Player:WaitForChild("Backpack")
 local character = Player.Character or Player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local plotService = ReplicatedStorage.Packages.Knit.Services.PlotService.RE
-
+local Services = ReplicatedStorage.Packages.Knit.Services
+local plotService = Services.PlotService.RE0
+local OreServiceRE = ReplicatedStorage.Packages.Knit.Services.OreService.RE
+local Ore = OreServiceRE.RequestRandomOre
+local Sell = OreServiceRE.SellAll
 -- ขุดควย
 local autoDrill = false
 
@@ -37,7 +40,7 @@ Tabs.AutoFarm:AddToggle("AD", {
             task.spawn(function()
                 while autoDrill do
                     pcall(function()
-                        game:GetService("ReplicatedStorage").Packages.Knit.Services.OreService.RE.RequestRandomOre:FireServer()
+                        Ore:FireServer()
                     end)
                     task.wait(0.001)
                 end
@@ -47,27 +50,26 @@ Tabs.AutoFarm:AddToggle("AD", {
 })
 
 local AS = Tabs.AutoFarm:AddToggle("AS", {
- Title = "Auto Sell",
- Default = false
-    })
+    Title = "Auto Sell",
+    Default = false
+})
 
 AS:OnChanged(function()
     if AS.Value then
-       task.spawn(function()
-         while AS.Value do
-local OCF = hrp.CFrame
-
-local SC = CFrame.new(-385, 93, 282)
-            hrp.CFrame = SC
-            task.wait(0.5)
-            game:GetService("ReplicatedStorage").Packages.Knit.Services.OreService.RE.SellAll:FireServer()
-            task.wait(0.3)
-            hrp.CFrame = OCF
-            task.wait(0.3)
-        end
-    end)
-        end
-    end)
+        task.spawn(function()
+            while AS.Value do
+                local OCF = hrp.CFrame
+                local SC = CFrame.new(-385, 93, 282)
+                hrp.CFrame = SC
+                task.wait(0.5)
+                Sell:FireServer()
+                task.wait(0.3)
+                hrp.CFrame = OCF
+                task.wait(0.3)
+            end
+        end)
+    end
+end)
 
 
 local ACC = false
@@ -86,7 +88,7 @@ Tabs.AutoFarm:AddToggle("AC", {
                         local owner = plot:FindFirstChild("Owner")
                         local drillsFolder = plot:FindFirstChild("Drills")
 
-                        if owner and owner:IsA("ObjectValue") and owner.Value == player and drillsFolder then
+                        if owner and owner:IsA("ObjectValue") and owner.Value == Player and drillsFolder then
                             for _, drill in ipairs(drillsFolder:GetChildren()) do
                                 if drill:IsA("Model") then
                                     print("Collecting from:", drill.Name)
@@ -102,4 +104,23 @@ Tabs.AutoFarm:AddToggle("AC", {
     end
 })
 
+
 Tabs.AutoFarm:AddSection("Auto lock")
+
+local lk = {}
+for _, Ores in pairs(ReplicatedStorage.Ores:GetChildren()) do
+    if Ores:IsA("Model") then
+       table.insert(lk, Ores.Name)
+   end
+end
+
+Tabs.AutoFarm:AddMultiDropdown("lock", {
+    Title = "Auto lock",
+    Values = lk,
+    Multi = true
+    })
+
+-- local autol = {}
+-- for _, O in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+-- if  
+-- end
