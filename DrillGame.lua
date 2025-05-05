@@ -22,6 +22,7 @@ local Player = Players.LocalPlayer
 local BP = Player:WaitForChild("Backpack")
 local character = Player.Character or Player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
+local ReplicatedStorage = game.ReplicatedStorage
 local plotService = ReplicatedStorage.Packages.Knit.Services.PlotService.RE
 
 --มีไมไม่รู้
@@ -112,10 +113,8 @@ autocollect:OnChanged(function(value)
                         local drillsFolder = plot:FindFirstChild("Drills")
                         if drillsFolder then
                             for _, drill in ipairs(drillsFolder:GetChildren()) do
-                                if drill:IsA("Model") and drill:FindFirstChild("PrimaryPart") then
-                                    game:GetService("ReplicatedStorage")
-                                        .Packages.Knit.Services.PlotService.RE.CollectDrill
-                                        :FireServer(drill)
+                                if drill:IsA("Model") then
+                                    plotService.CollectDrill:FireServer(drill)
                                     task.wait(0.2)
                                 end
                             end
