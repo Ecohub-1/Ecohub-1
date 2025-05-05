@@ -17,8 +17,6 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local plotService = ReplicatedStorage.Packages.Knit.Services.PlotService.RE
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local BP = Player:WaitForChild("Backpack")
@@ -99,9 +97,11 @@ local SC = CFrame.new(-385, 93, 282)
         end
     end)
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local plotService = ReplicatedStorage.Packages.Knit.Services.PlotService.RE
 local ACC = false
 
-Tabs.AutoFarm:AddToggle("AC", {
+Tabs.Main:AddToggle("AC", {
     Title = "Auto Collect",
     Default = false,
     Callback = function(C)
@@ -109,20 +109,20 @@ Tabs.AutoFarm:AddToggle("AC", {
         if ACC then
             spawn(function()
                 while ACC do
-                    for _, p in ipairs(workspace.Plots:GetChildren()) do
-                        if p:FindFirstChild("Owner") and p.Owner.Value == player then
-                            local drillFolder = p:FindFirstChild("Drill")
-                            if drillFolder then
-                                for _, v in ipairs(drillFolder:GetChildren()) do
-                                    if v:IsA("Model") then
-                                        plotService.Collect:FireServer(v)
+                    for _, plot in ipairs(workspace.Plots:GetChildren()) do
+                        if plot:FindFirstChild("Owner") and plot.Owner.Value == player then
+                            local drillsFolder = plot:FindFirstChild("Drills")
+                            if drillsFolder then
+                                for _, drill in ipairs(drillsFolder:GetChildren()) do
+                                    if drill:IsA("Model") then
+                                        plotService.CollectDrill:FireServer(drill)
                                     end
-                                end
+                                        end
                             end
-                            task.wait(0.1)
+                            break
                         end
                     end
-                    task.wait(0.2)
+                    task.wait(0.1)
                 end
             end)
         end
