@@ -101,7 +101,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local plotService = ReplicatedStorage.Packages.Knit.Services.PlotService.RE
 local ACC = false
 
-Tabs.Main:AddToggle("AC", {
+Tabs.AutoFarm:AddToggle("AC", {
     Title = "Auto Collect",
     Default = false,
     Callback = function(C)
