@@ -99,23 +99,24 @@ local SC = CFrame.new(-385, 93, 282)
 
 local collect = false
 
-local autocollect = Tabs.AutoFarm:AddToggle("AC",{
+local autocollect = Tabs.AutoFarm:AddToggle("AC", {
     Title = "Auto Collect",
     Default = false,
-    })
+})
 
-AC:OnChanged(function()
-    local collect = AC.Value
+autocollect:OnChanged(function(value)
+    collect = value
 
     if collect then
         task.spawn(function()
-            while Options.MyToggle.Value do
+            while collect do
                 for _, p in ipairs(workspace.Plots:GetChildren()) do
                     if p:FindFirstChild("Owner") and p.Owner.Value == player then
                         local drillsFolder = p:FindFirstChild("Drills")
                         if drillsFolder then
                             for _, d in ipairs(drillsFolder:GetChildren()) do
-                                if d:IsA("Model") then
+                                if d:IsA("Model") and d:IsDescendantOf(game) then
+                                    print("Firing drill:", d.Name)
                                     game:GetService("ReplicatedStorage")
                                         .Packages.Knit.Services.PlotService.RE
                                         .CollectDrill:FireServer(d)
