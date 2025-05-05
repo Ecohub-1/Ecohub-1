@@ -19,39 +19,11 @@ local Tabs = {
 
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
-local BP = Player:WaitForChild("Backpack")
+local Backpack = Player:WaitForChild("Backpack")
 local character = Player.Character or Player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
-
---มีไมไม่รู้
-local AE = Tabs.AutoFarm:AddToggle("AE", {
- Title = "Auto Equip",
- Default = false
-    })
-local function AutoEquip()
-    for _, e in pairs(BP:GetChildren()) do
-        if e:IsA("Tool") and string.find(e.Name, "Drill") then
-            if not character:FindFirstChildOfClass("Tool") or character:FindFirstChildOfClass("Tool") ~= e then
-                e.Parent = character
-            end
-        break
-        end
-    end
-end
-
-AE:OnChanged(function(E)
-        if E then
-            task.spawn(function()
-                    while AE do
-                        pcall(AutoEquip)
-                        task.wait(0.1)
-                    end
-                end)
-         end
-    end)
-
-
-
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local plotService = ReplicatedStorage.Packages.Knit.Services.PlotService.RE
 
 -- ขุดควย
 local autoDrill = false
@@ -84,7 +56,7 @@ AS:OnChanged(function()
        task.spawn(function()
          while AS.Value do
 local OCF = hrp.CFrame
-                        
+
 local SC = CFrame.new(-385, 93, 282)
             hrp.CFrame = SC
             task.wait(0.5)
@@ -97,17 +69,17 @@ local SC = CFrame.new(-385, 93, 282)
         end
     end)
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local plotService = ReplicatedStorage.Packages.Knit.Services.PlotService.RE
 local ACC = false
+local collectThread
 
 Tabs.AutoFarm:AddToggle("AC", {
     Title = "Auto Collect",
     Default = false,
     Callback = function(C)
         ACC = C
+
         if ACC then
-            spawn(function()
+            collectThread = task.spawn(function()
                 while ACC do
                     for _, plot in ipairs(workspace.Plots:GetChildren()) do
                         if plot:FindFirstChild("Owner") and plot.Owner.Value == player then
@@ -117,9 +89,8 @@ Tabs.AutoFarm:AddToggle("AC", {
                                     if drill:IsA("Model") then
                                         plotService.CollectDrill:FireServer(drill)
                                     end
-                                        end
+                                end
                             end
-                            break
                         end
                     end
                     task.wait(0.1)
@@ -128,3 +99,5 @@ Tabs.AutoFarm:AddToggle("AC", {
         end
     end
 })
+
+Tabs.AutoFarm:AddSection("Auto lock")
