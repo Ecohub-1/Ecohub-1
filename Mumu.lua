@@ -91,7 +91,7 @@ Tabs.AutoFarm:AddToggle("AC", {
                         if owner and owner:IsA("ObjectValue") and owner.Value == Player and drillsFolder then
                             for _, drill in ipairs(drillsFolder:GetChildren()) do
                                 if drill:IsA("Model") then
-                                    print("Collecting from:", drill.Name)
+                                    
                                     plotService:WaitForChild("CollectDrill"):FireServer(drill)
                                 end
                             end
@@ -107,7 +107,7 @@ Tabs.AutoFarm:AddToggle("AC", {
 local Stor = false
 
 Tabs.AutoFarm:AddToggle("AS", {
-    Title = "Auto Collect",
+    Title = "Auto Storage",
     Default = false,
     Callback = function(S)
         Stor = S
@@ -116,9 +116,9 @@ Tabs.AutoFarm:AddToggle("AS", {
                 while Stor do
                     for _, p in ipairs(workspace:WaitForChild("Plots"):GetChildren()) do
                         local owner = p:FindFirstChild("Owner")
-                        local drillsFolder = p:FindFirstChild("Storage")
+                        local Storage = p:FindFirstChild("Storage")
 
-                        if owner and owner:IsA("ObjectValue") and owner.Value == Player and drillsFolder then
+                        if owner and owner:IsA("ObjectValue") and owner.Value == Player and Storage then
                                     for _, S in ipairs(Storage:GetChildren()) do
                                                                     if S:IsA("Model") then                                                                              plotService:WaitForChild("CollectDrill"):FireServer(S)
                                                                     end
