@@ -105,25 +105,27 @@ local autocollect = Tabs.AutoFarm:AddToggle("AC",{
     Default = false,
     })
 autocollect:OnChanged(function()
-    collect = Options.AC.Value
-        if collect then
-            task.spawn(function()
-                    while collect do
-    for _,v in ipairs(workspace.Plots:GetChildren()) do
-       if v:FindFirstChild("Owner")  and v.Owner.Value == player then
-        local drillsFolder = v:FindFirstChild("Drills")
-                                if drillsFolder then
-    for _,v in ipairs(drillsFolder:GetChildren()) do
-                        if v:IsA("Model") then
-                plotService:CollectDrill(v)
-                            task.wait(1)
-                                            end
-                                        end
-                                    end
-                                break
+    collect = Options.MyToggle.Value
+
+    if collect then
+        task.spawn(function()
+            while collect do
+                for _, p in ipairs(workspace.Plots:GetChildren()) do
+                    if p:FindFirstChild("Owner") and p.Owner.Value == player then
+                        local drillsFolder = p:FindFirstChild("Drills")
+                        if drillsFolder then
+                            for _, d in ipairs(drillsFolder:GetChildren()) do
+                                if d:IsA("Model") then
+                                    plotService.CollectDrill:FireServer(d)
+                                    task.wait(0.2)
                                 end
                             end
                         end
-                    end)
+                        break
+                    end
                 end
-            end)
+                task.wait(3)
+            end
+        end)
+    end
+end)
