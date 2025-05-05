@@ -69,26 +69,28 @@ local SC = CFrame.new(-385, 93, 282)
         end
     end)
 
+
 local ACC = false
-local collectThread
 
 Tabs.AutoFarm:AddToggle("AC", {
     Title = "Auto Collect",
     Default = false,
     Callback = function(C)
         ACC = C
+        print("Auto Collect Toggle:", ACC)
 
         if ACC then
-            collectThread = task.spawn(function()
+            task.spawn(function()
                 while ACC do
-                    for _, plot in ipairs(workspace.Plots:GetChildren()) do
-                        if plot:FindFirstChild("Owner") and plot.Owner.Value == player then
-                            local drillsFolder = plot:FindFirstChild("Drills")
-                            if drillsFolder then
-                                for _, drill in ipairs(drillsFolder:GetChildren()) do
-                                    if drill:IsA("Model") then
-                                        plotService.CollectDrill:FireServer(drill)
-                                    end
+                    for _, plot in ipairs(workspace:WaitForChild("Plots"):GetChildren()) do
+                        local owner = plot:FindFirstChild("Owner")
+                        local drillsFolder = plot:FindFirstChild("Drills")
+
+                        if owner and owner:IsA("ObjectValue") and owner.Value == player and drillsFolder then
+                            for _, drill in ipairs(drillsFolder:GetChildren()) do
+                                if drill:IsA("Model") then
+                                    print("Collecting from:", drill.Name)
+                                    plotService:WaitForChild("CollectDrill"):FireServer(drill)
                                 end
                             end
                         end
