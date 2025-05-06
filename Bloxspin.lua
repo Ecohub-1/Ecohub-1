@@ -31,7 +31,7 @@ Tabs.Game:AddToggle("AVP", {
    Callback = function(V)
     getgenv().AVP = V
         if AVP then
-            while task.wait(1) do
+            while AVP and task.wait(1) do
         local inGame = player:WaitForChild("PlayerGui"):WaitForChild("HUD"):WaitForChild("InGame")
         local votePlaying = inGame:WaitForChild("VotePlaying")
          if votePlaying:IsA("GuiObject") and votePlaying.Visible then
@@ -41,3 +41,8 @@ Tabs.Game:AddToggle("AVP", {
             end
         end
     })
+
+
+
+
+    
