@@ -21,20 +21,18 @@ local Tabs = {
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-
 local AV = false
 Tabs.Game:AddToggle("ATV", {
     Title = "Auto Vote",
     Default = false,
     Callback = function(V)
-        AV = V
+    getgenv().AV = V
          if V then
         spawn(function()
-            while AV do
-                ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
+            while AV and task.wait(2) 
+ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
              break
             end
         end)
-    task.wait(2)
     end
 end})
