@@ -34,7 +34,7 @@ local moblist = {}
     moblist[m.Name] = true
        end
     end
-
+local AAA = mob[1]
 local SM = Tabs.AutoFarm:AddDropdown("SM", {
     Title = "Select Mob",
     Values = mob,
@@ -53,9 +53,9 @@ local AF = false
     getgenv().AF = A
             if A or AF then
             task.spawn(function()
-                while task.wait(0.01) do
+                while getgenv().AF and task.wait(0.01) do
                     for _,v in pairs(game:GetService("Workspace").Mob:GetChildren()) do
-                        if v.Name == SM and v:FindFirstChild("humanoid") and v:FindFirstChild("HumanoidRootPart") then
+                        if v.Name == AAA and v:FindFirstChild("humanoid") and v:FindFirstChild("HumanoidRootPart") then
                      if v.humanoid.Health > 0 then
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,30,0)  
                             end
