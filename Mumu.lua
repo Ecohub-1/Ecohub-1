@@ -3,37 +3,37 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub 1.0",
-    SubTitle = " | by zer09Xz",
+    Title = "Eco Hub" .. Fluent.Version,
+    SubTitle = " | rock fruit",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true,
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Auto Farm", Icon = "bookmark" }),
-    Game = Window:AddTab({ Title = "Game", Icon = "gamepad-2" }),
-    Other = Window:AddTab({ Title = "Other", Icon = "candy" }),
+    AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "box" }),
+    boss = Window:AddTab({ Title = "boss", Icon = "compass" }),
+    Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "bookmark" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    other = Window:AddTab({ Title = "other", Icon = "banana" })
 }
+
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local Player = Players.LocalPlayer
+local Backpack = Player:WaitForChild("Backpack")
+local character = Player.Character or Player.CharacterAdded:Wait()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local autoPlayValue = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("AutoPlay")
 
-local autoPlayLoop = false
-local AutoPlay = Tabs.Game:AddToggle("AutoPlay", { Title = "Auto Play", Default = false })
-
-AutoPlay:OnChanged(function(value)
-    autoPlayLoop = value
-end)
-
-task.spawn(function()
-    while task.wait(2) do
-        if autoPlayLoop and not autoPlayValue.Value then
-            ReplicatedStorage.Remote.Server.Units.AutoPlay:FireServer()
-       end
+local mob = {}
+local SlM = nil
+   for _, m in pairs(game:GetService("Workspace").Mob:GetChildren()) do
+    table.insert(mob, m.Name)
     end
-end)
+Tabs.AutoFarm:AddDropDown("SM", {
+    Title = "Select Mob",
+    Values = mob,
+    Multi = false,
+    Default = SlM
+    })
