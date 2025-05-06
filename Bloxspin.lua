@@ -20,8 +20,6 @@ local Tabs = {
 }
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VotePlay = ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
-
 
 
 local AV = false
@@ -33,7 +31,7 @@ Tabs.Game:AddToggle("ATV", {
          if V then
         spawn(function()
             while AV do
-                VotePlay:FireServer()
+                ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
              break
             end
         end)
