@@ -29,7 +29,7 @@ Tabs.Game:AddToggle("ATV", {
         AV = V
          if V then
         spawn(function()
-            while AV and task.wait(2) 
+            while AV and task.wait(2) do
 ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
              break
             end
