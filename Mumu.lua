@@ -41,13 +41,11 @@ Tabs.AutoFarm:AddDropdown("SM", {
     Multi = false,
     Default = 1
     })
-SM:OnChanged(function(MOBB)
-    SM = MOBB
-    end)
 
-local AutoFarm = Tabs.AutoFarm:AddToggle("AF", {
+local AF = false
+ Tabs.AutoFarm:AddToggle("AF", {
     Title = "Auto Farm",
-    Default = false,
+    Default = AF,
     Callback = function(A)
     getgenv().AF = A
             if A then
