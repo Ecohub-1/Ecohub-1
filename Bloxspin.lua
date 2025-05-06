@@ -24,25 +24,22 @@ local VotePlay = ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireS
 
 
 
-local AVP = false
+local AVPv = false
 Tabs.Game:AddToggle("AVP", {
    Title = "Auto VotePlay",
    Default = false, 
    Callback = function(V)
     getgenv().AVP = V
-        if AVP then
-            while AVP and task.wait(1) do
+        if V then
+             spawn(function()
+     while AVPv and task.wait(1) do
         local inGame = player:WaitForChild("PlayerGui"):WaitForChild("HUD"):WaitForChild("InGame")
         local votePlaying = inGame:WaitForChild("VotePlaying")
          if votePlaying:IsA("GuiObject") and votePlaying.Visible then
                      VotePlay:FireServer()
                     end
                 end
-            end
+            end)
         end
-    })
-
-
-
-
-    
+    end
+})
