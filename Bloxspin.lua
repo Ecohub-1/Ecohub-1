@@ -35,5 +35,6 @@ Tabs.Game:AddToggle("ATV", {
              break
             end
         end)
+    task.wait(2)
     end
 end})
