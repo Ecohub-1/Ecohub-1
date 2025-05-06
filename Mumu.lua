@@ -31,7 +31,7 @@ local SlM = nil
    for _, m in pairs(game:GetService("Workspace").Mob:GetChildren()) do
     table.insert(mob, m.Name)
     end
-Tabs.AutoFarm:AddDropDown("SM", {
+Tabs.AutoFarm:AddDropdown("SM", {
     Title = "Select Mob",
     Values = mob,
     Multi = false,
