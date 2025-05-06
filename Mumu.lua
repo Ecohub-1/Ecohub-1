@@ -25,10 +25,11 @@ local Player = Players.LocalPlayer
 local Backpack = Player:WaitForChild("Backpack")
 local character = Player.Character or Player.CharacterAdded:Wait()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local mob = {}
 local moblist = {}
-   for _, m in pairs(game:GetService("Workspace").Mob:GetChildren()) do
+   for _, m in pairs(Workspace.Mob:GetChildren()) do
     if m:IsA("Model") and moblist[m.Name] == nil then
     table.insert(mob, m.Name)
     moblist[m.Name] = true
@@ -54,10 +55,11 @@ local AF = false
             if A or AF then
             task.spawn(function()
                 while getgenv().AF and task.wait(0.01) do
-                    for _,v in pairs(game:GetService("Workspace").Mob:GetChildren()) do
+                    for _,v in pairs(Workspace.Mob:GetChildren()) do
                         if v.Name == AAA and v:FindFirstChild("humanoid") and v:FindFirstChild("HumanoidRootPart") then
                      if v.humanoid.Health > 0 then
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,30,0)  
+                                break
                             end
                         end
                     end                           
