@@ -28,19 +28,22 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local mob = {}
 local moblist = {}
-local SM = nil
    for _, m in pairs(game:GetService("Workspace").Mob:GetChildren()) do
     if m:IsA("Model") and moblist[m.Name] == nil then
     table.insert(mob, m.Name)
     moblist[m.Name] = true
        end
     end
-Tabs.AutoFarm:AddDropdown("SM", {
+
+local SM = Tabs.AutoFarm:AddDropdown("SM", {
     Title = "Select Mob",
     Values = mob,
     Multi = false,
     Default = 1
     })
+SM:OnChanged(function(V)
+        AAA = V
+    end)
 
 local AF = false
  Tabs.AutoFarm:AddToggle("AF", {
@@ -48,7 +51,7 @@ local AF = false
     Default = AF,
     Callback = function(A)
     getgenv().AF = A
-            if A then
+            if A or AF then
             task.spawn(function()
                 while task.wait(0.01) do
                     for _,v in pairs(game:GetService("Workspace").Mob:GetChildren()) do
