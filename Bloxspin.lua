@@ -20,7 +20,7 @@ local Tabs = {
 }
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = game.Players.LocalPlayer
+local player = Players.LocalPlayer
 
 
 getgenv().AV = false
@@ -82,22 +82,25 @@ for _, P in pairs(game:GetService("Players").LocalPlayer.UnitsFolder:GetChildren
 
 getgenv().AU = false
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
+getgenv().AU = false
+
 Tabs.Game:AddToggle("AU", {
     Title = "Auto Upgrade",
     Default = false,
     Callback = function(U)
-      getgenv().AU = U
+        getgenv().AU = U
         if U then
             spawn(function()
-        while getgenv().AU and task.wait(0.5) do
-                        for _, n in ipairs(UnitUp) do
-             local v = player.UnitsFolder:FindFirstChild(n)
-                                                if v then
-                     ReplicatedStorage.Remote.Server.Units.Upgrade:FireServer(c)
-                                                end
-                                            end
-                                        end
-                                    end)
-                                end
-                            end})
-    
+                while getgenv().AU and task.wait(0.5) do
+                    for _, unit in ipairs(player.UnitsFolder:GetChildren()) do
+                        ReplicatedStorage.Remote.Server.Units.Upgrade:FireServer(unit)
+                    end
+                end
+            end)
+        end
+    end
+})
