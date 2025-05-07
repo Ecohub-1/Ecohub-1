@@ -58,7 +58,7 @@ Tabs.main:AddInput("Cash", {
     ReplicatedStorage.Remotes.AddRewardEvent:FireServer("Cash", tonumber(G))
     end
 })
-
+Tab:AddSection("Spin inf")
 local selectedAmount = 1 
 
 local gg = Tabs.main:AddDropdown{
