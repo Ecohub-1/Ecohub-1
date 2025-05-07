@@ -61,7 +61,7 @@ Tabs.main:AddInput("Cash", {
 
 local selectedAmount = 1 
 
-Tabs.main:AddDropdown{
+local gg = Tabs.main:AddDropdown{
     Title = "Free Spin",
     Values = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
     Callback = function(S)
