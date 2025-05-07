@@ -91,7 +91,7 @@ Tabs.Game:AddToggle("AU", {
             spawn(function()
         while getgenv().AU and task.wait(0.5) do
                         for _, n in ipairs(UnitUp) do
-             local v = game.player.UnitsFolder:FindFirstChild(n)
+             local v = game.Players.LocalPlayer.UnitsFolder:FindFirstChild(n)
                                                 if v then
                      ReplicatedStorage.Remote.Server.Units.Upgrade:FireServer(c)
                                                 end
