@@ -67,7 +67,7 @@ Tabs.Game:AddToggle("ATV", {
         getgenv().MY = Y
          if Y then
         spawn(function()
-            while getgenv().MY and task.wait(0.61) do
+            while getgenv().MY and task.wait(0.5) do
 ReplicatedStorage.Remote.Server.Gameplay.StatsManager:FireServer(MaximumYen)
                   end
              end)
