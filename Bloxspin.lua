@@ -61,14 +61,14 @@ Tabs.Game:AddToggle("AP", {
 
 getgenv().MY = false
 Tabs.Game:AddToggle("ATV", {
-    Title = "Auto Vote",
+    Title = "Auto Stats",
     Default = false,
     Callback = function(Y)
         getgenv().MY = Y
          if Y then
         spawn(function()
             while getgenv().MY and task.wait(0.61) do
-ReplicatedStoragelocal.Remote.Server.Gameplay.StatsManager:FireServer(MaximumYen)
+ReplicatedStorage.Remote.Server.Gameplay.StatsManager:FireServer(MaximumYen)
                   end
              end)
          end
