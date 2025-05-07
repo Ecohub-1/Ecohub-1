@@ -4,7 +4,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub" .. Fluent.Version,
-    SubTitle = " | Rock Fruit",
+    SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
     Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
@@ -13,58 +13,74 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "box" }),
-    boss = Window:AddTab({ Title = "boss", Icon = "compass" }),
-    Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "bookmark" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-    other = Window:AddTab({ Title = "other", Icon = "banana" })
+    main = Window:AddTab({ Title = "main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
-local Backpack = Player:WaitForChild("Backpack")
-local character = Player.Character or Player.CharacterAdded:Wait()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 
-local mob = {}
-local moblist = {}
-   for _, m in pairs(Workspace.Mob:GetChildren()) do
-    if m:IsA("Model") and moblist[m.Name] == nil then
-    table.insert(mob, m.Name)
-    moblist[m.Name] = true
-       end
-    end
-local AAA = mob[1]
-local SM = Tabs.AutoFarm:AddDropdown("SM", {
-    Title = "Select Mob",
-    Values = mob,
-    Multi = false,
-    Default = 1
-    })
-SM:OnChanged(function(V)
-        AAA = V
-    end)
 
-local AF = false
- Tabs.AutoFarm:AddToggle("AF", {
-    Title = "Auto Farm",
-    Default = AF,
-    Callback = function(A)
-    getgenv().AF = A
-            if A or AF then
-            task.spawn(function()
-                while getgenv().AF and task.wait(0.01) do
-                    for _,v in pairs(Workspace.Mob:GetChildren()) do
-                        if v.Name == AAA and v:FindFirstChild("humanoid") and v:FindFirstChild("HumanoidRootPart") then
-                     if v.humanoid.Health > 0 then
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,30,0)  
-                                break
-                            end
-                        end
-                    end                           
-                end             
-            end)
-        end
+Tabs.main:AddButton({
+    Title = "inf money",
+    Description = "is op money",
+    Callback = function()
+            ReplicatedStorage.Remotes.AddRewardEvent:FireServer("Cash", 1/0)
     end
 })
+
+Tabs.main:AddButton({
+    Title = "inf Gems",
+    Description = "is op Gems",
+    Callback = function()
+      ReplicatedStorage.Remotes.AddRewardEvent:FireServer("Gems", 1/0)
+    end
+})
+
+
+Tabs.Main:AddInput("Gems", {
+    Title = "Gems",
+    Default = "0",
+    Numeric = true,
+    Finished = true,
+    Callback = function(V)
+    ReplicatedStorage.Remotes.AddRewardEvent:FireServer("Gems", tonumber(V))
+    end
+})
+
+Tabs.Main:AddInput("Cash", {
+    Title = "Cash",
+    Default = 0,
+    Numeric = true,
+    Finished = true,
+    Callback = function(G)
+    ReplicatedStorage.Remotes.AddRewardEvent:FireServer("Cash", tonumber(G))
+    end
+})
+
+local selectedAmount = 1 
+
+Tabs.main:AddDropdown{
+    Title = "Free Spin",
+    Values = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+    Callback = function(S)
+        selectedAmount = tonumber(S)
+    end
+}
+
+getgenv().SP = false
+Tabs.main:AddToggle("SP", {
+    Titile = "Auto Spin",
+    Default = false,
+    Callback = function(SP)
+    getgenv().SP = SP
+        if SP then
+            while getgenv().SP and task.wait(1) do
+                for i = 1, selectedAmount do
+                        ReplicatedStorage.Remotes.SpinPrizeEvent:FireServer(1)
+                        end
+                    end
+                end
+        end
+ })
