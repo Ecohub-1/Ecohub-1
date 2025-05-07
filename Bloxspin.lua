@@ -61,7 +61,7 @@ Tabs.Game:AddToggle("AP", {
 
 getgenv().MY = false
 Tabs.Game:AddToggle("ATV", {
-    Title = "Auto Vote",
+    Title = "Auto stats",
     Default = false,
     Callback = function(Y)
         getgenv().MY = Y
