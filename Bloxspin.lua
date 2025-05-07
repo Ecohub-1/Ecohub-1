@@ -20,6 +20,8 @@ local Tabs = {
 }
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
 
 getgenv().AV = false
 Tabs.Game:AddToggle("ATV", {
@@ -31,7 +33,44 @@ Tabs.Game:AddToggle("ATV", {
         spawn(function()
             while getgenv().AV and task.wait(1) do
 ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
-            end
-        end)
+                  end
+             end)
+         end
     end
-end})
+})
+
+getgenv().AP = false
+
+Tabs.Game:AddToggle("AP", {
+    Title = "Auto Play",
+    Default = false,
+    Callback = function(P)
+        getgenv().AP = P
+        if P then
+            spawn(function()
+                while getgenv().AP and task.wait(1) do
+                    local autoPlay = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("AutoPlay")
+                    if autoPlay.Value == false then
+                        ReplicatedStorage.Remote.Server.Units.AutoPlay:FireServer()
+                    end
+                end
+            end)
+        end
+    end
+})
+
+getgenv().MY = false
+Tabs.Game:AddToggle("ATV", {
+    Title = "Auto Vote",
+    Default = false,
+    Callback = function(Y)
+        getgenv().MY = Y
+         if Y then
+        spawn(function()
+            while getgenv().MY and task.wait(0.61) do
+ReplicatedStoragelocal.Remote.Server.Gameplay.StatsManager:FireServer(MaximumYen)
+                  end
+             end)
+         end
+    end
+})
