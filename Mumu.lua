@@ -39,7 +39,7 @@ Tabs.main:AddButton({
 })
 
 
-Tabs.Main:AddInput("Gems", {
+Tabs.main:AddInput("Gems", {
     Title = "Gems",
     Default = "0",
     Numeric = true,
@@ -49,7 +49,7 @@ Tabs.Main:AddInput("Gems", {
     end
 })
 
-Tabs.Main:AddInput("Cash", {
+Tabs.main:AddInput("Cash", {
     Title = "Cash",
     Default = 0,
     Numeric = true,
