@@ -15,7 +15,7 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Auto Farm", Icon = "bookmark" }),
     Game = Window:AddTab({ Title = "Game", Icon = "gamepad-2" }),
-    Other = Window:AddTab({ Title = "Other", Icon = "candy" }),
+    Other = Window:AddTab({ Title = "Other", Icon = "Banana" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
 local Players = game:GetService("Players")
@@ -61,16 +61,43 @@ Tabs.Game:AddToggle("AP", {
 
 getgenv().MY = false
 Tabs.Game:AddToggle("ATV", {
-    Title = "Auto Stats",
+    Title = "Auto Vote",
     Default = false,
     Callback = function(Y)
         getgenv().MY = Y
          if Y then
         spawn(function()
-            while getgenv().MY and task.wait(0.5) do
-ReplicatedStorage.Remote.Server.Gameplay.StatsManager:FireServer(MaximumYen)
+            while getgenv().MY and task.wait(0.61) do
+ReplicatedStoragelocal.Remote.Server.Gameplay.StatsManager:FireServer("MaximumYen")
                   end
              end)
          end
     end
 })
+
+local UnitUp = {}
+for _, P in pairs(game:GetService("Players").LocalPlayer.UnitsFolder:GetChildren()) do 
+    table.insert(UnitUp, P.Name)
+    end
+
+getgenv().AU = false
+
+Tabs.Game:AddToggle("AU", {
+    Title = "Auto Upgrade",
+    Default = false,
+    Callback = function(U)
+      getgenv().AU = U
+        if U then
+            spawn(function()
+        while getgenv().AU and task.wait(0.5) do
+                        for _, n in ipairs(UnitUp) do
+             local v = game.player.UnitsFolder:FindFirstChild(n)
+                                                if v then
+                     ReplicatedStorage.Remote.Server.Units.Upgrade:FireServer(c)
+                                                end
+                                            end
+                                        end
+                                    end)
+                                end
+                            end})
+    
