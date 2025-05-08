@@ -67,13 +67,15 @@ Tabs.AutoFarm:AddToggle("AF", {
                            mob.Humanoid.Health > 0 then
 
                             repeat
-                                task.wait(0.01)
-                                local hrp = game.Players.LocalPlayer.Character and 
-                                            game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                if hrp then
-                                    hrp.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0)
-                                end
-                            until mob.Humanoid.Health <= 0 or not getgenv().AF
+                   task.wait(0.01)
+ local hrp = game.Players.LocalPlayer.Character and 
+           game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+     local offset = CFrame.new(0, 30, 0)
+        local lookDown = CFrame.Angles(math.rad(60), 0, 0)
+     hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
+    end
+until mob.Humanoid.Health <= 0 or not getgenv().AF
 
                         end
                     end
