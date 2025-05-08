@@ -61,7 +61,6 @@ local AF = false
                     repeat task.wait(0.01)
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,30,0)  
                                         until v.humanoid.Health <= 0 or not getgenv().AF
-                                break
                             end
                         end
                     end                           
