@@ -27,6 +27,7 @@ local character = Player.Character or Player.CharacterAdded:Wait()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+
 local mobNames = {}
 local mobSet = {}
 
@@ -70,17 +71,51 @@ Tabs.AutoFarm:AddToggle("AF", {
                    task.wait(0.01)
  local hrp = game.Players.LocalPlayer.Character and 
            game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-     local offset = CFrame.new(0, 30, 0)
-        local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
-     hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
-    end
-until mob.Humanoid.Health <= 0 or not getgenv().AF
-
+             if hrp then
+                local offset = CFrame.new(0, 30, 0)
+                local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
+                hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
+                             end
+                until mob.Humanoid.Health <= 0 or not getgenv().AF
                         end
                     end
                 end
-            end)
+           end)
         end
     end
 })
+
+local selectedW = {}
+for _, w in pairs(Backpack:GetChildren()) do
+    if w:IsA("Tool") then
+       table.insert(selectedW, w.Name) 
+    end
+end
+
+local SW = Tabs.Settings:AddDropdown("SW", {
+    Title = "Select Weapon",
+    Values = selectedW,
+    Multi = false
+    })
+SW:OnChanged(function(weapon)
+        SW = weapon
+        end)
+
+
+getgenv().E = false
+Tabs.Settings:AddToggle("E", {
+    Title = "Auto equip",
+    Default = false,
+    Callback = function(E)
+     getgenv().E = E
+         if E then
+            task.spawn(function()
+                while getgenv().E and task.wait(0.2) do
+                    local SW = Backpack:FindFirstChild(SW)
+                            if SW then
+                                SW.Parent = character
+                                end
+                            end
+                        end)
+                    end
+                end})
