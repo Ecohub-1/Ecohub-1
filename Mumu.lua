@@ -27,44 +27,57 @@ local character = Player.Character or Player.CharacterAdded:Wait()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
-local mob = {}
-local moblist = {}
-   for _, m in pairs(Workspace.Mob:GetChildren()) do
-    if m:IsA("Model") and moblist[m.Name] == nil then
-    table.insert(mob, m.Name)
-    moblist[m.Name] = true
-       end
+local mobNames = {}
+local mobSet = {}
+
+for _, mob in pairs(Workspace.Mob:GetChildren()) do
+    if mob:IsA("Model") and not mobSet[mob.Name] then
+        table.insert(mobNames, mob.Name)
+        mobSet[mob.Name] = true
     end
-local AAA = mob[1]
-local SM = Tabs.AutoFarm:AddDropdown("SM", {
+end
+
+local selectedMob = mobNames[1]
+
+local mobDropdown = Tabs.AutoFarm:AddDropdown("SM", {
     Title = "Select Mob",
-    Values = mob,
+    Values = mobNames,
     Multi = false,
     Default = 1
-    })
-SM:OnChanged(function(V)
-        AAA = V
-    end)
+})
 
-local AF = false
- Tabs.AutoFarm:AddToggle("AF", {
+mobDropdown:OnChanged(function(value)
+    selectedMob = value
+end)
+
+getgenv().AF = false
+
+Tabs.AutoFarm:AddToggle("AF", {
     Title = "Auto Farm",
-    Default = AF,
-    Callback = function(A)
-    getgenv().AF = A
-            if A or AF then
+    Default = false,
+    Callback = function(state)
+        getgenv().AF = state
+        if state then
             task.spawn(function()
                 while getgenv().AF and task.wait(0.01) do
-                    for _,v in pairs(Workspace.Mob:GetChildren()) do
-                        if v.Name == AAA and v:FindFirstChild("humanoid") and v:FindFirstChild("HumanoidRootPart") then
-                     if v.humanoid.Health >= 0 then
-                    repeat task.wait(0.01)
-        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,30,0)  
-                                        until v.humanoid.Health <= 0 or not getgenv().AF
-                            end
+                    for _, mob in pairs(Workspace.Mob:GetChildren()) do
+                        if mob.Name == selectedMob and 
+                           mob:FindFirstChild("Humanoid") and 
+                           mob:FindFirstChild("HumanoidRootPart") and 
+                           mob.Humanoid.Health > 0 then
+
+                            repeat
+                                task.wait(0.01)
+                                local hrp = game.Players.LocalPlayer.Character and 
+                                            game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                                if hrp then
+                                    hrp.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0)
+                                end
+                            until mob.Humanoid.Health <= 0 or not getgenv().AF
+
                         end
-                    end                           
-                end             
+                    end
+                end
             end)
         end
     end
