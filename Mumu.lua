@@ -72,7 +72,7 @@ Tabs.AutoFarm:AddToggle("AF", {
            game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
      local offset = CFrame.new(0, 30, 0)
-        local lookDown = CFrame.Angles(math.rad(60), 0, 0)
+        local lookDown = CFrame.Angles(math.rad(-60), 0, 0)
      hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
     end
 until mob.Humanoid.Health <= 0 or not getgenv().AF
