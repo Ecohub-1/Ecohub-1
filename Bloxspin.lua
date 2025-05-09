@@ -22,6 +22,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
+Tabs.Game:AddSection("inGame")
 
 getgenv().AV = false
 Tabs.Game:AddToggle("ATV", {
@@ -104,3 +105,38 @@ Tabs.Game:AddToggle("AU", {
         end
     end
 })
+
+Tabs.Game:AddSection("end")
+
+getgenv().AN = false
+
+Tabs.Game:AddToggle("AN", {
+    Title = "Auto Next",
+    Default = false,
+    Callback = function(N)
+        getgenv().AN = N
+        if N then
+            spawn(function()
+                local gui
+                pcall(function()
+                    gui = player:WaitForChild("PlayerGui"):WaitForChild("RewardsUI")
+                        :WaitForChild("Main"):WaitForChild("LeftSide"):WaitForChild("GameStatus")
+                end)
+
+                while getgenv().AN and task.wait(1) do
+                    if gui and gui.Visible then
+                        local text = gui.Text
+                        if text == "~ Won" then
+                            game:GetService("ReplicatedStorage").Remote.Server.OnGame.Voting.VoteNext:FireServer()
+                            repeat task.wait(1) until gui.Text ~= "~ Won" or not getgenv().AN
+                        elseif text == "~ Defeat" then
+                            game:GetService("ReplicatedStorage").Remote.Server.OnGame.Voting.VoteRetry:FireServer()
+                            repeat task.wait(1) until gui.Text ~= "~ Defeat" or not getgenv().AN
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+            
