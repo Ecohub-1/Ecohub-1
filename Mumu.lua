@@ -87,35 +87,39 @@ Tabs.AutoFarm:AddToggle("AF", {
 
 local selectedW = {}
 for _, w in pairs(Backpack:GetChildren()) do
-    if w:IsA("Tool") then
-       table.insert(selectedW, w.Name) 
+    if w:IsA("Tool") and w:FindFirstChild("Type") then
+        local t = w.Type.Value
+        if t == "Melee" or t == "Sword" or t == "DevilFruit" or t == "Special" then
+            table.insert(selectedW, w.Name)
+        end
     end
 end
 
-local SW = Tabs.Settings:AddDropdown("SW", {
+local selectedWeaponName = nil
+local WeaponDropdown = Tabs.Settings:AddDropdown("SW", {
     Title = "Select Weapon",
     Values = selectedW,
     Multi = false
-    })
-SW:OnChanged(function(weapon)
-        SW = weapon
-        end)
-
+})
+WeaponDropdown:OnChanged(function(weapon)
+    selectedWeaponName = weapon
+end)
 
 getgenv().E = false
 Tabs.Settings:AddToggle("E", {
     Title = "Auto equip",
     Default = false,
     Callback = function(E)
-     getgenv().E = E
-         if E then
+        getgenv().E = E
+        if E then
             task.spawn(function()
                 while getgenv().E and task.wait(0.2) do
-                    local SW = Backpack:FindFirstChild(SW)
-                            if SW then
-                                SW.Parent = character
-                                end
-                            end
-                        end)
+                    local tool = Backpack:FindFirstChild(selectedWeaponName)
+                    if tool then
+                        tool.Parent = character
                     end
-                end})
+                end
+            end)
+        end
+    end
+})
