@@ -95,28 +95,35 @@ for _, w in pairs(Backpack:GetChildren()) do
     end
 end
 
-local selectedWeaponName = nil
-local WeaponDropdown = Tabs.Settings:AddDropdown("SW", {
+local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
+local selectedTypes = {}
+
+local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
     Title = "Select Weapon",
-    Values = selectedW,
-    Multi = false
+    Values = allowedTypes,
+    Multi = true
 })
-WeaponDropdown:OnChanged(function(weapon)
-    selectedWeaponName = weapon
+
+TypeDropdown:OnChanged(function(types)
+    selectedTypes = types
 end)
 
 getgenv().E = false
 Tabs.Settings:AddToggle("E", {
-    Title = "Auto equip",
+    Title = "Auto Equip",
     Default = false,
     Callback = function(E)
         getgenv().E = E
         if E then
             task.spawn(function()
                 while getgenv().E and task.wait(0.2) do
-                    local tool = Backpack:FindFirstChild(selectedWeaponName)
-                    if tool then
-                        tool.Parent = character
+                    for _, tool in pairs(Backpack:GetChildren()) do
+                        if tool:IsA("Tool") and tool:FindFirstChild("Type") then
+                            if table.find(selectedTypes, tool.Type.Value) then
+                                tool.Parent = character
+                                break
+                            end
+                        end
                     end
                 end
             end)
