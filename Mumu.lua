@@ -85,13 +85,9 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
-
 local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
 local selectedTypes = {}
 
-local player = game.Players.LocalPlayer
-local Backpack = player:WaitForChild("Backpack")
-local character = player.Character or player.CharacterAdded:Wait()
 
 local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
     Title = "Select Weapon Types",
@@ -100,6 +96,7 @@ local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
     Multi = true,
     Callback = function(types)
         selectedTypes = types
+        print("Selected types:", table.concat(selectedTypes, ", "))
     end
 })
 
@@ -114,9 +111,14 @@ Tabs.Settings:AddToggle("E", {
                 while getgenv().E and task.wait(0.2) do
                     for _, tool in pairs(Backpack:GetChildren()) do
                         if tool:IsA("Tool") and tool:FindFirstChild("Type") then
+                            print("Checking tool:", tool.Name)
+                            print("Tool type:", tool.Type.Value)
+
                             if table.find(selectedTypes, tool.Type.Value) then
-                                if tool.Parent ~= character then
-                                    tool.Parent = character
+                                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                                if humanoid then
+                                    print("Equipping:", tool.Name)
+                                    humanoid:EquipTool(tool)
                                     break
                                 end
                             end
@@ -127,3 +129,4 @@ Tabs.Settings:AddToggle("E", {
         end
     end
 })
+
