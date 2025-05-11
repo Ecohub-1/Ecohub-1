@@ -85,31 +85,22 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
-local selectedW = {}
-for _, w in pairs(Backpack:GetChildren()) do
-    if w:IsA("Tool") and w:FindFirstChild("Type") then
-        local t = w.Type.Value
-        if t == "Melee" or t == "Sword" or t == "DevilFruit" or t == "Special" then
-            table.insert(selectedW, w.Name)
-        end
-    end
-end
 
 local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
 local selectedTypes = {}
 
 local TypeDropdown = Tabs.Settings:AddMultiDropdown("WeaponTypes", {
-    Title = "Select Weapon",
-    Values = allowedTypes
+    Title = "Select Weapon Types",
+    Values = allowedTypes,
+    Default = {},
+    Callback = function(types)
+        selectedTypes = types
+    end
 })
-
-TypeDropdown:OnChanged(function(types)
-    selectedTypes = types
-end)
 
 getgenv().E = false
 Tabs.Settings:AddToggle("E", {
-    Title = "Auto Equip",
+    Title = "Auto Equip by Type",
     Default = false,
     Callback = function(E)
         getgenv().E = E
