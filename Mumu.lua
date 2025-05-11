@@ -89,6 +89,10 @@ Tabs.AutoFarm:AddToggle("AF", {
 local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
 local selectedTypes = {}
 
+local player = game.Players.LocalPlayer
+local Backpack = player:WaitForChild("Backpack")
+local character = player.Character or player.CharacterAdded:Wait()
+
 local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
     Title = "Select Weapon Types",
     Values = allowedTypes,
@@ -111,8 +115,10 @@ Tabs.Settings:AddToggle("E", {
                     for _, tool in pairs(Backpack:GetChildren()) do
                         if tool:IsA("Tool") and tool:FindFirstChild("Type") then
                             if table.find(selectedTypes, tool.Type.Value) then
-                                tool.Parent = character
-                                break
+                                if tool.Parent ~= character then
+                                    tool.Parent = character
+                                    break
+                                end
                             end
                         end
                     end
