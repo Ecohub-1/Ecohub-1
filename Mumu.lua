@@ -98,10 +98,9 @@ end
 local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
 local selectedTypes = {}
 
-local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
+local TypeDropdown = Tabs.Settings:AddMultiDropdown("WeaponTypes", {
     Title = "Select Weapon",
-    Values = allowedTypes,
-    Multi = true
+    Values = allowedTypes
 })
 
 TypeDropdown:OnChanged(function(types)
