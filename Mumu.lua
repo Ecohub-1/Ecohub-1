@@ -89,10 +89,11 @@ Tabs.AutoFarm:AddToggle("AF", {
 local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
 local selectedTypes = {}
 
-local TypeDropdown = Tabs.Settings:AddMultiDropdown("WeaponTypes", {
+local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
     Title = "Select Weapon Types",
     Values = allowedTypes,
     Default = {},
+    Multi = true,
     Callback = function(types)
         selectedTypes = types
     end
