@@ -3,135 +3,76 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub 1.0",
+    Title = "Eco Hub" .. Fluent.Version,
     SubTitle = " | by zer09Xz",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true,
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Auto Farm", Icon = "bookmark" }),
-    Game = Window:AddTab({ Title = "Game", Icon = "gamepad-2" }),
-    Other = Window:AddTab({ Title = "Other", Icon = "Banana" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
+    Inf = Window:AddTab({ Title = "Inf", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local character = Player.Character or Player.CharacterAdded:Wait()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
 
-Tabs.Game:AddSection("inGame")
+getgenv().af = false
 
-getgenv().AV = false
-Tabs.Game:AddToggle("ATV", {
-    Title = "Auto Vote",
+Tabs.AutoFarm:AddToggle("af", {
+    Title = "AutoFarm",
     Default = false,
-    Callback = function(V)
-        getgenv().AV = V
-         if V then
-        spawn(function()
-            while getgenv().AV and task.wait(1) do
-ReplicatedStorage.Remote.Server.OnGame.Voting.VotePlaying:FireServer()
-                  end
-             end)
-         end
-    end
-})
-
-getgenv().AP = false
-
-Tabs.Game:AddToggle("AP", {
-    Title = "Auto Play",
-    Default = false,
-    Callback = function(P)
-        getgenv().AP = P
-        if P then
-            spawn(function()
-                while getgenv().AP and task.wait(1) do
-                    local autoPlay = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(player.Name):WaitForChild("Data"):WaitForChild("AutoPlay")
-                    if autoPlay.Value == false then
-                        ReplicatedStorage.Remote.Server.Units.AutoPlay:FireServer()
+    Callback = function(af)
+        getgenv().af = af
+         if af then
+            task.spawn(function()
+                while getgenv().af and task.wait(0.1) do
+                for _, v in pairs(Workspace.Enemy.Mob:GetChildren()) do
+                if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+                if v.Humanoid.Health > 0 then
+            repeat
+                task.wait(0.1)
+     local hrp = game.Players.LocalPlayer.Character and 
+            game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                 if hrp then
+        local offset = CFrame.new(0, 0, 7)
+            local lookDown = CFrame.Angles(math.rad(0), 0, 0)
+                 hrp.CFrame = v.HumanoidRootPart.CFrame * offset * lookDown
+                                   end
+                    until v.Humanoid.Health <= 0 or not getgenv().af
+                                        end
+                                    end
+                                end
+                            end
+                         end)
                     end
-                end
-            end)
-        end
-    end
-})
+                end})
 
-getgenv().MY = false
-Tabs.Game:AddToggle("ATV", {
-    Title = "Auto stats",
+getgenv().atk = false
+
+Tabs.Main:AddToggle("atk", {
+    Title = "Auto Attack",
     Default = false,
-    Callback = function(Y)
-        getgenv().MY = Y
-         if Y then
-        spawn(function()
-            while getgenv().MY and task.wait(0.61) do
-ReplicatedStorage.Remote.Server.Gameplay.StatsManager:FireServer("MaximumYen")
-                  end
-             end)
-         end
-    end
-})
-
-local UnitUp = {}
-for _, P in pairs(game:GetService("Players").LocalPlayer.UnitsFolder:GetChildren()) do 
-    table.insert(UnitUp, P.Name)
-    end
-
-getgenv().AU = false
-
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
-
-getgenv().AU = false
-
-Tabs.Game:AddToggle("AU", {
-    Title = "Auto Upgrade",
-    Default = false,
-    Callback = function(U)
-        getgenv().AU = U
-        if U then
-            spawn(function()
-                while getgenv().AU and task.wait(0.5) do
-                    for _, unit in ipairs(player.UnitsFolder:GetChildren()) do
-                        ReplicatedStorage.Remote.Server.Units.Upgrade:FireServer(unit)
+    Callback = function(atk)
+        getgenv().atk = atk
+        if atk then
+            task.spawn(function()
+                while getgenv().atk and task.wait(0.1) do
+                    local slotID
+                    if LocalPlayer.CharValue and LocalPlayer.CharValue.Slot1 and LocalPlayer.CharValue.Slot1.ID then
+                        slotID = LocalPlayer.CharValue.Slot1.ID.Value
                     end
-                end
-            end)
-        end
-    end
-})
-
-Tabs.Game:AddSection("end")
-
-getgenv().AN = false
-
-Tabs.Game:AddToggle("AN", {
-    Title = "Auto Next",
-    Default = false,
-    Callback = function(N)
-        getgenv().AN = N
-        if N then
-            spawn(function()
-                local gui
-                pcall(function()
-                    gui = player:WaitForChild("PlayerGui"):WaitForChild("RewardsUI")
-                        :WaitForChild("Main"):WaitForChild("LeftSide"):WaitForChild("GameStatus")
-                end)
-
-                while getgenv().AN and task.wait(1) do
-                    if gui and gui.Visible then
-                        local text = gui.Text
-                        if text == "~ Won" then
-                            game:GetService("ReplicatedStorage").Remote.Server.OnGame.Voting.VoteNext:FireServer()
-                            repeat task.wait(1) until gui.Text ~= "~ Won" or not getgenv().AN
-                        elseif text == "~ Defeat" then
-                            game:GetService("ReplicatedStorage").Remote.Server.OnGame.Voting.VoteRetry:FireServer()
-                            repeat task.wait(1) until gui.Text ~= "~ Defeat" or not getgenv().AN
+                    if slotID then
+                        for i = 1, 3 do
+                            ReplicatedStorage.Events.Combat:FireServer(slotID, i)
+                            task.wait(0.1)
                         end
                     end
                 end
@@ -139,4 +80,3 @@ Tabs.Game:AddToggle("AN", {
         end
     end
 })
-            
