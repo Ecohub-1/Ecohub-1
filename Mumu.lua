@@ -85,49 +85,49 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
-local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
+
+local weaponTypes = {"Melee", "Sword", "DevilFruit", "Special"}
 local selectedTypes = {}
 
-local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
-    Title = "Select Weapon",
-    Values = allowedTypes,
-    Default = {},
-    Multi = true,
-    Callback = function(types)
-        selectedTypes = types
-        print("Selected types:", table.concat(selectedTypes, ", "))
+local function EquipWeapons()
+    for _, tool in ipairs(Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            local wType = tool:GetAttribute("Type")
+            if wType and table.find(selectedTypes, wType) then
+                tool.Parent = character
+            end
+        end
     end
+end
+
+local equip = Tabs.Settings:AddDropdown("weaponType", {
+    Title = "Select weapon types",
+    Values = weaponTypes,
+    Multi = true,
+    Default = {1},
 })
 
-getgenv().E = false
+equip:OnChanged(function(equip)
+    selectedTypes = typeof(equip) == "table" and equip or {equip}
+    if getgenv().eq then
+        EquipWeapons() 
+    end
+end)
 
-Tabs.Settings:AddToggle("E", {
-    Title = "Auto Equip",
+getgenv().eq = false
+
+Tabs.Settings:AddToggle("eq", {
+    Title = "Auto equip",
     Default = false,
-    Callback = function(E)
-        getgenv().E = E
-        if E then
+    Callback = function(eq)
+        getgenv().eq = eq
+        if eq then
             task.spawn(function()
-                while getgenv().E and task.wait(0.2) do
-                    for _, tool in pairs(Backpack:GetChildren()) do
-                        if tool:IsA("Tool") then
-                            local toolType = tool:GetAttribute("Type")
-                            print("Checking:", tool.Name, "| Type:", toolType)
-
-                            if toolType and table.find(selectedTypes, toolType) then
-                                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                                if humanoid and humanoid.Health > 0 then
-                                    print("Equipping:", tool.Name)
-                                    humanoid:UnequipTools()
-                                    task.wait(0.1)
-                                    humanoid:EquipTool(tool)
-                                    break
-                                end
-                            end
-                        end
-                    end
+                while getgenv().eq and task.wait(0.1) do
+                    EquipWeapons()  
                 end
             end)
+            EquipWeapons()  
         end
     end
 })
