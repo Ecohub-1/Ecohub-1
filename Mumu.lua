@@ -111,13 +111,15 @@ Tabs.Settings:AddToggle("E", {
                 while getgenv().E and task.wait(0.2) do
                     for _, tool in pairs(Backpack:GetChildren()) do
                         if tool:IsA("Tool") then
-                            local toolType = tool:GetAttribute("Type") 
+                            local toolType = tool:GetAttribute("Type")
+                            print("Checking:", tool.Name, "| Type:", toolType)
 
-                            print("Checking tool:", tool.Name, "| Type:", toolType)
                             if toolType and table.find(selectedTypes, toolType) then
                                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                                 if humanoid and humanoid.Health > 0 then
                                     print("Equipping:", tool.Name)
+                                    humanoid:UnequipTools()
+                                    task.wait(0.1)
                                     humanoid:EquipTool(tool)
                                     break
                                 end
