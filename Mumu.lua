@@ -101,7 +101,7 @@ local function EquipWeapons()
 end
 
 local equip = Tabs.Settings:AddDropdown("weaponType", {
-    Title = "Select weapon types",
+    Title = "Select weapon",
     Values = weaponTypes,
     Multi = true,
     Default = {1},
