@@ -86,7 +86,7 @@ Tabs.AutoFarm:AddToggle("AF", {
 })
 
 local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
-local selectedTypes = {} -- เปลี่ยนชื่อให้ตรง
+local selectedTypes = {}
 
 local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
     Title = "Select Weapon",
@@ -95,11 +95,12 @@ local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
     Multi = true,
     Callback = function(types)
         selectedTypes = types
-        print("Selected type:", table.concat(selectedTypes, ", "))
+        print("Selected types:", table.concat(selectedTypes, ", "))
     end
 })
 
 getgenv().E = false
+
 Tabs.Settings:AddToggle("E", {
     Title = "Auto Equip",
     Default = false,
@@ -108,14 +109,17 @@ Tabs.Settings:AddToggle("E", {
         if E then
             task.spawn(function()
                 while getgenv().E and task.wait(0.2) do
-                    for _, tool in pairs(Backpack:GetChildren()) do
-                        if tool:IsA("Tool") and tool:FindFirstChild("Type") then
-                            print("Checking tool:", tool.Name)
-                            print("Tool type:", tool.Type.Value)
+                    character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                    Backpack = LocalPlayer:WaitForChild("Backpack")
 
-                            if table.find(selectedTypes, tool.Type.Value) then
+                    for _, tool in pairs(Backpack:GetChildren()) do
+                        if tool:IsA("Tool") then
+                            local toolType = tool:GetAttribute("Type") 
+
+                            print("Checking tool:", tool.Name, "| Type:", toolType)
+                            if toolType and table.find(selectedTypes, toolType) then
                                 local humanoid = character:FindFirstChildOfClass("Humanoid")
-                                if humanoid then
+                                if humanoid and humanoid.Health > 0 then
                                     print("Equipping:", tool.Name)
                                     humanoid:EquipTool(tool)
                                     break
