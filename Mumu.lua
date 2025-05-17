@@ -85,18 +85,17 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
-local allowedType = {"Melee", "Sword", "DevilFruit", "Special"}
-local selectedType = {}
-
+local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
+local selectedTypes = {} -- เปลี่ยนชื่อให้ตรง
 
 local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
     Title = "Select Weapon",
     Values = allowedTypes,
     Default = {},
     Multi = true,
-    Callback = function(type)
-        selectedTypes = type
-        print("Selected type:", table.concat(selectedType, ", "))
+    Callback = function(types)
+        selectedTypes = types
+        print("Selected type:", table.concat(selectedTypes, ", "))
     end
 })
 
@@ -129,4 +128,3 @@ Tabs.Settings:AddToggle("E", {
         end
     end
 })
-
