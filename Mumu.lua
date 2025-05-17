@@ -85,24 +85,24 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
-local allowedTypes = {"Melee", "Sword", "DevilFruit", "Special"}
-local selectedTypes = {}
+local allowedType = {"Melee", "Sword", "DevilFruit", "Special"}
+local selectedType = {}
 
 
 local TypeDropdown = Tabs.Settings:AddDropdown("WeaponTypes", {
-    Title = "Select Weapon Types",
+    Title = "Select Weapon",
     Values = allowedTypes,
     Default = {},
     Multi = true,
-    Callback = function(types)
-        selectedTypes = types
-        print("Selected types:", table.concat(selectedTypes, ", "))
+    Callback = function(type)
+        selectedTypes = type
+        print("Selected type:", table.concat(selectedType, ", "))
     end
 })
 
 getgenv().E = false
 Tabs.Settings:AddToggle("E", {
-    Title = "Auto Equip by Type",
+    Title = "Auto Equip",
     Default = false,
     Callback = function(E)
         getgenv().E = E
