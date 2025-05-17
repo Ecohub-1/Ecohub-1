@@ -109,9 +109,6 @@ Tabs.Settings:AddToggle("E", {
         if E then
             task.spawn(function()
                 while getgenv().E and task.wait(0.2) do
-                    character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-                    Backpack = LocalPlayer:WaitForChild("Backpack")
-
                     for _, tool in pairs(Backpack:GetChildren()) do
                         if tool:IsA("Tool") then
                             local toolType = tool:GetAttribute("Type") 
