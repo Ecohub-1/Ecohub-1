@@ -26,7 +26,7 @@ local Backpack = Player:WaitForChild("Backpack")
 local character = Player.Character or Player.CharacterAdded:Wait()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
-
+local VirtualUser = game:GetService("VirtualUser")
 
 local mobNames = {}
 local mobSet = {}
@@ -86,55 +86,52 @@ Tabs.AutoFarm:AddToggle("AF", {
 })
 
 
-local sle Tabs.Settings:AddDropdown("Search weapon", {
+local sle = {}
+Tabs.Settings:AddDropdown("Search weapon", {
     Title = "Weapon Type",
     Values = { "Melee", "Sword", "DevilFruit", "Special" },
     Multi = true,
     Default = sle,
-    Callback = function(value)
-        sle = value
+    Callback = function(e)
+        sle = e
     end
 })
 
-local autoEquipRunning = false
-Tabs.Settings:AddToggle("AutoEquipToggle", {
+getgenv().eq = false
+Tabs.Settings:AddToggle("eq", {
     Title = "Auto Equip",
     Default = false,
-    Callback = function(value)
-        autoEquipRunning = value
-        if autoEquipRunning then
-            task.spawn(function()
-                while autoEquipRunning do
-                    if Player.Character then
-                        for _, tool in ipairs(Backpack:GetChildren()) do
-                            if tool:IsA("Tool") and table.find(sle, tool:GetAttribute("Type")) then
-                                tool.Parent = Player.Character
+    Callback = function(eq)
+        getgev().eq = eq
+            if eq then 
+                task.spawn(function()
+                    while getgenv().eq and task.wait(0.1) do
+                        for _, v in ipairs(Backpack:GetChildren()) do
+             if v:IsA("Tool") and table.find(sle, v:FindFirstChild("Type").Values) then
+                        tool.Parent = player.Character
+                                    end
+                                end
                             end
-                        end
+                        end)
                     end
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end
-})
+            end
+        })
+    
+Tabs.Settings:AddSection("Auto Click")
 
-local autoClicking = false
-local clickDelay = 0.1
-
-Tabs.Settings:AddToggle("AutoClickToggle", {
+getgenv().click = false
+Tabs.Settings:AddToggle("click", {
     Title = "Auto Click",
     Default = false,
-    Callback = function(value)
-        autoClicking = value
-    end
-})
-
-local VirtualUser = game:GetService("VirtualUser")
-game:GetService("RunService").RenderStepped:Connect(function()
-    if autoClicking then
-        VirtualUser:Button1Down(Vector2.new(0.9, 0.9))
-        VirtualUser:Button1Up(Vector2.new(0.9, 0.9))
-        task.wait(clickDelay)
-    end
-end)
+    Callback = function(click)
+       getgenv().click = click
+          if click then
+            task.spawn(function()
+                while getgenv().click and task.wait(0.1) do
+                    VirtualUser:Button1Down(Vector2.new(0.9, 0.9))
+                    VirtualUser:Button1Up(Vector2.new(0.9, 0.9))
+                            end
+                        end)
+                    end
+                end
+            })
