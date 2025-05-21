@@ -86,37 +86,39 @@ Tabs.AutoFarm:AddToggle("AF", {
 })
 
 
-local sle = {}
+getgenv().eq = false
+getgenv().SelectedWeaponTypes = {}
+
 Tabs.Settings:AddDropdown("Search weapon", {
-    Title = "Selech Weapon",
+    Title = "Search Weapon",
     Values = { "Melee", "Sword", "DevilFruit", "Special" },
     Multi = true,
-    Default = sle,
-    Callback = function(e)
-        sle = e
+    Default = {},
+    Callback = function(selection)
+        getgenv().SelectedWeaponTypes = selection
     end
 })
 
-getgenv().eq = false
 Tabs.Settings:AddToggle("eq", {
     Title = "Auto Equip",
     Default = false,
     Callback = function(eq)
-        getgev().eq = eq
-            if eq then 
-                task.spawn(function()
-                    while getgenv().eq and task.wait(0.1) do
-                        for _, v in ipairs(Backpack:GetChildren()) do
-             if v:IsA("Tool") and table.find(sle, v:FindFirstChild("Type").Values) then
-                        v.Parent = Player.Character
-                                    end
-                                end
-                            end
-                        end)
+        getgenv().eq = eq
+
+        if eq then 
+            task.spawn(function()
+                while getgenv().eq and task.wait(0.1) do
+                    for _, v in ipairs(Backpack:GetChildren()) do
+                        local typeValue = v:FindFirstChild("Type")
+                        if v:IsA("Tool") and typeValue and table.find(getgenv().SelectedWeaponTypes, typeValue.Value) then
+                            v.Parent = Player.Character
+                        end
                     end
-            end
-        })
-    
+                end
+            end)
+        end
+    end
+})
 Tabs.Settings:AddSection("Auto Click")
 
 getgenv().click = false
@@ -135,3 +137,85 @@ Tabs.Settings:AddToggle("click", {
                     end
                 end
             })
+
+
+
+local env = getgenv()
+env.b = false 
+
+local Haki = Tabs.Main:AddToggle("AutoHaki", {
+    Title = "Auto Haki",
+    Default = false
+})
+
+local function pressHaki()
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.J, false, game)
+    task.wait(0.1)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.J, false, game)
+end
+
+spawn(function()
+    while task.wait(5) do
+        if env.b and Player.Character then
+            pressHaki()
+        end
+    end
+end)
+
+Haki:OnChanged(function(value)
+    env.b = value
+    if value and Player.Character then
+        pressHaki()
+    end
+end)
+
+Player.CharacterAdded:Connect(function(character)
+    task.wait(2)
+    if env.b and character then
+        pressHaki()
+    end
+end)
+
+Tabs.Settings:AddSection("Auto Stast")
+
+local Typeup = {}
+getgenv().st = false
+local upin = 1000
+
+Tabs.Main:AddInput("upin", {
+    Title = "Up stats",
+    Default = "1000",
+    Numeric = true,
+    Finished = true,
+    Callback = function(e)
+        upin = tonumber(e) or 1000
+    end
+})
+
+Tabs.Settings:AddDropdown("Typeup", {
+    Title = "Search stats",
+    Values = {"Melee", "Sword", "Defense", "DevilFruit", "Special"},
+    Multi = true,
+    Default = {},
+    Callback = function(v)
+        Typeup = v
+    end
+})
+
+Tabs.Settings:AddToggle("st", {
+    Title = "Auto Stats",
+    Default = false,
+    Callback = function(st)
+        getgenv().st = st
+        if st then
+            task.spawn(function()
+                while getgenv().st do
+                    for _, stat in ipairs(Typeup) do
+                        ReplicatedStorage.Remotes.System:FireServer("UpStats", stat, upin)
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
