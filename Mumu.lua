@@ -93,9 +93,11 @@ getgenv().SelectedWeaponTypes = {}
 local function TryEquipWeapon()
     if getgenv().eq then
         for _, v in ipairs(Backpack:GetChildren()) do
-            local typeValue = v:FindFirstChild("Type")
-            if v:IsA("Tool") and typeValue and table.find(getgenv().SelectedWeaponTypes, typeValue.Value) then
-                v.Parent = Player.Character
+            if v:IsA("Tool") then
+                local weaponType = v:GetAttribute("Type")
+                if weaponType and table.find(getgenv().SelectedWeaponTypes, weaponType) then
+                    v.Parent = Player.Character
+                end
             end
         end
     end
@@ -179,44 +181,35 @@ end)
 
 Tabs.Settings:AddSection("Auto Stast")
 
-local Typeup = {}
-getgenv().st = false
-local upin = 1000
+ local ReplicatedStorage = game:GetService("ReplicatedStorage")
+ local Typeup = {}
 
-Tabs.Settings:AddInput("upin", {
-    Title = "Up stats",
-    Default = "1000",
-    Numeric = true,
-    Finished = true,
-    Callback = function(e)
-        upin = tonumber(e) or 1000
-    end
-})
+ Tabs.Settings:AddDropdown("Typeup", {
+     Title = "Search stast",
+     Values = {"Melee", "Sword", "Defense", "DevilFruit", "Special"},
+     Multi = true,
+     Default = {},
+     Callback = function(v)
+         Typeup = v
+     end
+ })
 
-Tabs.Settings:AddDropdown("Typeup", {
-    Title = "Search stats",
-    Values = {"Melee", "Sword", "Defense", "DevilFruit", "Special"},
-    Multi = true,
-    Default = {},
-    Callback = function(v)
-        Typeup = v
-    end
-})
+ getgenv().st = false
 
-Tabs.Settings:AddToggle("st", {
-    Title = "Auto Stats",
-    Default = false,
-    Callback = function(state)
-        getgenv().st = state
-        if state then
-            task.spawn(function()
-                while getgenv().st do
-                    for _, stat in ipairs(Typeup) do
-                        ReplicatedStorage.Remotes.System:FireServer("UpStats", stat, upin)
-                    end
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end
-})
+ Tabs.Settings:AddToggle("st", {
+     Title = "Auto Stast",
+     Default = false,
+     Callback = function(state)
+         getgenv().st = state
+         if state then
+             task.spawn(function()
+                 while getgenv().st do
+                     task.wait(0.1)
+                     for _, stat in ipairs(Typeup)
+                         ReplicatedStorage.Remotes.System:FireServer("UpStats", stat, 10000)
+                     end
+                 end
+             end)
+         end
+     end
+ })
