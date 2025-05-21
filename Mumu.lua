@@ -86,48 +86,55 @@ Tabs.AutoFarm:AddToggle("AF", {
 })
 
 
-local weaponTypes = {"Melee", "Sword", "DevilFruit", "Special"}
-local selectedTypes = {}
-
-local function EquipWeapons()
-    for _, tool in ipairs(Backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            local wType = tool:GetAttribute("Type")
-            if wType and table.find(selectedTypes, wType) then
-                tool.Parent = character
-            end
-        end
-    end
-end
-
-local equip = Tabs.Settings:AddDropdown("weaponType", {
-    Title = "Select weapon",
-    Values = weaponTypes,
+local sle Tabs.Settings:AddDropdown("Search weapon", {
+    Title = "Weapon Type",
+    Values = { "Melee", "Sword", "DevilFruit", "Special" },
     Multi = true,
-    Default = {1},
+    Default = sle,
+    Callback = function(value)
+        sle = value
+    end
 })
 
-equip:OnChanged(function(equip)
-    selectedTypes = typeof(equip) == "table" and equip or {equip}
-    if getgenv().eq then
-        EquipWeapons() 
-    end
-end)
-
-getgenv().eq = false
-
-Tabs.Settings:AddToggle("eq", {
-    Title = "Auto equip",
+local autoEquipRunning = false
+Tabs.Settings:AddToggle("AutoEquipToggle", {
+    Title = "Auto Equip",
     Default = false,
-    Callback = function(eq)
-        getgenv().eq = eq
-        if eq then
+    Callback = function(value)
+        autoEquipRunning = value
+        if autoEquipRunning then
             task.spawn(function()
-                while getgenv().eq and task.wait(0.1) do
-                    EquipWeapons()  
+                while autoEquipRunning do
+                    if Player.Character then
+                        for _, tool in ipairs(Backpack:GetChildren()) do
+                            if tool:IsA("Tool") and table.find(sle, tool:GetAttribute("Type")) then
+                                tool.Parent = Player.Character
+                            end
+                        end
+                    end
+                    task.wait(0.1)
                 end
             end)
-            EquipWeapons()  
         end
     end
 })
+
+local autoClicking = false
+local clickDelay = 0.1
+
+Tabs.Settings:AddToggle("AutoClickToggle", {
+    Title = "Auto Click",
+    Default = false,
+    Callback = function(value)
+        autoClicking = value
+    end
+})
+
+local VirtualUser = game:GetService("VirtualUser")
+game:GetService("RunService").RenderStepped:Connect(function()
+    if autoClicking then
+        VirtualUser:Button1Down(Vector2.new(0.9, 0.9))
+        VirtualUser:Button1Up(Vector2.new(0.9, 0.9))
+        task.wait(clickDelay)
+    end
+end)
