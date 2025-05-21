@@ -88,7 +88,7 @@ Tabs.AutoFarm:AddToggle("AF", {
 
 local sle = {}
 Tabs.Settings:AddDropdown("Search weapon", {
-    Title = "Weapon Type",
+    Title = "Selech Weapon",
     Values = { "Melee", "Sword", "DevilFruit", "Special" },
     Multi = true,
     Default = sle,
@@ -108,7 +108,7 @@ Tabs.Settings:AddToggle("eq", {
                     while getgenv().eq and task.wait(0.1) do
                         for _, v in ipairs(Backpack:GetChildren()) do
              if v:IsA("Tool") and table.find(sle, v:FindFirstChild("Type").Values) then
-                        tool.Parent = player.Character
+                        v.Parent = Player.Character
                                     end
                                 end
                             end
