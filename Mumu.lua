@@ -87,6 +87,10 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 --เว้น
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Backpack = LocalPlayer:WaitForChild("Backpack")
+
 local SelectedTypes = {}
 
 Tabs.Settings:AddDropdown("se", {
@@ -99,19 +103,13 @@ Tabs.Settings:AddDropdown("se", {
     end
 })
 
-local function IsWeaponType(tool, typeName)
-    local toolType = tool:GetAttribute("Type")
-    return toolType == typeName
-end
-
 local function equip()
     for _, tool in ipairs(Backpack:GetChildren()) do
         if tool:IsA("Tool") then
-            for _, typeName in ipairs(SelectedTypes) do
-                if IsWeaponType(tool, typeName) then
-                    task.wait(0.4)
-                    LocalPlayer.Character.Humanoid:EquipTool(tool)
-                end
+            local toolType = tool:GetAttribute("Type")
+            if toolType and table.find(SelectedTypes, toolType) then
+                task.wait(0.4)
+                LocalPlayer.Character.Humanoid:EquipTool(tool)
             end
         end
     end
