@@ -186,6 +186,7 @@ Player.CharacterAdded:Connect(function(v)
 end)
 
 Tabs.Settings:AddSection("Auto Stast")
+local kuyyy = Tabs.Settings:AddLabel("มันอัพ10000ต่อครั้งใครทำไก่ตันก็เดียวเเก้ให้/“It updates 10,000 at a time. If anyone make kaitan, I’ll fix it")
 
 getgenv().melee = false
 Tabs.Settings:AddToggle("melee", {
