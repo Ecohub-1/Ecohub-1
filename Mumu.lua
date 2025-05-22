@@ -172,7 +172,7 @@ Haki:OnChanged(function(value)
     end
 end)
 
-Player.CharacterAdded:Connect(function(character)
+Player.CharacterAdded:Connect(function(v)
     task.wait(2)
     if env.b then
         pressHaki()
@@ -181,7 +181,6 @@ end)
 
 Tabs.Settings:AddSection("Auto Stast")
 
- local ReplicatedStorage = game:GetService("ReplicatedStorage")
  local Typeup = {}
 
  Tabs.Settings:AddDropdown("Typeup", {
@@ -205,8 +204,8 @@ Tabs.Settings:AddSection("Auto Stast")
              task.spawn(function()
                  while getgenv().st do
                      task.wait(0.1)
-                     for _, stat in ipairs(Typeup)
-                         ReplicatedStorage.Remotes.System:FireServer("UpStats", stat, 10000)
+                     for _, stat in ipairs(Typeup),
+                         ReplicatedStorage.Remotes.System:FireServer("UpStats", stat, 10000) do
                      end
                  end
              end)
