@@ -86,6 +86,7 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
+
 local selectedWeapons = {}
 local dropdown
 
@@ -114,6 +115,7 @@ local function updateWeaponDropdown()
             Multi = true,
             Callback = function(selected)
                 selectedWeapons = selected
+                print("Selected Weapons:", table.concat(selectedWeapons, ", "))
             end
         })
     end
@@ -138,11 +140,13 @@ Tabs.Settings:AddToggle("equip", {
                     task.wait(0.1)
                     for _, tool in pairs(Backpack:GetChildren()) do
                         if tool:IsA("Tool") and table.find(selectedWeapons, tool.Name) then
+                            print("Equipping:", tool.Name)
                             tool.Parent = character
                         end
                     end
                     for _, tool in pairs(character:GetChildren()) do
                         if tool:IsA("Tool") and not table.find(selectedWeapons, tool.Name) then
+                            print("Unequipping:", tool.Name)
                             tool.Parent = Backpack
                         end
                     end
