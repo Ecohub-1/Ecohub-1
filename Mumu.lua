@@ -14,7 +14,6 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "box" }),
-    boss = Window:AddTab({ Title = "boss", Icon = "compass" }),
     Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "bookmark" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
     other = Window:AddTab({ Title = "other", Icon = "banana" })
@@ -72,9 +71,9 @@ Tabs.AutoFarm:AddToggle("AF", {
                             repeat
                    task.wait(0.01)
  local hrp = game.Players.LocalPlayer.Character and 
-           game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+Player.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
              if hrp then
-                local offset = CFrame.new(0, 30, 0)
+                local offset = CFrame.new(0, Distance, 0)
                 local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
                 hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
                              end
@@ -86,9 +85,108 @@ Tabs.AutoFarm:AddToggle("AF", {
         end
     end
 })
---เว้น
 
-local SelectedTypes = {}
+local Distance = 20
+Tabs.Settings:Addinput("Distance", {
+    Title = "Distance",
+    Default = Distance,
+    Numeric = true,
+    Finished = true,
+    Callback = function(Dis)
+            Distance = Dis
+    end
+})
+--เว้น
+Tabs.AutoFarm:AddSection("Auto Boss")
+
+local bossSelected = "VastoHollow"
+local autoBossEnabled = false
+
+local bossItems = {
+    VastoHollow = "Orb Demon",
+    PhoenixMan = "Banana",
+    Spongebob = "Banana",
+    GhostGojo = "Orb Demon",
+}
+
+local function getExistingBoss()
+    local bossesFolder = workspace:FindFirstChild("Mob")
+    if not bossesFolder then return nil end
+
+    for _, mob in pairs(bossesFolder:GetChildren()) do
+        if mob.Name == "VastoHollow" or mob.Name == "GhostGojo" or mob.Name == "PhoenixMan" or mob.Name == "Spongebob" then
+            if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                return mob
+            end
+        end
+    end
+    return nil
+end
+
+local function useItem(itemName)
+    game:GetService("ReplicatedStorage").Remotes.Inventory:FireServer(itemName)
+end
+
+local function summonBoss(bossName)
+    local args = {
+        [1] = "fire",
+        [3] = "SummonBoss",
+        [4] = bossName
+    }
+    game:GetService("ReplicatedStorage").Modules.NetworkFramework.NetworkEvent:FireServer(unpack(args))
+end
+
+local function attackBoss(mob)
+    local hrp = game.Players.LocalPlayer.Character and
+                game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    while mob.Humanoid.Health > 0 and autoBossEnabled do
+        task.wait(0.01)
+        local offset = CFrame.new(0, Distance, 0)
+        local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
+        hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
+    end
+end
+
+Tabs.AutoFarm:AddDropdown("boss", {
+    Title = "Select Boss",
+    Values = {"VastoHollow", "GhostGojo", "PhoenixMan", "Spongebob"},
+    Default = "VastoHollow",
+    Multi = false,
+    Callback = function(selectedBoss)
+        bossSelected = selectedBoss
+    end
+})
+
+Tabs.AutoFarm:AddToggle("autoBoss", {
+    Title = "Auto Boss",
+    Default = false,
+    Callback = function(state)
+        autoBossEnabled = state
+        if state then
+            task.spawn(function()
+                while autoBossEnabled do
+                    task.wait(0.1)
+                    local existingMob = getExistingBoss()
+
+                    if existingMob then
+                        attackBoss(existingMob)
+                    else
+                        local item = bossItems[bossSelected]
+                        if item then
+                            useItem(item)
+                        end
+                        summonBoss(bossSelected)
+                        task.wait(2)
+                    end
+                end
+            end)
+        end
+    end
+})
+
+local se = {}
 
 Tabs.Settings:AddDropdown("se", {
     Title = "Select weapon",
@@ -96,18 +194,16 @@ Tabs.Settings:AddDropdown("se", {
     Default = {},
     Multi = true,
     Callback = function(value)
-        SelectedTypes = value
+        se = value
     end
 })
 
 local function equip()
-    for _, tool in ipairs(Backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            local toolType = tool:GetAttribute("Type")
-            if toolType and table.find(SelectedTypes, toolType) then
-                task.wait(0.4)
-                LocalPlayer.Character.Humanoid:EquipTool(tool)
-            end
+    for _, weaponName in ipairs(se) do
+        local tool = Backpack:FindFirstChild(weaponName)
+        if tool then
+            task.wait(0.4)
+            LocalPlayer.Character.Humanoid:EquipTool(tool)
         end
     end
 end
@@ -178,3 +274,90 @@ Player.CharacterAdded:Connect(function(v)
         pressHaki()
     end
 end)
+
+Tabs.Settings:AddSection("Auto Skill")
+getgenv().z = false
+Tabs.Settings:AddToggle("z", {
+    Title = "Auto skill Z",
+    Default = false,
+    Callback = function(z)
+        getgenv().z = z
+             if z then
+                task.spawn(function()
+                        while getgenv().z and task.wait(0.5) do
+                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Z, false, game)
+                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Z, false, game)
+                        end
+                    end)
+                end
+            end
+        })
+
+getgenv().x = false
+Tabs.Settings:AddToggle("x", {
+    Title = "Auto skill X",
+    Default = false,
+    Callback = function(x)
+        getgenv().x = x
+             if x then
+                task.spawn(function()
+                        while getgenv().x and task.wait(0.5) do
+                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.X, false, game)
+                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.X, false, game)
+                        end
+                    end)
+                end
+            end
+        })
+
+getgenv().c = false
+Tabs.Settings:AddToggle("c", {
+    Title = "Auto skill C",
+    Default = false,
+    Callback = function(c)
+        getgenv().c = c
+             if c then
+                task.spawn(function()
+                        while getgenv().c and task.wait(0.5) do
+                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.C, false, game)
+                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.C, false, game)
+                        end
+                    end)
+                end
+            end
+        })
+
+getgenv().v = false
+Tabs.Settings:AddToggle("v", {
+    Title = "Auto skill V",
+    Default = false,
+    Callback = function(v)
+        getgenv().v = v
+             if v then
+                task.spawn(function()
+                        while getgenv().v and task.wait(0.5) do
+                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.V, false, game)
+                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.V, false, game)
+                        end
+                    end)
+                end
+            end
+        })
+
+getgenv().f = false
+Tabs.Settings:AddToggle("f", {
+    Title = "Auto skill F",
+    Default = false,
+    Callback = function(f)
+        getgenv().f = f
+             if f then
+                task.spawn(function()
+                        while getgenv().f and task.wait(0.5) do
+                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
+                        end
+                    end)
+                end
+            end
+        })
+
