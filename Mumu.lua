@@ -85,7 +85,12 @@ Tabs.AutoFarm:AddToggle("AF", {
         end
     end
 })
+
+local autoEquipRunning = false
+local equippedType = nil
+local lastEquippedTool = nil
 local selectedWeaponTypes = {}
+
 Tabs.Settings:AddDropdown("Search weapon", {
     Title = "Weapon Type",
     Values = { "Melee", "Sword", "DevilFruit", "Special" },
@@ -93,29 +98,48 @@ Tabs.Settings:AddDropdown("Search weapon", {
     Default = selectedWeaponTypes,
     Callback = function(value)
         selectedWeaponTypes = value
-    end
-    })
-getgenv().eq = false
 
-Tabs.Settings:AddToggle("eq", {
+        if autoEquipRunning then
+            task.spawn(function()
+                EquipBestWeapon()
+            end)
+        end
+    end
+})
+
+function EquipBestWeapon()
+    if not Player.Character then return end
+
+    local bestTool = nil
+    for _, tool in ipairs(Backpack:GetChildren()) do
+        if tool:IsA("Tool") and table.find(selectedWeaponTypes, tool:GetAttribute("Type")) then
+            bestTool = tool
+            break 
+        end
+    end
+
+    if bestTool and bestTool ~= lastEquippedTool then
+        lastEquippedTool = bestTool
+        bestTool.Parent = Playerlayer.Character
+        equippedType = bestTool:GetAttribute("Type")
+    end
+end
+
+Tabs.Settings:AddToggle("AutoEquipToggle", {
     Title = "Auto Equip",
     Default = false,
-    Callback = function(eq)
-        getgenv().eq = eq
-            if eq then
-                task.spawn(function()
-                    while getgenv().eq and task.wait(0.1) do
-                        for _, v in pairs(Backpack:GetChildren()) do
-if v:IsA("Tool") and                               table.find(selectedWeaponTypes,v:GetAttribute("Type")) then
-                      v.Parent = Player.Character
-                                    end
-                                end
-                            end
-                        end)
-                    end
+    Callback = function(value)
+        autoEquipRunning = value
+        if autoEquipRunning then
+            task.spawn(function()
+                while autoEquipRunning do
+                    EquipBestWeapon()
+                    task.wait(0.2)
                 end
-            })
-
+            end)
+        end
+    end
+})
 
 Tabs.Settings:AddSection("Auto Click")
 
@@ -166,63 +190,3 @@ Player.CharacterAdded:Connect(function(v)
     end
 end)
 
-Tabs.Settings:AddSection("Auto Stast")
-
-local StatValues = {
-    Melee = 10000,
-    Sword = 10000,
-    Defense = 10000,
-    DevilFruit = 10000,
-    Special = 10000,
-}
-
-local ActiveStats = {
-    Melee = false,
-    Sword = false,
-    Defense = false,
-    DevilFruit = false,
-    Special = false,
-}
-
-Tabs.Settings:AddDropdown("StatDropdown", {
-    Title = "Select Stats",
-    Values = {"Melee", "Sword", "Defense", "DevilFruit", "Special"},
-    Multi = true,
-    Default = {},
-    Callback = function(selected)
-        for stat in pairs(ActiveStats) do
-            ActiveStats[stat] = table.find(selected, stat) and true or false
-        end
-    end
-})
-
-for statName in pairs(StatValues) do
-    Tabs.Settings:AddInput(statName .. "Input", {
-        Title = statName .. " Value",
-        Default = "10000",
-        Placeholder = "",
-        Numeric = true,
-        Callback = function(value)
-            StatValues[statName] = tonumber(value) or 10000
-        end
-    })
-end
-getgenv().Autost = false
-Tabs.Settings:AddToggle("Autost", {
-    Title = "Auto Stat Upgrading",
-    Default = false,
-    Callback = function(state)
-    getgenv().Autost = state
-        if state then
-            task.spawn(function()
-                while getgenv().Autost and task.wait(0.1) do
-                    for statName, enabled in pairs(ActiveStats) do
-                        if enabled then
-                            ReplicatedStorage.Remotes.System:FireServer("UpStats", statName, StatValues[statName])
-                        end
-                    end
-                end
-            end)
-        end
-    end
-})
