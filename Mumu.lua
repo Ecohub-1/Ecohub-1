@@ -87,9 +87,6 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 --เว้น
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Backpack = LocalPlayer:WaitForChild("Backpack")
 
 local SelectedTypes = {}
 
