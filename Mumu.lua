@@ -87,7 +87,7 @@ Player.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 })
 
 local Distance = 20
-Tabs.Settings:Addinput("Distance", {
+Tabs.AutoFarm:Addinput("Distance", {
     Title = "Distance",
     Default = Distance,
     Numeric = true,
