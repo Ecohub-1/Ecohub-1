@@ -85,45 +85,51 @@ Tabs.AutoFarm:AddToggle("AF", {
         end
     end
 })
-
-
-getgenv().eq = false
-getgenv().SelectedWeaponTypes = {}
-
-local function TryEquipWeapon()
-    if getgenv().eq then
-        for _, v in ipairs(Backpack:GetChildren()) do
-            if v:IsA("Tool") then
-                local weaponType = v:GetAttribute("Type")
-                if weaponType and table.find(getgenv().SelectedWeaponTypes, weaponType) then
-                    v.Parent = Player.Character
-                end
-            end
-        end
+local eq = {}
+for _, v in pairs(Backpack:GetChildren()) do
+    if v:IsA("Tool") then
+        table.insert(eq, v.Name)
     end
 end
 
-Tabs.Settings:AddDropdown("Search weapon", {
-    Title = "Search Weapon",
-    Values = { "Melee", "Sword", "DevilFruit", "Special" },
-    Multi = true,
+for _, v in pairs(character:GetChildren()) do
+    if v:IsA("Tool") then
+        table.insert(eq, v.Name)
+    end
+end
+
+local selectedWeapons = {}
+Tabs.Settings:AddDropdown("eq", {
+    Title = "Select weapon",
+    Values = eq,
     Default = {},
-    Callback = function(selection)
-        getgenv().SelectedWeaponTypes = selection
-        TryEquipWeapon()
+    Multi = true,
+    Callback = function(selected)
+        selectedWeapons = selected
     end
 })
 
-Tabs.Settings:AddToggle("eq", {
+getgenv().equip = false
+Tabs.Settings:AddToggle("equip", {
     Title = "Auto Equip",
     Default = false,
-    Callback = function(eq)
-        getgenv().eq = eq
-
-        if eq then 
+    Callback = function(state)
+        getgenv().equip = state
+        if state then
             task.spawn(function()
-                while getgenv().eq and task.wait(0.1) do
-                    TryEquipWeapon()
+                while getgenv().equip do
+                    task.wait(0.1)
+                    for _, tool in pairs(Backpack:GetChildren()) do
+                        if tool:IsA("Tool") and table.find(selectedWeapons, tool.Name) then
+                            tool.Parent = character
+                        end
+                    end
+
+                    for _, tool in pairs(character:GetChildren()) do
+                        if tool:IsA("Tool") and not table.find(selectedWeapons, tool.Name) then
+                            tool.Parent = Backpack
+                        end
+                    end
                 end
             end)
         end
@@ -181,34 +187,82 @@ end)
 
 Tabs.Settings:AddSection("Auto Stast")
 
- local Typeup = {}
-
- Tabs.Settings:AddDropdown("Typeup", {
-     Title = "Search stast",
-     Values = {"Melee", "Sword", "Defense", "DevilFruit", "Special"},
-     Multi = true,
-     Default = {},
-     Callback = function(v)
-         Typeup = v
-     end
- })
-
- getgenv().st = false
-
- Tabs.Settings:AddToggle("st", {
-     Title = "Auto Stast",
-     Default = false,
-     Callback = function(state)
-         getgenv().st = state
-         if state then
-             task.spawn(function()
-                 while getgenv().st do
-                     task.wait(0.1)
-                     for _, stat in ipairs(Typeup),
-                         ReplicatedStorage.Remotes.System:FireServer("UpStats", stat, 10000) do
-                     end
-                 end
-             end)
-         end
-     end
- })
+getgenv().melee = false
+Tabs.Settings:AddToggle("melee", {
+    Title = "Auto Stast Melee",
+    Default = false,
+    Callback = function(melee)
+        getgenv().melee = melee
+            if melee then
+                task.spawn(function()
+                    while getgenv().melee and task.wait(0.1) do
+  ReplicatedStorage.Remotes.System:FireServer("UpStats", "Melee", 10000)
+                            end
+                        end)
+                    end
+                end
+            })
+--เว้น
+getgenv().Sword = false
+Tabs.Settings:AddToggle("Sword", {
+    Title = "Auto Stast Sword",
+    Default = false,
+    Callback = function(Sword)
+        getgenv().Sword = Sword
+            if Sword then
+                task.spawn(function()
+                    while getgenv().Sword and task.wait(0.1) do
+  ReplicatedStorage.Remotes.System:FireServer("UpStats", "Sword", 10000)
+                            end
+                        end)
+                    end
+                end
+            })
+--เว้น
+getgenv().Defense = false
+Tabs.Settings:AddToggle("Defense", {
+    Title = "Auto Stast Defense",
+    Default = false,
+    Callback = function(Defense)
+        getgenv().Defense = Defense
+            if Defense then
+                task.spawn(function()
+                    while getgenv().Defense and task.wait(0.1) do
+  ReplicatedStorage.Remotes.System:FireServer("UpStats", "Defense", 10000)
+                            end
+                        end)
+                    end
+                end
+            })
+--เว้น
+getgenv().DevilFruit = false
+Tabs.Settings:AddToggle("DevilFruit", {
+    Title = "Auto Stast DevilFruit",
+    Default = false,
+    Callback = function(DevilFruit)
+        getgenv().DevilFruit = DevilFruit
+            if DevilFruit then
+                task.spawn(function()
+                    while getgenv().DevilFruit and task.wait(0.1) do
+  ReplicatedStorage.Remotes.System:FireServer("UpStats", "DevilFruit", 10000)
+                            end
+                        end)
+                    end
+                end
+            })
+--เว้น
+getgenv().Special = false
+Tabs.Settings:AddToggle("Special", {
+    Title = "Auto Stast Special",
+    Default = false,
+    Callback = function(Special)
+        getgenv().Special = Special
+            if Special then
+                task.spawn(function()
+                    while getgenv().Special and task.wait(0.1) do
+  ReplicatedStorage.Remotes.System:FireServer("UpStats", "Special", 10000)
+                            end
+                        end)
+                    end
+                end
+            })
