@@ -15,6 +15,7 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "box" }),
     Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "bookmark" }),
+    Webhook = Window:AddTab({ Title = "Webhook", Icon = "banana" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
     other = Window:AddTab({ Title = "other", Icon = "banana" })
 }
