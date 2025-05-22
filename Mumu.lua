@@ -24,6 +24,7 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local Backpack = Player:WaitForChild("Backpack")
 local character = Player.Character or Player.CharacterAdded:Wait()
+local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
@@ -85,61 +86,46 @@ Tabs.AutoFarm:AddToggle("AF", {
         end
     end
 })
+--เว้น
+local se = {}
 
-local autoEquipRunning = false
-local equippedType = nil
-local lastEquippedTool = nil
-local selectedWeaponTypes = {}
-
-Tabs.Settings:AddDropdown("Search weapon", {
-    Title = "Weapon Type",
-    Values = { "Melee", "Sword", "DevilFruit", "Special" },
+Tabs.Settings:AddDropdown("se", {
+    Title = "Select weapon",
+    Values = {"Melee", "Sword", "DevilFruit", "Special"},
+    Default = {},
     Multi = true,
-    Default = selectedWeaponTypes,
     Callback = function(value)
-        selectedWeaponTypes = value
-
-        if autoEquipRunning then
-            task.spawn(function()
-                EquipBestWeapon()
-            end)
-        end
+        se = value
     end
 })
 
-function EquipBestWeapon()
-    if not Player.Character then return end
-
-    local bestTool = nil
-    for _, tool in ipairs(Backpack:GetChildren()) do
-        if tool:IsA("Tool") and table.find(selectedWeaponTypes, tool:GetAttribute("Type")) then
-            bestTool = tool
-            break 
+local function equip()
+    for _, weaponName in ipairs(se) do
+        local tool = Backpack:FindFirstChild(weaponName)
+        if tool then
+            task.wait(0.4)
+            LocalPlayer.Character.Humanoid:EquipTool(tool)
         end
-    end
-
-    if bestTool and bestTool ~= lastEquippedTool then
-        lastEquippedTool = bestTool
-        bestTool.Parent = Playerlayer.Character
-        equippedType = bestTool:GetAttribute("Type")
     end
 end
 
-Tabs.Settings:AddToggle("AutoEquipToggle", {
+getgenv().equip = false
+Tabs.Settings:AddToggle("equip", {
     Title = "Auto Equip",
     Default = false,
-    Callback = function(value)
-        autoEquipRunning = value
-        if autoEquipRunning then
+    Callback = function(state)
+        getgenv().equip = state
+        if state then
             task.spawn(function()
-                while autoEquipRunning do
-                    EquipBestWeapon()
-                    task.wait(0.2)
+                while getgenv().equip do
+                    equip()
+                    task.wait(0.1)
                 end
             end)
         end
     end
 })
+
 
 Tabs.Settings:AddSection("Auto Click")
 
@@ -189,4 +175,3 @@ Player.CharacterAdded:Connect(function(v)
         pressHaki()
     end
 end)
-
