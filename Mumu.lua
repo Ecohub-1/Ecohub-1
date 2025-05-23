@@ -87,16 +87,6 @@ Player.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     end
 })
 
-local Distance = 20
-Tabs.AutoFarm:Addinput("Distance", {
-    Title = "Distance",
-    Default = Distance,
-    Numeric = true,
-    Finished = true,
-    Callback = function(Dis)
-            Distance = Dis
-    end
-})
 
 Tabs.Settings:AddSection("Auto Click")
 
