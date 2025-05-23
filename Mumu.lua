@@ -74,7 +74,7 @@ Tabs.AutoFarm:AddToggle("AF", {
  local hrp = game.Players.LocalPlayer.Character and 
 Player.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
              if hrp then
-                local offset = CFrame.new(0, Distance, 0)
+                local offset = CFrame.new(0, 20, 0)
                 local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
                 hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
                              end
