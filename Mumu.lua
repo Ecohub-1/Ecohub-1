@@ -97,47 +97,6 @@ Tabs.AutoFarm:Addinput("Distance", {
             Distance = Dis
     end
 })
---เว้น
-
-local se = {}
-
-Tabs.Settings:AddDropdown("se", {
-    Title = "Select weapon",
-    Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Default = {},
-    Multi = true,
-    Callback = function(value)
-        se = value
-    end
-})
-
-local function equip()
-    for _, weaponName in ipairs(se) do
-        local tool = Backpack:FindFirstChild(weaponName)
-        if tool then
-            task.wait(0.4)
-            LocalPlayer.Character.Humanoid:EquipTool(tool)
-        end
-    end
-end
-
-getgenv().equip = false
-Tabs.Settings:AddToggle("equip", {
-    Title = "Auto Equip",
-    Default = false,
-    Callback = function(state)
-        getgenv().equip = state
-        if state then
-            task.spawn(function()
-                while getgenv().equip do
-                    equip()
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end
-})
-
 
 Tabs.Settings:AddSection("Auto Click")
 
