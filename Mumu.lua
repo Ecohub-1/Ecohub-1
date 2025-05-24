@@ -58,9 +58,9 @@ getgenv().AF = false
 Tabs.AutoFarm:AddToggle("AF", {
     Title = "Auto Farm",
     Default = false,
-    Callback = function(state)
-        getgenv().AF = state
-        if state then
+    Callback = function(v)
+        getgenv().AF = v
+        if v then
             task.spawn(function()
                 while getgenv().AF and task.wait(0.01) do
                     for _, mob in pairs(Workspace.Mob:GetChildren()) do
