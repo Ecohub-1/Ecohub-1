@@ -216,13 +216,13 @@ for keyName, keyCode in pairs(keys) do
 end
 
 
-Tabs.Settings:AddSection("Auto Dungeon inf")
+Tabs.Dungeon:AddSection("Auto Dungeon inf")
 
 getgenv().Dungeon = false
 getgenv().SafeHPPercent = 20 -- ค่าเริ่มต้น
 
 -- ช่องกรอก HP% แบบจำกัดค่าระหว่าง 1 ถึง 100
-Tabs.Settings:AddInput("HPThresholdInput", {
+Tabs.Dungeon:AddInput("HPThresholdInput", {
     Title = "HP% Threshold (1–100)",
     Default = tostring(getgenv().SafeHPPercent),
     Placeholder = "Enter a value between 1 and 100",
@@ -238,7 +238,7 @@ Tabs.Settings:AddInput("HPThresholdInput", {
 })
 
 -- Toggle Auto Dungeon inf
-Tabs.AutoFarm:AddToggle("Dungeon", {
+Tabs.Dungeon:AddToggle("Dungeon", {
     Title = "Auto Dungeon inf",
     Default = false,
     Callback = function(enabled)
