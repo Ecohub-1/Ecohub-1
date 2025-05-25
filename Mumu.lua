@@ -15,7 +15,6 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "box" }),
     Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "bookmark" }),
-    Webhook = Window:AddTab({ Title = "Webhook", Icon = "banana" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
     other = Window:AddTab({ Title = "other", Icon = "banana" })
 }
@@ -58,31 +57,87 @@ getgenv().AF = false
 Tabs.AutoFarm:AddToggle("AF", {
     Title = "Auto Farm",
     Default = false,
-    Callback = function(v)
-        getgenv().AF = v
-        if v then
+    Callback = function(state)
+        getgenv().AF = state
+
+        if state then
             task.spawn(function()
                 while getgenv().AF and task.wait(0.01) do
-                    for _, mob in pairs(Workspace.Mob:GetChildren()) do
-                        if mob.Name == selectedMob and 
-                           mob:FindFirstChild("Humanoid") and 
-                           mob:FindFirstChild("HumanoidRootPart") and 
+                    for _, mob in pairs(workspace.Mob:GetChildren()) do
+                        if mob.Name == selectedMob and
+                           mob:FindFirstChild("Humanoid") and
+                           mob:FindFirstChild("HumanoidRootPart") and
                            mob.Humanoid.Health > 0 then
 
                             repeat
-                   task.wait(0.01)
- local hrp = game.Players.LocalPlayer.Character and 
-Player.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-             if hrp then
-                local offset = CFrame.new(0, 20, 0)
-                local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
-                hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
-                             end
-                until mob.Humanoid.Health <= 0 or not getgenv().AF
+                                task.wait(0.01)
+                                local player = game.Players.LocalPlayer
+                                local character = player.Character
+                                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+                                if hrp then
+                                    local offset = CFrame.new(0, Distance, 0)
+                                    local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
+                                    hrp.CFrame = mob.HumanoidRootPart.CFrame * offset * lookDown
+                                end
+                            until mob.Humanoid.Health <= 0 or not getgenv().AF
                         end
                     end
                 end
-           end)
+            end)
+        end
+    end
+})
+
+local Distance = 20
+Tabs.Settings:Addinput("Distance", {
+    Title = "Distance",
+    Default = Distance,
+    Numeric = true,
+    Finished = true,
+    Callback = function(Dis)
+            Distance = Dis
+    end
+})
+--เว้น
+Tabs.AutoFarm:AddSection("Auto Boss")
+
+
+local se = {}
+
+Tabs.Settings:AddDropdown("se", {
+    Title = "Select weapon",
+    Values = {"Melee", "Sword", "DevilFruit", "Special"},
+    Default = {},
+    Multi = true,
+    Callback = function(value)
+        se = value
+    end
+})
+
+local function equip()
+    for _, weaponName in ipairs(se) do
+        local tool = Backpack:FindFirstChild(weaponName)
+        if tool then
+            task.wait(0.4)
+            LocalPlayer.Character.Humanoid:EquipTool(tool)
+        end
+    end
+end
+
+getgenv().equip = false
+Tabs.Settings:AddToggle("equip", {
+    Title = "Auto Equip",
+    Default = false,
+    Callback = function(state)
+        getgenv().equip = state
+        if state then
+            task.spawn(function()
+                while getgenv().equip do
+                    equip()
+                    task.wait(0.1)
+                end
+            end)
         end
     end
 })
