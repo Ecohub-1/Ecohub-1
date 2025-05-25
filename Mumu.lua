@@ -1,20 +1,17 @@
--- // โหลด Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- // สร้างหน้าต่าง
 local Window = Fluent:CreateWindow({
     Title = "Eco Hub" .. Fluent.Version,
     SubTitle = " | Rock Fruit",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true,
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 })
 
--- // Tabs
 local Tabs = {
     AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "box" }),
     Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "bookmark" }),
@@ -22,36 +19,21 @@ local Tabs = {
     other = Window:AddTab({ Title = "other", Icon = "banana" })
 }
 
--- // Services
 local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Backpack = Player:WaitForChild("Backpack")
+local character = Player.Character or Player.CharacterAdded:Wait()
+local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 
--- // Player References
-local Player = Players.LocalPlayer
-local Backpack = Player:WaitForChild("Backpack")
-local LocalPlayer = Players.LocalPlayer
-local character = Player.Character or Player.CharacterAdded:Wait()
-
--- // Global Variables
-getgenv().AF = false
-getgenv().equip = false
-getgenv().click = false
-getgenv().b = false -- Auto Haki
-
-getgenv().z = false
-getgenv().x = false
-getgenv().c = false
-getgenv().v = false
-getgenv().f = false
 
 local Distance = 20
 local selectedMob = nil
 local se = {}
 
--- // Mob Dropdown
 local mobNames, mobSet = {}, {}
 for _, mob in pairs(Workspace.Mob:GetChildren()) do
     if mob:IsA("Model") and not mobSet[mob.Name] then
@@ -97,7 +79,6 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
--- // Distance Input
 Tabs.Settings:AddInput("Distance", {
     Title = "Distance",
     Default = Distance,
@@ -107,11 +88,12 @@ Tabs.Settings:AddInput("Distance", {
         Distance = Dis
     end
 })
-
--- // Auto Boss Section
+--เว้น
 Tabs.AutoFarm:AddSection("Auto Boss")
 
--- // Auto Equip Weapon
+
+local se = {}
+
 Tabs.Settings:AddDropdown("se", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
@@ -119,18 +101,20 @@ Tabs.Settings:AddDropdown("se", {
     Multi = true,
     Callback = function(value)
         se = value
-        if getgenv().equip then
-            for _, weaponName in ipairs(se) do
-                local tool = Backpack:FindFirstChild(weaponName)
-                if tool then
-                    task.wait(0.4)
-                    LocalPlayer.Character.Humanoid:EquipTool(tool)
-                end
-            end
-        end
     end
 })
 
+local function equip()
+    for _, weaponName in ipairs(se) do
+        local tool = Backpack:FindFirstChild(weaponName)
+        if tool then
+            task.wait(0.4)
+            LocalPlayer.Character.Humanoid:EquipTool(tool)
+        end
+    end
+end
+
+getgenv().equip = false
 Tabs.Settings:AddToggle("equip", {
     Title = "Auto Equip",
     Default = false,
@@ -139,13 +123,7 @@ Tabs.Settings:AddToggle("equip", {
         if state then
             task.spawn(function()
                 while getgenv().equip do
-                    for _, weaponName in ipairs(se) do
-                        local tool = Backpack:FindFirstChild(weaponName)
-                        if tool then
-                            task.wait(0.4)
-                            LocalPlayer.Character.Humanoid:EquipTool(tool)
-                        end
-                    end
+                    equip()
                     task.wait(0.1)
                 end
             end)
@@ -153,49 +131,64 @@ Tabs.Settings:AddToggle("equip", {
     end
 })
 
--- // Auto Click
+
 Tabs.Settings:AddSection("Auto Click")
+
+getgenv().click = false
 Tabs.Settings:AddToggle("click", {
     Title = "Auto Click",
     Default = false,
-    Callback = function(state)
-        getgenv().click = state
-        if state then
+    Callback = function(click)
+       getgenv().click = click
+          if click then
             task.spawn(function()
                 while getgenv().click and task.wait(0.1) do
                     VirtualUser:Button1Down(Vector2.new(0.9, 0.9))
                     VirtualUser:Button1Up(Vector2.new(0.9, 0.9))
+                            end
+                        end)
+                    end
                 end
-            end)
-        end
-    end
-})
+            })
 
--- // Auto Haki
-Tabs.Settings:AddToggle("AutoHaki", {
+
+
+local env = getgenv()
+env.b = false 
+
+local Haki = Tabs.Settings:AddToggle("AutoHaki", {
     Title = "Auto Haki",
-    Default = false,
-    Callback = function(value)
-        getgenv().b = value
-        if value and Player.Character then
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.J, false, game)
-            task.wait(0.1)
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.J, false, game)
-        end
-    end
+    Default = false
 })
 
-Player.CharacterAdded:Connect(function()
-    task.wait(2)
-    if getgenv().b then
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.J, false, game)
-        task.wait(0.1)
-        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.J, false, game)
+local function pressHaki()
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.J, false, game)
+    task.wait(0.1)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.J, false, game)
+end
+
+Haki:OnChanged(function(value)
+    env.b = value
+    if value and Player.Character then
+        pressHaki()
     end
 end)
 
--- // Auto Skill
+Player.CharacterAdded:Connect(function(v)
+    task.wait(2)
+    if env.b then
+        pressHaki()
+    end
+end)
+
 Tabs.Settings:AddSection("Auto Skill")
+
+getgenv().z = false
+getgenv().x = false
+getgenv().c = false
+getgenv().v = false
+getgenv().f = false
+
 local keys = {
     z = Enum.KeyCode.Z,
     x = Enum.KeyCode.X,
