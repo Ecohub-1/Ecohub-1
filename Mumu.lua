@@ -79,7 +79,7 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
-Tabs.Settings:AddInput("Distance", {
+Tabs.AutoFarm:AddInput("Distance", {
     Title = "Distance",
     Default = Distance,
     Numeric = true,
