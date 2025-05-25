@@ -7,9 +7,9 @@ local Window = Fluent:CreateWindow({
     SubTitle = " | Rock Fruit",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 local Tabs = {
@@ -28,7 +28,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-
 
 local Distance = 20
 local selectedMob = nil
@@ -53,7 +52,6 @@ Tabs.AutoFarm:AddDropdown("SM", {
     end
 })
 
--- // Auto Farm
 Tabs.AutoFarm:AddToggle("AF", {
     Title = "Auto Farm",
     Default = false,
@@ -85,14 +83,16 @@ Tabs.AutoFarm:AddInput("Distance", {
     Numeric = true,
     Finished = true,
     Callback = function(Dis)
-        Distance = Dis
+        Dis = tonumber(Dis)
+        if Dis and Dis >= 1 and Dis <= 100 then
+            Distance = Dis
+        else
+            warn("⚠️ Please enter a number between 1 and 100 for Distance.")
+        end
     end
 })
---เว้น
+
 Tabs.AutoFarm:AddSection("Auto Boss")
-
-
-local se = {}
 
 Tabs.Settings:AddDropdown("se", {
     Title = "Select weapon",
@@ -101,12 +101,15 @@ Tabs.Settings:AddDropdown("se", {
     Multi = true,
     Callback = function(value)
         se = value
+        if getgenv().equip then
+            equip()
+        end
     end
 })
 
 local function equip()
     for _, weaponName in ipairs(se) do
-        local tool = Backpack:FindFirstChild(weaponName)
+        local tool = Backpack:FindFirstChild(weaponName) or LocalPlayer.Character:FindFirstChild(weaponName)
         if tool then
             task.wait(0.4)
             LocalPlayer.Character.Humanoid:EquipTool(tool)
@@ -131,7 +134,6 @@ Tabs.Settings:AddToggle("equip", {
     end
 })
 
-
 Tabs.Settings:AddSection("Auto Click")
 
 getgenv().click = false
@@ -139,22 +141,20 @@ Tabs.Settings:AddToggle("click", {
     Title = "Auto Click",
     Default = false,
     Callback = function(click)
-       getgenv().click = click
-          if click then
+        getgenv().click = click
+        if click then
             task.spawn(function()
                 while getgenv().click and task.wait(0.1) do
                     VirtualUser:Button1Down(Vector2.new(0.9, 0.9))
                     VirtualUser:Button1Up(Vector2.new(0.9, 0.9))
-                            end
-                        end)
-                    end
                 end
-            })
-
-
+            end)
+        end
+    end
+})
 
 local env = getgenv()
-env.b = false 
+env.b = false
 
 local Haki = Tabs.Settings:AddToggle("AutoHaki", {
     Title = "Auto Haki",
@@ -199,7 +199,7 @@ local keys = {
 
 for keyName, keyCode in pairs(keys) do
     Tabs.Settings:AddToggle(keyName, {
-        Title = "Auto skill " .. keyName:upper(),
+        Title = "Auto Skill: " .. keyName:upper(),
         Default = false,
         Callback = function(state)
             getgenv()[keyName] = state
@@ -215,13 +215,11 @@ for keyName, keyCode in pairs(keys) do
     })
 end
 
-
-Tabs.Dungeon:AddSection("Auto Dungeon inf")
+Tabs.Dungeon:AddSection("Auto Dungeon")
 
 getgenv().Dungeon = false
-getgenv().SafeHPPercent = 20 -- ค่าเริ่มต้น
+getgenv().SafeHPPercent = 20
 
--- ช่องกรอก HP% แบบจำกัดค่าระหว่าง 1 ถึง 100
 Tabs.Dungeon:AddInput("HPThresholdInput", {
     Title = "HP% Threshold (1–100)",
     Default = tostring(getgenv().SafeHPPercent),
@@ -237,9 +235,8 @@ Tabs.Dungeon:AddInput("HPThresholdInput", {
     end
 })
 
--- Toggle Auto Dungeon inf
 Tabs.Dungeon:AddToggle("Dungeon", {
-    Title = "Auto Dungeon inf",
+    Title = "Auto Dungeon",
     Default = false,
     Callback = function(enabled)
         getgenv().Dungeon = enabled
@@ -248,6 +245,7 @@ Tabs.Dungeon:AddToggle("Dungeon", {
             task.spawn(function()
                 local RunService = game:GetService("RunService")
                 local player = game.Players.LocalPlayer
+                local dunMobFolder = workspace:WaitForChild("DunMob")
 
                 while getgenv().Dungeon do
                     local character = player.Character
@@ -263,20 +261,16 @@ Tabs.Dungeon:AddToggle("Dungeon", {
                         end
                     end
 
-                    for _, mob in ipairs(workspace:WaitForChild("DunMob"):GetChildren()) do
+                    for _, mob in ipairs(dunMobFolder:GetChildren()) do
                         local mobHumanoid = mob:FindFirstChild("Humanoid")
                         local mobHRP = mob:FindFirstChild("HumanoidRootPart")
 
                         if mob.Name and mobHumanoid and mobHumanoid.Health > 0 and mobHRP and hrp then
                             repeat
                                 RunService.Heartbeat:Wait()
-
                                 if not getgenv().Dungeon then break end
                                 if not (character and hrp and mobHumanoid.Health > 0) then break end
-
-                                local offset = CFrame.new(0, 5, 0)
-                                local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
-                                hrp.CFrame = mobHRP.CFrame * offset * lookDown
+                                hrp.CFrame = mobHRP.CFrame * CFrame.new(0, 5, 0) * CFrame.Angles(math.rad(-90), 0, 0)
                             until mobHumanoid.Health <= 0 or not getgenv().Dungeon
                         end
                     end
