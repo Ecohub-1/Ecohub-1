@@ -214,3 +214,76 @@ for keyName, keyCode in pairs(keys) do
         end
     })
 end
+
+
+Tabs.Settings:AddSection("Auto Dungeon inf")
+
+getgenv().Dungeon = false
+getgenv().SafeHPPercent = 20 -- ค่าเริ่มต้น
+
+-- ช่องกรอก HP% แบบจำกัดค่าระหว่าง 1 ถึง 100
+Tabs.Settings:AddInput("HPThresholdInput", {
+    Title = "HP% Threshold (1–100)",
+    Default = tostring(getgenv().SafeHPPercent),
+    Placeholder = "Enter a value between 1 and 100",
+    Numeric = true,
+    Callback = function(value)
+        local number = tonumber(value)
+        if number and number >= 1 and number <= 100 then
+            getgenv().SafeHPPercent = math.floor(number)
+        else
+            warn("❌ Invalid HP% input! Please enter a number between 1 and 100.")
+        end
+    end
+})
+
+-- Toggle Auto Dungeon inf
+Tabs.AutoFarm:AddToggle("Dungeon", {
+    Title = "Auto Dungeon inf",
+    Default = false,
+    Callback = function(enabled)
+        getgenv().Dungeon = enabled
+
+        if enabled then
+            task.spawn(function()
+                local RunService = game:GetService("RunService")
+                local player = game.Players.LocalPlayer
+
+                while getgenv().Dungeon do
+                    local character = player.Character
+                    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                    local humanoid = character and character:FindFirstChild("Humanoid")
+
+                    if humanoid and hrp then
+                        local hpPercent = (humanoid.Health / humanoid.MaxHealth) * 100
+                        if hpPercent <= getgenv().SafeHPPercent then
+                            hrp.CFrame = hrp.CFrame + Vector3.new(0, 100, 0)
+                            task.wait(1)
+                            continue
+                        end
+                    end
+
+                    for _, mob in ipairs(workspace:WaitForChild("DunMob"):GetChildren()) do
+                        local mobHumanoid = mob:FindFirstChild("Humanoid")
+                        local mobHRP = mob:FindFirstChild("HumanoidRootPart")
+
+                        if mob.Name and mobHumanoid and mobHumanoid.Health > 0 and mobHRP and hrp then
+                            repeat
+                                RunService.Heartbeat:Wait()
+
+                                if not getgenv().Dungeon then break end
+                                if not (character and hrp and mobHumanoid.Health > 0) then break end
+
+                                local offset = CFrame.new(0, 5, 0)
+                                local lookDown = CFrame.Angles(math.rad(-90), 0, 0)
+                                hrp.CFrame = mobHRP.CFrame * offset * lookDown
+                            until mobHumanoid.Health <= 0 or not getgenv().Dungeon
+                        end
+                    end
+
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
