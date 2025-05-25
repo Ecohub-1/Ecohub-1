@@ -270,7 +270,7 @@ Tabs.Dungeon:AddToggle("Dungeon", {
                                 RunService.Heartbeat:Wait()
                                 if not getgenv().Dungeon then break end
                                 if not (character and hrp and mobHumanoid.Health > 0) then break end
-                                hrp.CFrame = mobHRP.CFrame * CFrame.new(0, 5, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                hrp.CFrame = mobHRP.CFrame * CFrame.new(0, Distance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
                             until mobHumanoid.Health <= 0 or not getgenv().Dungeon
                         end
                     end
