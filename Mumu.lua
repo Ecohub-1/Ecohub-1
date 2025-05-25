@@ -193,88 +193,30 @@ Player.CharacterAdded:Connect(function(v)
 end)
 
 Tabs.Settings:AddSection("Auto Skill")
-getgenv().z = false
-Tabs.Settings:AddToggle("z", {
-    Title = "Auto skill Z",
-    Default = false,
-    Callback = function(z)
-        getgenv().z = z
-             if z then
-                task.spawn(function()
-                        while getgenv().z and task.wait(0.5) do
-                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Z, false, game)
-                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Z, false, game)
-                        end
-                    end)
-                end
-            end
-        })
 
-getgenv().x = false
-Tabs.Settings:AddToggle("x", {
-    Title = "Auto skill X",
-    Default = false,
-    Callback = function(x)
-        getgenv().x = x
-             if x then
-                task.spawn(function()
-                        while getgenv().x and task.wait(0.5) do
-                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.X, false, game)
-                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.X, false, game)
-                        end
-                    end)
-                end
-            end
-        })
+local keys = {
+    z = Enum.KeyCode.Z,
+    x = Enum.KeyCode.X,
+    c = Enum.KeyCode.C,
+    v = Enum.KeyCode.V,
+    f = Enum.KeyCode.F,
+}
 
-getgenv().c = false
-Tabs.Settings:AddToggle("c", {
-    Title = "Auto skill C",
-    Default = false,
-    Callback = function(c)
-        getgenv().c = c
-             if c then
+for keyName, keyCode in pairs(keys) do
+    getgenv()[keyName] = false
+    Tabs.Settings:AddToggle(keyName, {
+        Title = "Auto skill " .. keyName:upper(),
+        Default = false,
+        Callback = function(state)
+            getgenv()[keyName] = state
+            if state then
                 task.spawn(function()
-                        while getgenv().c and task.wait(0.5) do
-                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.C, false, game)
-                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.C, false, game)
-                        end
-                    end)
-                end
+                    while getgenv()[keyName] and task.wait(0.5) do
+                        VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
+                        VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
+                    end
+                end)
             end
-        })
-
-getgenv().v = false
-Tabs.Settings:AddToggle("v", {
-    Title = "Auto skill V",
-    Default = false,
-    Callback = function(v)
-        getgenv().v = v
-             if v then
-                task.spawn(function()
-                        while getgenv().v and task.wait(0.5) do
-                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.V, false, game)
-                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.V, false, game)
-                        end
-                    end)
-                end
-            end
-        })
-
-getgenv().f = false
-Tabs.Settings:AddToggle("f", {
-    Title = "Auto skill F",
-    Default = false,
-    Callback = function(f)
-        getgenv().f = f
-             if f then
-                task.spawn(function()
-                        while getgenv().f and task.wait(0.5) do
-                            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-                            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
-                        end
-                    end)
-                end
-            end
-        })
-
+        end
+    })
+end
