@@ -32,7 +32,7 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 -- ดีคับ
 Fluent:Notify({
     Title = "ECO Dev",
-    Content = "💞ยินดีตอนรับคับอ้วน💞",
+    Content = "💞ยินดีตอนรับคับอ้วน💞\nมือใหม่หัดเขียน",
     Duration = 5
 })
 --ควย
