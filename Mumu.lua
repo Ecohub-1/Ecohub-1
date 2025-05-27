@@ -3,7 +3,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub" .. Fluent.Version,
+    Title = "Eco Hub",
     SubTitle = " | Rock Fruit",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
@@ -29,7 +29,14 @@ local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 
-local Distance = 20
+-- ดีคับ
+Fluent:Notify({
+    Title = "ECO Dev",
+    Content = "💞ยินดีตอนรับคับอ้วน💞",
+    Duration = 5
+})
+--ควย
+local Distance = 23
 local selectedMob = nil
 local se = {}
 
@@ -84,10 +91,8 @@ Tabs.AutoFarm:AddInput("Distance", {
     Finished = true,
     Callback = function(Dis)
         Dis = tonumber(Dis)
-        if Dis and Dis >= 1 and Dis <= 100 then
+        if Dis and Dis >= 1 and Dis <= 1000 then
             Distance = Dis
-        else
-            warn("⚠️ Please enter a number between 1 and 100 for Distance.")
         end
     end
 })
@@ -220,6 +225,7 @@ Tabs.Dungeon:AddSection("Auto Dungeon")
 getgenv().Dungeon = false
 getgenv().SafeHPPercent = 20
 
+-- Input สำหรับ HP Threshold
 Tabs.Dungeon:AddInput("HPThresholdInput", {
     Title = "HP% Threshold (1–100)",
     Default = tostring(getgenv().SafeHPPercent),
@@ -230,54 +236,66 @@ Tabs.Dungeon:AddInput("HPThresholdInput", {
         if number and number >= 1 and number <= 100 then
             getgenv().SafeHPPercent = math.floor(number)
         else
-            warn("❌ Invalid HP% input! Please enter a number between 1 and 100.")
+            Fluent:Notify({
+                Title = "Invalid Input",
+                Content = "❌ Please enter a number between 1 and 100.",
+                Duration = 5
+            })
         end
     end
 })
 
+-- Toggle สำหรับ Auto Dungeon
 Tabs.Dungeon:AddToggle("Dungeon", {
     Title = "Auto Dungeon",
     Default = false,
     Callback = function(enabled)
         getgenv().Dungeon = enabled
+        if not enabled then return end
 
-        if enabled then
-            task.spawn(function()
-                local RunService = game:GetService("RunService")
-                local player = game.Players.LocalPlayer
-                local dunMobFolder = workspace:WaitForChild("DunMob")
+        task.spawn(function()
+            local RunService = game:GetService("RunService")
+            local player = game.Players.LocalPlayer
+            local dunMobFolder = workspace:WaitForChild("DunMob")
 
-                while getgenv().Dungeon do
-                    local character = player.Character
-                    local hrp = character and character:FindFirstChild("HumanoidRootPart")
-                    local humanoid = character and character:FindFirstChild("Humanoid")
+            while getgenv().Dungeon do
+                local character = player.Character
+                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                local humanoid = character and character:FindFirstChild("Humanoid")
 
-                    if humanoid and hrp then
-                        local hpPercent = (humanoid.Health / humanoid.MaxHealth) * 100
-                        if hpPercent <= getgenv().SafeHPPercent then
-                            hrp.CFrame = hrp.CFrame + Vector3.new(0, 100, 0)
-                            task.wait(1)
-                            continue
-                        end
+                if humanoid and hrp then
+                    local hpPercent = (humanoid.Health / humanoid.MaxHealth) * 100
+                    if hpPercent <= getgenv().SafeHPPercent then
+                        hrp.CFrame = hrp.CFrame + Vector3.new(0, 100, 0)
+                        task.wait(1)
+                        continue
                     end
-
-                    for _, mob in ipairs(dunMobFolder:GetChildren()) do
-                        local mobHumanoid = mob:FindFirstChild("Humanoid")
-                        local mobHRP = mob:FindFirstChild("HumanoidRootPart")
-
-                        if mob.Name and mobHumanoid and mobHumanoid.Health > 0 and mobHRP and hrp then
-                            repeat
-                                RunService.Heartbeat:Wait()
-                                if not getgenv().Dungeon then break end
-                                if not (character and hrp and mobHumanoid.Health > 0) then break end
-                                hrp.CFrame = mobHRP.CFrame * CFrame.new(0, Distance, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                            until mobHumanoid.Health <= 0 or not getgenv().Dungeon
-                        end
-                    end
-
-                    task.wait(0.1)
                 end
-            end)
-        end
+
+                for _, mob in ipairs(dunMobFolder:GetChildren()) do
+                    local mobHumanoid = mob:FindFirstChild("Humanoid")
+                    local mobHRP = mob:FindFirstChild("HumanoidRootPart")
+
+                    if mobHumanoid and mobHumanoid.Health > 0 and mobHRP and hrp then
+                        repeat
+                            RunService.Heartbeat:Wait()
+                            if not getgenv().Dungeon then break end
+                            hrp.CFrame = mobHRP.CFrame * CFrame.new(0, Distance or 0, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                        until mobHumanoid.Health <= 0 or not getgenv().Dungeon
+                    end
+                end
+
+                task.wait(0.1)
+            end
+        end)
+    end
+})
+
+-- ปุ่ม Teleport ไป Dungeon
+Tabs.Dungeon:AddButton("inf", {
+    Title = "Teleport to Dungeon",
+    Callback = function()
+        local placeId = 138317269457177
+        game:GetService("TeleportService"):Teleport(placeId)
     end
 })
