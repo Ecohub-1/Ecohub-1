@@ -97,32 +97,40 @@ Tabs.AutoFarm:AddInput("Distance", {
 Tabs.AutoFarm:AddSection("Auto Boss")
 
 --lllllllllsslsl
-local ToolType = Tabs.Settings:AddDropdown("ToolType", {
+getgenv().SelectedToolTypes = {}
+
+local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
     Multi = true,
     Default = {}
 })
-ToolType:OnChanged(function(Tool)
-    ToolType = Tool
-        end)
+
+ToolTypeDropdown:OnChanged(function(selectedTypes)
+    getgenv().SelectedToolTypes = selectedTypes
+end)
+
 getgenv().equip = false
+
 Tabs.Settings:AddToggle("eq", {
     Title = "Auto Equip",
     Default = false,
     Callback = function(eq)
         getgenv().equip = eq
-           if eq then
-             task.spawn(function()
+        if eq then
+            task.spawn(function()
                 while getgenv().equip and task.wait(0.1) do
                     for _, Tool in pairs(Backpack:GetChildren()) do
-                        if Tool:IsA("Tool") and table.find(ToolType, GetAttribute("Type") or Tool.Type) then
-                            Humanoid:EquipTool(Tool)
-                                end
-                                end
+                        if Tool:IsA("Tool") then
+                            local toolType = Tool:GetAttribute("Type") or Tool.Type
+                            if table.find(getgenv().SelectedToolTypes, toolType) then
+                                Humanoid:EquipTool(Tool)
+                            end
                         end
-                    end)
-            end
+                    end
+                end
+            end)
+        end
     end
 })
 Tabs.Settings:AddSection("Auto Click")
