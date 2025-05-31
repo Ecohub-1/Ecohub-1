@@ -97,8 +97,7 @@ Tabs.AutoFarm:AddInput("Distance", {
 Tabs.AutoFarm:AddSection("Auto Boss")
 
 --lllllllllsslsl
-local ToolType = {}
-Tabs.Settings:AddDropdown("ToolType", {
+local ToolType = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
     Multi = true,
