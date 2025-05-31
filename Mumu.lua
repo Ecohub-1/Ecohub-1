@@ -3,7 +3,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Eco Hub",
+    Title = "Eco Hub" .. Fluent.Version,
     SubTitle = " | Rock Fruit",
     TabWidth = 150,
     Size = UDim2.fromOffset(580, 400),
@@ -28,15 +28,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
 local VirtualInputManager = game:GetService("VirtualInputManager")
+local Humanoid = character:WaitForChild("Humanoid")
 
 -- ดีคับ
-Fluent:Notify({
-    Title = "ECO Dev",
-    Content = "💞ยินดีตอนรับคับอ้วน💞\nมือใหม่หัดเขียน",
-    Duration = 5
-})
+
 --ควย
-local Distance = 23
+local Distance = 20
 local selectedMob = nil
 local se = {}
 
@@ -91,7 +88,7 @@ Tabs.AutoFarm:AddInput("Distance", {
     Finished = true,
     Callback = function(Dis)
         Dis = tonumber(Dis)
-        if Dis and Dis >= 1 and Dis <= 1000 then
+        if Dis and Dis >= 1 and Dis <= 100 then
             Distance = Dis
         end
     end
@@ -99,46 +96,36 @@ Tabs.AutoFarm:AddInput("Distance", {
 
 Tabs.AutoFarm:AddSection("Auto Boss")
 
-Tabs.Settings:AddDropdown("se", {
+--lllllllllsslsl
+local ToolType = {}
+Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Default = {},
     Multi = true,
-    Callback = function(value)
-        se = value
-        if getgenv().equip then
-            equip()
-        end
-    end
+    Default = {}
 })
-
-local function equip()
-    for _, weaponName in ipairs(se) do
-        local tool = Backpack:FindFirstChild(weaponName) or LocalPlayer.Character:FindFirstChild(weaponName)
-        if tool then
-            task.wait(0.4)
-            LocalPlayer.Character.Humanoid:EquipTool(tool)
-        end
-    end
-end
-
+ToolType:OnChanged(function(Tool)
+    ToolType = Tool
+        end)
 getgenv().equip = false
-Tabs.Settings:AddToggle("equip", {
+Tabs.Settings:AddToggle("eq", {
     Title = "Auto Equip",
     Default = false,
-    Callback = function(state)
-        getgenv().equip = state
-        if state then
-            task.spawn(function()
-                while getgenv().equip do
-                    equip()
-                    task.wait(0.1)
-                end
-            end)
-        end
+    Callback = function(eq)
+        getgenv().equip = eq
+           if eq then
+             task.spawn(function()
+                while getgenv().equip and task.wait(0.1) do
+                    for _, Tool in pairs(Backpack:GetChildren()) do
+                        if Tool:IsA("Tool") and table.find(ToolType, GetAttribute("Type") or Tool.Type) then
+                            Humanoid:EquipTool(Tool)
+                                end
+                                end
+                        end
+                    end)
+            end
     end
 })
-
 Tabs.Settings:AddSection("Auto Click")
 
 getgenv().click = false
@@ -225,7 +212,6 @@ Tabs.Dungeon:AddSection("Auto Dungeon")
 getgenv().Dungeon = false
 getgenv().SafeHPPercent = 20
 
--- Input สำหรับ HP Threshold
 Tabs.Dungeon:AddInput("HPThresholdInput", {
     Title = "HP% Threshold (1–100)",
     Default = tostring(getgenv().SafeHPPercent),
@@ -245,9 +231,8 @@ Tabs.Dungeon:AddInput("HPThresholdInput", {
     end
 })
 
--- Toggle สำหรับ Auto Dungeon
 Tabs.Dungeon:AddToggle("Dungeon", {
-    Title = "Auto Dungeon",
+    Title = "Auto inf Dungeon",
     Default = false,
     Callback = function(enabled)
         getgenv().Dungeon = enabled
@@ -291,9 +276,8 @@ Tabs.Dungeon:AddToggle("Dungeon", {
     end
 })
 
--- ปุ่ม Teleport ไป Dungeon
-Tabs.Dungeon:AddButton("inf", {
-    Title = "Teleport to Dungeon",
+Tabs.Dungeon:AddButton({
+    Title = "Teleport to inf Dungeon",
     Callback = function()
         local placeId = 138317269457177
         game:GetService("TeleportService"):Teleport(placeId)
