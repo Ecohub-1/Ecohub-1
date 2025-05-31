@@ -99,6 +99,7 @@ Tabs.AutoFarm:AddSection("Auto Boss")
 --lllllllllsslsl
 getgenv().SelectedToolTypes = {}
 
+-- สร้าง Dropdown
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
@@ -110,6 +111,7 @@ ToolTypeDropdown:OnChanged(function(selectedTypes)
     getgenv().SelectedToolTypes = selectedTypes
 end)
 
+-- Toggle Auto Equip
 getgenv().equip = false
 
 Tabs.Settings:AddToggle("eq", {
@@ -120,11 +122,16 @@ Tabs.Settings:AddToggle("eq", {
         if eq then
             task.spawn(function()
                 while getgenv().equip and task.wait(0.1) do
+                    Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                    Humanoid = Character:FindFirstChild("Humanoid")
+                    Backpack = LocalPlayer:WaitForChild("Backpack")
+
                     for _, Tool in pairs(Backpack:GetChildren()) do
                         if Tool:IsA("Tool") then
-                            local toolType = Tool:GetAttribute("Type") or Tool.Type
-                            if table.find(getgenv().SelectedToolTypes, toolType) then
+                            local toolType = Tool:GetAttribute("Type") or Tool:FindFirstChild("Type") and Tool.Type or nil
+                            if toolType and table.find(getgenv().SelectedToolTypes, toolType) then
                                 Humanoid:EquipTool(Tool)
+                                break 
                             end
                         end
                     end
