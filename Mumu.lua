@@ -142,12 +142,12 @@ Tabs.Boss:AddToggle("Arm", {
 })
 
 Tabs.Settings:AddSection("Auto Equip")
-getgenv().SelectedToolTypes = {}
+getgenv().SelectedToolTypes = nil
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Default = 4,
+    Default = 1,
     Multi = true
 })
 
@@ -163,23 +163,25 @@ Tabs.Settings:AddToggle("eq", {
     end
 })
 
+
 local player = game:GetService("Players").LocalPlayer
-local backpack = player:WaitForChild("Backpack")
-local character = player.Character or player.CharacterAdded:Wait()
+local backpack = player.Backpack
+local character = player.Character
 
 task.spawn(function()
-    while task.wait(0.5) do
-        if getgenv().equip and getgenv().SelectedToolTypes then
-            for _, tool in pairs(backpack:GetChildren()) do
-                local toolType = tool:GetAttribute("Type")
-                if toolType and table.find(getgenv().SelectedToolTypes, toolType) then
-                    if not tool:IsDescendantOf(character) then
-                        character.Humanoid:EquipTool(tool)
+    pcall(function()
+        while task.wait(0.5) do
+            if getgenv().equip then
+                for i,Tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                    local ToolType = Tool:GetAttribute("Type")
+                    if getgenv().SelectedToolTypes == ToolType then
+                        character.Humanoid:EquipTool(Tool)
+                        break
                     end
                 end
             end
         end
-    end
+    end)
 end)
 Tabs.Settings:AddSection("Auto Click")
 
