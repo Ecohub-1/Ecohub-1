@@ -148,8 +148,8 @@ getgenv().SelectedToolTypes = nil
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Default = 1,
-    Multi = true
+    Multi = true,
+    Default = 1
 })
 
 ToolTypeDropdown:OnChanged(function(selectedTypes)
