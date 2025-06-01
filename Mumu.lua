@@ -60,68 +60,62 @@ Tabs.AutoFarm:AddDropdown("SM", {
     end
 })
 
-function AutoFarmAndArmStrong()
-    task.spawn(function()
-        while true do
-            task.wait(0.01)
+task.spawn(function()
+    while true do
+        task.wait(0.01)
 
-            if getgenv().Arm then
-                local foundArm = false
-                for _, mob in pairs(workspace.Mob:GetChildren()) do
-                    if mob.Name == "ArmStrong"
-                    and mob:FindFirstChild("Humanoid")
-                    and mob:FindFirstChild("HumanoidRootPart")
-                    and mob.Humanoid.Health > 0 then
-                        foundArm = true
-                        repeat
-                            task.wait(0.01)
-                            local hrp = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-                            if hrp and mob and mob:FindFirstChild("HumanoidRootPart") then
-                                hrp.CFrame = mob.HumanoidRootPart.CFrame
-                                    * CFrame.new(0, Distance, 0)
-                                    * CFrame.Angles(math.rad(-90), 0, 0)
-                            end
-                        until mob.Humanoid.Health <= 0 or not getgenv().Arm
-                    end
-                end
-                if foundArm then
+        if getgenv().Arm then
+            local foundArm = false
+            for _, mob in pairs(workspace.Mob:GetChildren()) do
+                if mob.Name == "ArmStrong"
+                and mob:FindFirstChild("Humanoid")
+                and mob:FindFirstChild("HumanoidRootPart")
+                and mob.Humanoid.Health > 0 then
+                    foundArm = true
+                    repeat
+                        task.wait(0.01)
+                        local hrp = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp and mob and mob:FindFirstChild("HumanoidRootPart") then
+                            hrp.CFrame = mob.HumanoidRootPart.CFrame
+                                * CFrame.new(0, Distance, 0)
+                                * CFrame.Angles(math.rad(-90), 0, 0)
+                        end
+                    until mob.Humanoid.Health <= 0 or not getgenv().Arm
                 end
             end
+            if foundArm then
+                continue
+            end
+        end
 
-            if getgenv().AF then
-                for _, mob in pairs(workspace.Mob:GetChildren()) do
-                    if mob.Name == selectedMob
-                    and mob:FindFirstChild("Humanoid")
-                    and mob:FindFirstChild("HumanoidRootPart")
-                    and mob.Humanoid.Health > 0 then
-                        repeat
-                            task.wait(0.01)
-                            local hrp = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-                            if hrp and mob and mob:FindFirstChild("HumanoidRootPart") then
-                                hrp.CFrame = mob.HumanoidRootPart.CFrame
-                                    * CFrame.new(0, Distance, 0)
-                                    * CFrame.Angles(math.rad(-90), 0, 0)
-                            end
-                        until mob.Humanoid.Health <= 0 or not getgenv().AF or getgenv().Arm
-                    end
+        if getgenv().AF then
+            for _, mob in pairs(workspace.Mob:GetChildren()) do
+                if mob.Name == selectedMob
+                and mob:FindFirstChild("Humanoid")
+                and mob:FindFirstChild("HumanoidRootPart")
+                and mob.Humanoid.Health > 0 then
+                    repeat
+                        task.wait(0.01)
+                        local hrp = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp and mob and mob:FindFirstChild("HumanoidRootPart") then
+                            hrp.CFrame = mob.HumanoidRootPart.CFrame
+                                * CFrame.new(0, Distance, 0)
+                                * CFrame.Angles(math.rad(-90), 0, 0)
+                        end
+                    until mob.Humanoid.Health <= 0 or not getgenv().AF or getgenv().Arm
                 end
             end
         end
-    end)
-end
+    end
+end)
 
 Tabs.AutoFarm:AddToggle("AF", {
     Title = "Auto Farm",
     Default = false,
     Callback = function(state)
         getgenv().AF = state
-        if getgenv().AF or getgenv().Arm then
-            AutoFarmAndArmStrong()
-        end
     end
 })
-
-
 
 Tabs.AutoFarm:AddSlider("Dis", {
     Title = "Distance",
@@ -138,21 +132,17 @@ Tabs.AutoFarm:AddSlider("Dis", {
 })
 
 Tabs.Boss:AddSection("Auto Boss")
-
-getgenv().Arm = false
+getgenv().Ar = false
 Tabs.Boss:AddToggle("Arm", {
     Title = "Auto ArmStrong",
     Default = false,
     Callback = function(state)
         getgenv().Arm = state
-        if getgenv().AF or getgenv().Arm then
-            AutoFarmAndArmStrong()
-        end
     end
 })
 
 Tabs.Settings:AddSection("Auto Equip")
-getgenv().SelectedToolTypes = nil
+getgenv().SelectedToolTypes = {}
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
@@ -173,25 +163,23 @@ Tabs.Settings:AddToggle("eq", {
     end
 })
 
-
 local player = game:GetService("Players").LocalPlayer
-local backpack = player.Backpack
-local character = player.Character
+local backpack = player:WaitForChild("Backpack")
+local character = player.Character or player.CharacterAdded:Wait()
 
 task.spawn(function()
-    pcall(function()
-        while task.wait(0.5) do
-            if getgenv().equip then
-                for _,Tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                    local ToolType = Tool:GetAttribute("Type")
-                    if getgenv().SelectedToolTypes == ToolType then
-                        character.Humanoid:EquipTool(Tool)
-                        break
+    while task.wait(0.5) do
+        if getgenv().equip and getgenv().SelectedToolTypes then
+            for _, tool in pairs(backpack:GetChildren()) do
+                local toolType = tool:GetAttribute("Type")
+                if toolType and table.find(getgenv().SelectedToolTypes, toolType) then
+                    if not tool:IsDescendantOf(character) then
+                        character.Humanoid:EquipTool(tool)
                     end
                 end
             end
         end
-    end)
+    end
 end)
 Tabs.Settings:AddSection("Auto Click")
 
