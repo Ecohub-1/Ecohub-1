@@ -38,6 +38,7 @@ local Humanoid = character:WaitForChild("Humanoid")
 local Distance = 20
 local selectedMob = nil
 getgenv().AF = false
+getgenv().Ar = false
 
 local Player = game.Players.LocalPlayer
 
@@ -132,7 +133,7 @@ Tabs.AutoFarm:AddSlider("Dis", {
 })
 
 Tabs.Boss:AddSection("Auto Boss")
-getgenv().Ar = false
+
 Tabs.Boss:AddToggle("Arm", {
     Title = "Auto ArmStrong",
     Default = false,
