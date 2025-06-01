@@ -97,49 +97,46 @@ Tabs.AutoFarm:AddInput("Distance", {
 Tabs.AutoFarm:AddSection("Auto Boss")
 
 --lllllllllsslsl
-getgenv().SelectedToolTypes = {}
+getgenv().SelectedToolTypes = nil
 
--- สร้าง Dropdown
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Multi = true,
-    Default = {}
+    Default = 1
 })
 
 ToolTypeDropdown:OnChanged(function(selectedTypes)
     getgenv().SelectedToolTypes = selectedTypes
 end)
 
--- Toggle Auto Equip
-getgenv().equip = false
-
 Tabs.Settings:AddToggle("eq", {
     Title = "Auto Equip",
     Default = false,
     Callback = function(eq)
         getgenv().equip = eq
-        if eq then
-            task.spawn(function()
-                while getgenv().equip and task.wait(0.1) do
-                    Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-                    Humanoid = Character:FindFirstChild("Humanoid")
-                    Backpack = LocalPlayer:WaitForChild("Backpack")
-
-                    for _, Tool in pairs(Backpack:GetChildren()) do
-                        if Tool:IsA("Tool") then
-                            local toolType = Tool:GetAttribute("Type") or Tool:FindFirstChild("Type") and Tool.Type or nil
-                            if toolType and table.find(getgenv().SelectedToolTypes, toolType) then
-                                Humanoid:EquipTool(Tool)
-                                break 
-                            end
-                        end
-                    end
-                end
-            end)
-        end
     end
 })
+
+
+local player = game:GetService("Players").LocalPlayer
+local backpack = player.Backpack
+local character = player.Character
+
+task.spawn(function()
+    pcall(function()
+        while task.wait(0.5) do
+            if getgenv().equip then
+                for _,Tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                    local ToolType = Tool:GetAttribute("Type")
+                    if getgenv().SelectedToolTypes == ToolType then
+                        character.Humanoid:EquipTool(Tool)
+                        break
+                    end
+                end
+            end
+        end
+    end)
+end)
 Tabs.Settings:AddSection("Auto Click")
 
 getgenv().click = false
