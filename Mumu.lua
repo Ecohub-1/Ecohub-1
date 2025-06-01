@@ -153,7 +153,7 @@ task.spawn(function()
 
                 for _, tool in ipairs(backpack:GetChildren()) do
                     if isValidTool(tool) and not character:FindFirstChild(tool.Name) then
-                        tool.Parent = character -- 👈 ใส่เข้า Character ตรงๆ
+                      character.Humanoid:EquipTool(tool)
                     end
                 end
             end
