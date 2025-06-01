@@ -108,14 +108,15 @@ Tabs.Boss:AddToggle("Arm", {
           end
 })
 -- ออโต้อามสตองฟังชั่น
-
 Tabs.Settings:AddSection("Auto Equip")
-getgenv().SelectedToolTypes = nil
+
+getgenv().SelectedToolTypes = {}
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
-    Title = "Select weapon",
+    Title = "Select weapon types",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Default = 1
+    Multi = true,
+    Default = {}
 })
 
 ToolTypeDropdown:OnChanged(function(selectedTypes)
@@ -123,32 +124,41 @@ ToolTypeDropdown:OnChanged(function(selectedTypes)
 end)
 
 Tabs.Settings:AddToggle("eq", {
-    Title = "Auto Equip",
+    Title = "Auto Equip (Multi)",
     Default = false,
     Callback = function(eq)
         getgenv().equip = eq
     end
 })
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-local player = game:GetService("Players").LocalPlayer
-local backpack = player.Backpack
-local character = player.Character
+local function getCharacter()
+    return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+end
+
+local function isValidTool(tool)
+    if not tool:IsA("Tool") then return false end
+    local tType = tool:GetAttribute("Type")
+    return tType and table.find(getgenv().SelectedToolTypes, tType)
+end
 
 task.spawn(function()
-    pcall(function()
-        while task.wait(0.5) do
-            if getgenv().equip then
-                for _,Tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                    local ToolType = Tool:GetAttribute("Type")
-                    if getgenv().SelectedToolTypes == ToolType then
-                        character.Humanoid:EquipTool(Tool)
-                        break
+    while task.wait(0.3) do
+        pcall(function()
+            if getgenv().equip and type(getgenv().SelectedToolTypes) == "table" then
+                local character = getCharacter()
+                local backpack = LocalPlayer:WaitForChild("Backpack")
+
+                for _, tool in ipairs(backpack:GetChildren()) do
+                    if isValidTool(tool) and not character:FindFirstChild(tool.Name) then
+                        tool.Parent = character -- 👈 ใส่เข้า Character ตรงๆ
                     end
                 end
             end
-        end
-    end)
+        end)
+    end
 end)
 Tabs.Settings:AddSection("Auto Click")
 
