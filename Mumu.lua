@@ -14,6 +14,7 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "box" }),
+    Boss = Window:AddTab({ Title = "Boss", Icon = "apple" }),
     Dungeon = Window:AddTab({ Title = "Dungeon", Icon = "bookmark" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
     other = Window:AddTab({ Title = "other", Icon = "banana" })
@@ -30,7 +31,8 @@ local VirtualUser = game:GetService("VirtualUser")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local Humanoid = character:WaitForChild("Humanoid")
 
--- ดีคับ
+-- เช็ค
+
 
 --ควย
 local Distance = 20
@@ -81,29 +83,38 @@ Tabs.AutoFarm:AddToggle("AF", {
     end
 })
 
-Tabs.AutoFarm:AddInput("Distance", {
+Tabs.AutoFarm:AddSlider("Dis", {
     Title = "Distance",
-    Default = Distance,
-    Numeric = true,
-    Finished = true,
+    Default = 20,
+    Min = 0,
+    Max = 100,
+    Rounding = 1,
     Callback = function(Dis)
         Dis = tonumber(Dis)
-        if Dis and Dis >= 1 and Dis <= 100 then
-            Distance = Dis
+            if Dis and Dis >= 1 and Dis <= 100 then
+                Distance = Dis
         end
     end
 })
 
-Tabs.AutoFarm:AddSection("Auto Boss")
+Tabs.Boss:AddSection("Auto Boss")
 
---lllllllllsslsl
+getgenv().Arm = false
+Tabs.Boss:AddToggle("Arm", {
+    Title = "Auto ArmStrong"
+    Default = false,
+    Callback = function(Arm)
+         getgenv().Arm = Arm
+})
+-- ออโต้อามสตองฟังชั่น
+
+Tabs.Settings:AddSection("Auto Equip")
 getgenv().SelectedToolTypes = nil
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
     Default = 1
-    Multi = true
 })
 
 ToolTypeDropdown:OnChanged(function(selectedTypes)
@@ -156,34 +167,6 @@ Tabs.Settings:AddToggle("click", {
         end
     end
 })
-
-local env = getgenv()
-env.b = false
-
-local Haki = Tabs.Settings:AddToggle("AutoHaki", {
-    Title = "Auto Haki",
-    Default = false
-})
-
-local function pressHaki()
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.J, false, game)
-    task.wait(0.1)
-    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.J, false, game)
-end
-
-Haki:OnChanged(function(value)
-    env.b = value
-    if value and Player.Character then
-        pressHaki()
-    end
-end)
-
-Player.CharacterAdded:Connect(function(v)
-    task.wait(2)
-    if env.b then
-        pressHaki()
-    end
-end)
 
 Tabs.Settings:AddSection("Auto Skill")
 
@@ -295,3 +278,7 @@ Tabs.Dungeon:AddButton({
         game:GetService("TeleportService"):Teleport(placeId)
     end
 })
+
+
+
+
