@@ -101,10 +101,11 @@ Tabs.Boss:AddSection("Auto Boss")
 
 getgenv().Arm = false
 Tabs.Boss:AddToggle("Arm", {
-    Title = "Auto ArmStrong"
+    Title = "Auto ArmStrong",
     Default = false,
     Callback = function(Arm)
          getgenv().Arm = Arm
+          end
 })
 -- ออโต้อามสตองฟังชั่น
 
@@ -248,7 +249,6 @@ Tabs.Dungeon:AddToggle("Dungeon", {
                     if hpPercent <= getgenv().SafeHPPercent then
                         hrp.CFrame = hrp.CFrame + Vector3.new(0, 100, 0)
                         task.wait(1)
-                        continue
                     end
                 end
 
@@ -278,7 +278,3 @@ Tabs.Dungeon:AddButton({
         game:GetService("TeleportService"):Teleport(placeId)
     end
 })
-
-
-
-
