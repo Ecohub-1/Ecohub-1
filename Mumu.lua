@@ -142,41 +142,48 @@ Tabs.Boss:AddToggle("Arm", {
 })
 
 Tabs.Settings:AddSection("Auto Equip")
+```lua
+getgenv().SelectedToolTypes = nil
 
-getgenv().selectedTypes = {} 
-getgenv().autoEquipEnabled = false  
-
-Tabs.Settings:AddDropdown("se", {
-    Title = "Select Weapon",
+local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
+    Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Multi = true,
-    Default = {},
-    Callback = function(v)
-        getgenv().selectedTypes = v
-    end
+    Default = 1
 })
+
+ToolTypeDropdown:OnChanged(function(selectedTypes)
+    getgenv().SelectedToolTypes = selectedTypes
+end)
 
 Tabs.Settings:AddToggle("eq", {
     Title = "Auto Equip",
     Default = false,
-    Callback = function(state)
-        getgenv().autoEquipEnabled = state
+    Callback = function(eq)
+        getgenv().equip = eq
+    end
+})
 
-        if state then
-            task.spawn(function()
-                while getgenv().autoEquipEnabled and task.wait(1) do
-                    for _, tool in pairs(Backpack:GetChildren()) do
-                        local toolType = tool:GetAttribute("Type")
-                        if table.find(getgenv().selectedTypes, toolType) then
-                            character.Humanoid:EquipTool(tool)
-                            break
-                        end
+
+local player = game:GetService("Players").LocalPlayer
+local backpack = player.Backpack
+local character = player.Character
+
+task.spawn(function()
+    pcall(function()
+        while task.wait(0.5) do
+            if getgenv().equip then
+                for i,Tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                    local ToolType = Tool:GetAttribute("Type")
+                    if getgenv().SelectedToolTypes == ToolType then
+                        character.Humanoid:EquipTool(Tool)
+                        break
                     end
                 end
-            end)
+            end
         end
-    end
-})          
+    end)
+end)
+```
 Tabs.Settings:AddSection("Auto Click")
 
 getgenv().click = false
