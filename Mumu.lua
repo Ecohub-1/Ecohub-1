@@ -164,7 +164,6 @@ Tabs.Settings:AddToggle("eq", {
                 task.spawn(function()
                     while getgenv().eq and task.wait(0.1) do
                        for i, Tool in pairs(Backpack:GetChildren()) do
-                            if Tool:IsA("Tool") and table.find(getgenv().eq, Tool.Name) then
                             local ToolType = Tool:GetAttribute("Type")
                             if getgenv().se == ToolType then
                                 character.Humanoid:EquipTool(Tool)
