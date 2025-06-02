@@ -142,16 +142,17 @@ Tabs.Boss:AddToggle("Arm", {
 })
 
 Tabs.Settings:AddSection("Auto Equip")
-getgenv().SelectedToolTypes = nil
+getgenv().SelectedToolTypes = {"Melee"}
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Multi = true, 
-    Default = 1
+    Multi = true, -- ✅ ต้องรองรับเลือกหลายค่า
+    Default = {"Melee"}
 })
 
 ToolTypeDropdown:OnChanged(function(selected)
+    -- ✅ บาง UI อาจส่ง string ถ้าเลือกแค่อันเดียว
     if typeof(selected) == "string" then
         getgenv().SelectedToolTypes = {selected}
     else
@@ -172,6 +173,7 @@ local player = Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
 local character = player.Character or player.CharacterAdded:Wait()
 
+-- อัปเดต character เมื่อ respawn
 player.CharacterAdded:Connect(function(newChar)
     character = newChar
 end)
@@ -181,7 +183,8 @@ task.spawn(function()
         pcall(function()
             if getgenv().equip and typeof(getgenv().SelectedToolTypes) == "table" then
                 for _, Tool in ipairs(backpack:GetChildren()) do
-                    local ToolType = Tool:GetAttribute("Type") 
+                    local ToolType = Tool:GetAttribute("Type")
+                    print("Checking:", Tool.Name, "Type:", ToolType) -- ✅ debug
                     if ToolType then
                         for _, Selected in ipairs(getgenv().SelectedToolTypes) do
                             if ToolType == Selected then
