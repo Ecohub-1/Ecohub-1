@@ -38,7 +38,6 @@ local Humanoid = character:WaitForChild("Humanoid")
 local Distance = 20
 local selectedMob = nil
 getgenv().AF = false
-getgenv().Ar = false
 
 local Player = game.Players.LocalPlayer
 
@@ -133,7 +132,7 @@ Tabs.AutoFarm:AddSlider("Dis", {
 })
 
 Tabs.Boss:AddSection("Auto Boss")
-
+getgenv().Ar = false
 Tabs.Boss:AddToggle("Arm", {
     Title = "Auto ArmStrong",
     Default = false,
@@ -143,46 +142,42 @@ Tabs.Boss:AddToggle("Arm", {
 })
 
 Tabs.Settings:AddSection("Auto Equip")
-getgenv().SelectedToolTypes = nil
 
-local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
-    Title = "Select weapon",
+getgenv().se = {}
+getgenv().eq = false
+
+Tabs.Settings:AddDropdown("se", {
+    Title = "Select Weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Default = 1
+    Multi = true,
+    Default = {},
+    Callback = function(v)
+        getgenv().eq = v
+    end
 })
-
-ToolTypeDropdown:OnChanged(function(selectedTypes)
-    getgenv().SelectedToolTypes = selectedTypes
-end)
-
 Tabs.Settings:AddToggle("eq", {
     Title = "Auto Equip",
     Default = false,
     Callback = function(eq)
-        getgenv().equip = eq
-    end
-})
-
-
-local player = game:GetService("Players").LocalPlayer
-local backpack = player.Backpack
-local character = player.Character
-
-task.spawn(function()
-    pcall(function()
-        while task.wait(0.5) do
-            if getgenv().equip then
-                for i,Tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                    local ToolType = Tool:GetAttribute("Type")
-                    if getgenv().SelectedToolTypes == ToolType then
-                        character.Humanoid:EquipTool(Tool)
-                        break
-                    end
+     getgenv().eq = eq
+            if eq then
+                task.spawn(function()
+                    while getgenv().eq and task.wait(0.1) do
+                       for i, Tool in pairs(Backpack:GetChildren()) do
+                            if Tool:IsA("Tool") and table.find(getgenv().eq, Tool.Name) then
+                            local ToolType = Tool:GetAttribute("Type")
+                            if getgenv().se == ToolType then
+                                character.Humanoid:EquipTool(Tool)
+                                            break
+                                    end
+                                end
+                            end
+                        end
+                    end)
                 end
             end
-        end
-    end)
-end)
+    })
+            
 Tabs.Settings:AddSection("Auto Click")
 
 getgenv().click = false
