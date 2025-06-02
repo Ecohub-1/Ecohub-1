@@ -142,12 +142,13 @@ Tabs.Boss:AddToggle("Arm", {
 })
 
 Tabs.Settings:AddSection("Auto Equip")
-getgenv().SelectedToolTypes = nil
+getgenv().SelectedToolTypes = {"Melee"} 
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Default = 1
+    Multi = true,
+    Default = {"Melee"}
 })
 
 ToolTypeDropdown:OnChanged(function(selectedTypes)
@@ -162,25 +163,35 @@ Tabs.Settings:AddToggle("eq", {
     end
 })
 
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local backpack = player:WaitForChild("Backpack")
+local character = player.Character or player.CharacterAdded:Wait()
 
-local player = game:GetService("Players").LocalPlayer
-local backpack = player.Backpack
-local character = player.Character
+player.CharacterAdded:Connect(function(newChar)
+    character = newChar
+end)
 
 task.spawn(function()
-    pcall(function()
-        while task.wait(1.5) do
-            if getgenv().equip then
-                for i,Tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+    while task.wait(1.5) do
+        pcall(function()
+            if getgenv().equip and type(getgenv().SelectedToolTypes) == "table" then
+                for _, Tool in ipairs(backpack:GetChildren()) do
                     local ToolType = Tool:GetAttribute("Type")
-                    if getgenv().SelectedToolTypes == ToolType then
-                        character.Humanoid:EquipTool(Tool)
-                        break
+                    if ToolType then
+                        for _, Selected in ipairs(getgenv().SelectedToolTypes) do
+                            if ToolType == Selected then
+                                if character and character:FindFirstChild("Humanoid") then
+                                    character.Humanoid:EquipTool(Tool)
+                                end
+                                break
+                            end
+                        end
                     end
                 end
             end
-        end
-    end)
+        end)
+    end
 end)
 Tabs.Settings:AddSection("Auto Click")
 
