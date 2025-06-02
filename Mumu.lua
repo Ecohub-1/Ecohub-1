@@ -142,7 +142,6 @@ Tabs.Boss:AddToggle("Arm", {
 })
 
 Tabs.Settings:AddSection("Auto Equip")
-```lua
 getgenv().SelectedToolTypes = nil
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
@@ -183,7 +182,6 @@ task.spawn(function()
         end
     end)
 end)
-```
 Tabs.Settings:AddSection("Auto Click")
 
 getgenv().click = false
