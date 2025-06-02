@@ -142,22 +142,25 @@ Tabs.Boss:AddToggle("Arm", {
 })
 
 Tabs.Settings:AddSection("Auto Equip")
-getgenv().SelectedToolTypes = {}
+getgenv().SelectedToolTypes = nil
+
+local player = game:GetService("Players").LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+player.CharacterAdded:Connect(function(char)
+    character = char
+    humanoid = char:WaitForChild("Humanoid")
+end)
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
-    Multi = true, -- ✅ ต้องรองรับเลือกหลายค่า
-    Default = {}
+    Default = 1
 })
 
-ToolTypeDropdown:OnChanged(function(selected)
-    -- ✅ บาง UI อาจส่ง string ถ้าเลือกแค่อันเดียว
-    if typeof(selected) == "string" then
-        getgenv().SelectedToolTypes = {selected}
-    else
-        getgenv().SelectedToolTypes = selected
-    end
+ToolTypeDropdown:OnChanged(function(selectedType)
+    getgenv().SelectedToolTypes = selectedType
 end)
 
 Tabs.Settings:AddToggle("eq", {
@@ -168,31 +171,15 @@ Tabs.Settings:AddToggle("eq", {
     end
 })
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local backpack = player:WaitForChild("Backpack")
-local character = player.Character or player.CharacterAdded:Wait()
-
--- อัปเดต character เมื่อ respawn
-player.CharacterAdded:Connect(function(newChar)
-    character = newChar
-end)
-
 task.spawn(function()
-    while task.wait(1.5) do
+    while task.wait(0.5) do
         pcall(function()
-            if getgenv().equip and typeof(getgenv().SelectedToolTypes) == "table" then
-                for _, Tool in ipairs(backpack:GetChildren()) do
-                    local ToolType = Tool:GetAttribute("Type")
-                    if ToolType then
-                        for _, Selected in ipairs(getgenv().SelectedToolTypes) do
-                            if ToolType == Selected then
-                                if character and character:FindFirstChild("Humanoid") then
-                                    character.Humanoid:EquipTool(Tool)
-                                end
-                                break
-                            end
-                        end
+            if getgenv().equip and getgenv().SelectedToolTypes and humanoid then
+                for _, tool in pairs(player.Backpack:GetChildren()) do
+                    local toolType = tool:GetAttribute("Type")
+                    if toolType == getgenv().SelectedToolTypes then
+                        humanoid:EquipTool(tool)
+                        break
                     end
                 end
             end
