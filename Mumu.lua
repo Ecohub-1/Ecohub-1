@@ -142,13 +142,13 @@ Tabs.Boss:AddToggle("Arm", {
 })
 
 Tabs.Settings:AddSection("Auto Equip")
-getgenv().SelectedToolTypes = {"Melee"}
+getgenv().SelectedToolTypes = {}
 
 local ToolTypeDropdown = Tabs.Settings:AddDropdown("ToolType", {
     Title = "Select weapon",
     Values = {"Melee", "Sword", "DevilFruit", "Special"},
     Multi = true, -- ✅ ต้องรองรับเลือกหลายค่า
-    Default = {"Melee"}
+    Default = {}
 })
 
 ToolTypeDropdown:OnChanged(function(selected)
@@ -184,7 +184,6 @@ task.spawn(function()
             if getgenv().equip and typeof(getgenv().SelectedToolTypes) == "table" then
                 for _, Tool in ipairs(backpack:GetChildren()) do
                     local ToolType = Tool:GetAttribute("Type")
-                    print("Checking:", Tool.Name, "Type:", ToolType) -- ✅ debug
                     if ToolType then
                         for _, Selected in ipairs(getgenv().SelectedToolTypes) do
                             if ToolType == Selected then
