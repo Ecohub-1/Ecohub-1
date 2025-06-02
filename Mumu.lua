@@ -162,7 +162,7 @@ Tabs.Settings:AddToggle("eq", {
      getgenv().eq = eq
             if eq then
                 task.spawn(function()
-                    while getgenv().eq and task.wait(0.1) do
+                    while getgenv().eq and task.wait(1) do
                        for i, Tool in pairs(Backpack:GetChildren()) do
                             local ToolType = Tool:GetAttribute("Type")
                             if getgenv().se == ToolType then
