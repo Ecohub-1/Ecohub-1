@@ -169,7 +169,7 @@ local character = player.Character
 
 task.spawn(function()
     pcall(function()
-        while task.wait(0.5) do
+        while task.wait(1.5) do
             if getgenv().equip then
                 for i,Tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
                     local ToolType = Tool:GetAttribute("Type")
