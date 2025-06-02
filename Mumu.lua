@@ -143,8 +143,8 @@ Tabs.Boss:AddToggle("Arm", {
 
 Tabs.Settings:AddSection("Auto Equip")
 
-getgenv().se = {}
-getgenv().eq = false
+getgenv().selectedTypes = {} 
+getgenv().autoEquipEnabled = false  
 
 Tabs.Settings:AddDropdown("se", {
     Title = "Select Weapon",
@@ -152,31 +152,31 @@ Tabs.Settings:AddDropdown("se", {
     Multi = true,
     Default = {},
     Callback = function(v)
-        getgenv().eq = v
+        getgenv().selectedTypes = v
     end
 })
+
 Tabs.Settings:AddToggle("eq", {
     Title = "Auto Equip",
     Default = false,
-    Callback = function(eq)
-     getgenv().eq = eq
-            if eq then
-                task.spawn(function()
-                    while getgenv().eq and task.wait(1) do
-                       for i, Tool in pairs(Backpack:GetChildren()) do
-                            local ToolType = Tool:GetAttribute("Type")
-                            if getgenv().se == ToolType then
-                                character.Humanoid:EquipTool(Tool)
-                                            break
-                                    end
-                                end
-                            end
+    Callback = function(state)
+        getgenv().autoEquipEnabled = state
+
+        if state then
+            task.spawn(function()
+                while getgenv().autoEquipEnabled and task.wait(1) do
+                    for _, tool in pairs(Backpack:GetChildren()) do
+                        local toolType = tool:GetAttribute("Type")
+                        if table.find(getgenv().selectedTypes, toolType) then
+                            character.Humanoid:EquipTool(tool)
+                            break
                         end
-                    end)
+                    end
                 end
-            end
-    })
-            
+            end)
+        end
+    end
+})          
 Tabs.Settings:AddSection("Auto Click")
 
 getgenv().click = false
