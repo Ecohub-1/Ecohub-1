@@ -10,7 +10,7 @@ local player = game.Players.LocalPlayer
 local userId = player.UserId
 
 -- 🔹 ตั้งค่า Service และ Panda API Key
-local serviceName = "MyRobloxService" -- แก้เป็นชื่อ Service จริง
+local serviceName = "mangkudhub" -- แก้เป็นชื่อ Service จริง
 local apiKey = "4d6360878bd4d246723b4cbd40636852575ffde272cad24d348c37170e45c74e"
 
 -- 🔹 URL สำหรับ validate key และผูกกับ UserId
