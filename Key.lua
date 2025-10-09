@@ -3,7 +3,7 @@
 -- ==========================
 
 getgenv().key = getgenv().key or "" -- ใส่คีย์ของผู้ใช้ตรงนี้ (หรือให้ผู้ใช้กรอกเอง)
-local API_TOKEN = "HoF5fzQKuNXmH6immZABuXUX460U3qxH" -- Vanguard API Token
+local API_TOKEN = "a7afc66a5753f44c774acb36f7045fcaa91bb31301d5f7314d4b25407a765d25" -- Vanguard API Token
 local VERIFY_URL = "https://api.pandadevelopment.net/v1/auth/verify" -- API ตรวจคีย์ของ Panda
 local REMOTE_SCRIPT_URL = "https://raw.githubusercontent.com/Ecohub-1/Ecohub-1/refs/heads/main/money.lua"
 
